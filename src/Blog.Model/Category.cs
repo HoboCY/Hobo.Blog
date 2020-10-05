@@ -9,11 +9,6 @@ namespace Blog.Model
     [Table("category")]
     public class Category
     {
-        public Category()
-        {
-            PostCategories = new List<PostCategory>();
-        }
-
         [Required]
         [Column("id", TypeName = "varchar(100)")]
         public Guid Id { get; set; }
@@ -52,6 +47,6 @@ namespace Blog.Model
         [Column("deletion_time")]
         public DateTime? DeletionTime { get; set; }
 
-        public virtual List<PostCategory> PostCategories { get; set; }
+        public virtual AppUser Creator { get; set; }
     }
 }

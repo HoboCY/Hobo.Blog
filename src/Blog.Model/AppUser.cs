@@ -55,7 +55,15 @@ namespace Blog.Model
         [Column("last_modification_time")]
         public DateTime? LastModificationTime { get; set; }
 
+        [Column("last_modifier_id", TypeName = "varchar(100)")]
+        public Guid? LastModifierId { get; set; }
+
         [Column("last_login_time")]
         public DateTime? LastLoginTime { get; set; }
+
+        [Required]
+        [Column("status")]
+        public bool Status { get; set; }
+
     }
 }

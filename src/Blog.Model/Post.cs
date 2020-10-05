@@ -12,7 +12,6 @@ namespace Blog.Model
         public Post()
         {
             PostCategories = new List<PostCategory>();
-            Comments = new List<Comment>();
         }
 
         [Required]
@@ -28,6 +27,10 @@ namespace Blog.Model
         [Required]
         [Column("content", TypeName = "longtext")]
         public string Content { get; set; }
+
+        [Required]
+        [Column("content_abstract",TypeName = "varchar(255)")]
+        public string ContentAbstract { get; set; }
 
         [Required]
         [Column("creator_id", TypeName = "varchar(100)")]
@@ -49,6 +52,6 @@ namespace Blog.Model
 
         public virtual List<PostCategory> PostCategories { get; set; }
 
-        public virtual List<Comment> Comments { get; set; }
+        public virtual AppUser Creator { get; set; }
     }
 }

@@ -6,44 +6,45 @@ using System.Text;
 
 namespace Blog.Model
 {
-    [Table("comment")]
-    public class Comment
+    [Table("role")]
+    public class Role
     {
-        public Comment()
-        {
-            CommentReply = new List<CommentReply>();
-        }
-
         [Required]
         [Column("id", TypeName = "varchar(100)")]
         public Guid Id { get; set; }
 
         [Required]
-        [Column("post_id", TypeName = "varchar(100)")]
-        public Guid PostId { get; set; }
+        [Column("name")]
+        public string Name { get; set; }
 
         [Required]
-        [Column("comment_content")]
-        [MaxLength(250)]
-        public string CommentContent { get; set; }
-
-        [Required]
-        [Column("creator_id", TypeName = "varchar(100)")]
-        public Guid CreatorId { get; set; }
+        [Column("normalized_name")]
+        public string NormalizedName { get; set; }
 
         [Required]
         [Column("creation_time")]
         public DateTime CreationTime { get; set; }
 
         [Required]
+        [Column("creator_id", TypeName = "varchar(100)")]
+        public Guid CreatorId { get; set; }
+
+        [Column("last_modification_time")]
+        public DateTime? LastModificationTime { get; set; }
+
+        [Column("last_modifier_id", TypeName = "varchar(100)")]
+        public Guid? LastModifierId { get; set; }
+
+        [Required]
         [Column("is_deleted")]
         public bool IsDeleted { get; set; }
+
+        [Column("deleter_id", TypeName = "varchar(100)")]
+        public Guid? DeleterId { get; set; }
 
         [Column("deletion_time")]
         public DateTime? DeletionTime { get; set; }
 
         public virtual AppUser Creator { get; set; }
-
-        public virtual List<CommentReply> CommentReply { get; set; }
     }
 }

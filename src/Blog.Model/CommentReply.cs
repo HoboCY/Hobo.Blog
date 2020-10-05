@@ -37,7 +37,7 @@ namespace Blog.Model
         [Column("deletion_time")]
         public DateTime? DeletionTime { get; set; }
 
-        public virtual AppUser AppUser { get; set; }
+        public virtual AppUser Creator { get; set; }
 
         public virtual Comment Comment { get; set; }
     }

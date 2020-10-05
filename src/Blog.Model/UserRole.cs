@@ -6,16 +6,14 @@ using System.Text;
 
 namespace Blog.Model
 {
-    [Table("post_category")]
-    public class PostCategory
+    [Table("user_role")]
+    public class UserRole
     {
         [Required]
-        [Column("category_id", TypeName = "varchar(100)")]
-        public Guid CategoryId { get; set; }
+        [Column("user_id", TypeName = "varchar(100)")]
+        public Guid UserId { get; set; }
 
-        [Required]
-        [Column("post_id", TypeName = "varchar(100)")]
-        public Guid PostId { get; set; }
+        public Guid RoleId { get; set; }
 
         [Required]
         [Column("creation_time")]
@@ -35,10 +33,10 @@ namespace Blog.Model
         [Column("deletion_time")]
         public DateTime? DeletionTime { get; set; }
 
-        public virtual Post Post { get; set; }
-
-        public virtual Category Category { get; set; }
+        public virtual AppUser AppUser { get; set; }
 
         public virtual AppUser Creator { get; set; }
+
+        public virtual Role Role { get; set; }
     }
 }
