@@ -2,12 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Blog.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Blog.MVC
 {
@@ -20,9 +24,27 @@ namespace Blog.MVC
 
         public IConfiguration Configuration { get; }
 
+        public static readonly ILoggerFactory EFLoggerFactory
+    = LoggerFactory.Create(builder => { builder.AddConsole(); });
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/admin/login";
+                    options.LogoutPath = "/admin/logout";
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                });
+
+            services.AddDbContext<BlogDbContext>(options =>
+            {
+                options.UseMySql(Configuration.GetConnectionString("Default"), x => x.MigrationsAssembly("Blog.Data"));
+                options.UseLoggerFactory(EFLoggerFactory);
+                options.UseLazyLoadingProxies();
+            });
+
             services.AddControllersWithViews();
         }
 
