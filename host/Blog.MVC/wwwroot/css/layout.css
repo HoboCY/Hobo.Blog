@@ -1,0 +1,13 @@
+﻿a.navbar-brand {
+    font-size: 3rem;
+}
+
+.navbar-nav, .dropdown-item {
+    font-size: 1.5rem;
+}
+
+.form-group,
+.form-control,
+.btn {
+    font-size: 1.5rem;
+}

@@ -25,6 +25,11 @@ namespace Blog.Model
         [Column("normalized_username")]
         public string NormalizedUsername { get; set; }
 
+        [MaxLength(50)]
+        [MinLength(4)]
+        [Column("nick_name")]
+        public string NickName { get; set; }
+
         [Required]
         [MaxLength(100)]
         [Column("password")]

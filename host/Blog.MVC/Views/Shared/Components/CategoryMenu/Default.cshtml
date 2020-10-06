@@ -1,0 +1,10 @@
+﻿@model IReadOnlyList<CategoryViewModel>
+@if (Model != null || Model.Count > 0)
+{
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        @foreach (var category in Model)
+        {
+            <a class="dropdown-item" href="#">@category.NormalizedCategoryName</a>
+        }
+    </div>
+}
