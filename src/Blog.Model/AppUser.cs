@@ -69,6 +69,5 @@ namespace Blog.Model
         [Required]
         [Column("status")]
         public bool Status { get; set; }
-
     }
 }

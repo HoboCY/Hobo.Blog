@@ -2,10 +2,8 @@
 @{
     ViewData["Title"] = "Login Page";
 }
-
-<div class="container">
-    <h1>Hobo's Blog</h1>
-    <form method="post" asp-controller="Admin" asp-action="Login">
+<div class="row">
+    <form class="login-form" method="post" asp-controller="Admin" asp-action="Login">
         <div class="form-group">
             <label asp-for="Email">Email Address</label>
             <input class="form-control" asp-for="Email" aria-describedby="emailHelp">

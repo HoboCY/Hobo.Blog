@@ -1,0 +1,23 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Identity
+
+@inject IHttpContextAccessor HttpContextAccessor
+
+
+@if (HttpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
+{
+    <ul class="nav nav-pills">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@User.Identity.Name</a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" asp-controller="User" asp-action="Profile">Profile</a>
+                <a class="dropdown-item" asp-controller="Admin" asp-action="Logout">Logout</a>
+            </div>
+        </li>
+    </ul>
+}
+else
+{
+    <a class="btn btn-light ml-xl-5 mr-5" asp-controller="Admin" asp-action="Login">Login</a>
+    <a class="btn btn-success" asp-controller="Admin" asp-action="SignUp">SignUp</a>
+}

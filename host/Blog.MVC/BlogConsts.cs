@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Blog.MVC
 {
-    public class BlogConsts
+    public static class BlogConsts
     {
         public const string PasswordSalt = "HoboBlogPasswordSalt";
     }

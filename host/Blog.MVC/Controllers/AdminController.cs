@@ -51,24 +51,28 @@ namespace Blog.MVC.Controllers
                     ModelState.AddModelError("", "用户未经授权");
                     return View();
                 }
+                
                 var claims = new List<Claim>
                         {
                             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                            new Claim(ClaimTypes.Name,user.Username.ToString()),
                             new Claim(ClaimTypes.Email, user.Email)
                         };
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+                user.LastLoginTime = DateTime.Now;
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(HomeController.Index), "Home");
-
             }
             return View();
 
         }
 
-        public async void Logout()
+        public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         public async void SignUp()
