@@ -35,8 +35,8 @@ namespace Blog.MVC
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    options.LoginPath = "/admin/login";
-                    options.LogoutPath = "/admin/logout";
+                    options.LoginPath = "/account/login";
+                    options.LogoutPath = "/account/logout";
                     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
                 });
 
@@ -50,8 +50,7 @@ namespace Blog.MVC
             services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
             services.AddHttpContextAccessor();
 
-            services.AddControllersWithViews()
-                .AddRazorRuntimeCompilation();
+            services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

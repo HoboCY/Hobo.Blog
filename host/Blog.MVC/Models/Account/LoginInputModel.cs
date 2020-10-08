@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace Blog.MVC.Models
 {
-    public class LoginViewModel
+    public class LoginInputModel
     {
         [Required(ErrorMessage = "Please enter email address")]
-        [StringLength(maximumLength:50,MinimumLength =6,ErrorMessage = "Please enter an  email address with 6-50 length")]
+        [StringLength(maximumLength:50,MinimumLength =6,ErrorMessage = "Please enter an email address with 6-50 length")]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Please enter password")]
-        [StringLength(maximumLength: 20, MinimumLength = 6, ErrorMessage = "Please enter an  email address with 6-20 length")]
+        [StringLength(maximumLength: 20, MinimumLength = 6, ErrorMessage = "Please enter an password with 6-20 length")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
     }

@@ -1,9 +1,9 @@
-﻿@model LoginViewModel
+﻿@model LoginInputModel
 @{
-    ViewData["Title"] = "Login Page";
+    ViewData["Title"] = "Login";
 }
 <div class="row">
-    <form class="login-form" method="post" asp-controller="Admin" asp-action="Login">
+    <form class="login-form" method="post" asp-controller="Account" asp-action="Login">
         <div class="form-group">
             <label asp-for="Email">Email Address</label>
             <input class="form-control" asp-for="Email" aria-describedby="emailHelp">

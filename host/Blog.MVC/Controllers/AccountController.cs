@@ -14,12 +14,12 @@ using System.Threading.Tasks;
 
 namespace Blog.MVC.Controllers
 {
-    public class AdminController : Controller
+    public class AccountController : Controller
     {
-        private readonly ILogger<AdminController> _logger;
+        private readonly ILogger<AccountController> _logger;
         private readonly BlogDbContext _context;
 
-        public AdminController(ILogger<AdminController> logger, BlogDbContext context)
+        public AccountController(ILogger<AccountController> logger, BlogDbContext context)
         {
             _logger = logger;
             _context = context;
@@ -32,7 +32,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> LoginAsync(LoginInputModel model)
         {
             if (ModelState.IsValid)
             {
@@ -51,7 +51,7 @@ namespace Blog.MVC.Controllers
                     ModelState.AddModelError("", "用户未经授权");
                     return View();
                 }
-                
+
                 var claims = new List<Claim>
                         {
                             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -69,38 +69,40 @@ namespace Blog.MVC.Controllers
 
         }
 
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> LogoutAsync()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
-        public async void SignUp()
+        [HttpGet]
+        public IActionResult SignUp()
         {
-            //var user = new AppUser
-            //{
-            //    Id = Guid.NewGuid(),
-            //    Password = (BlogConsts.PasswordSalt + "123456").ToMD5(),
-            //    Username = "chenyu",
-            //    NormalizedUsername = "chenyu".ToUpper(),
-            //    Email = "1830231903@qq.com",
-            //    NormalizedEmail = "1830231903@qq.com".ToUpper(),
-            //    CreationTime = DateTime.Now,
-            //    Mobile = "13160217271",
-            //    Status = true,
-            //    NickName = "hobo"
-            //};
-            //await _context.Users.AddAsync(user);
-            var category = new Category
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SignUpAsync(SignUpInputModel input)
+        {
+            if (ModelState.IsValid)
             {
-                Id = Guid.NewGuid(),
-                CategoryName = "asp .net core",
-                NormalizedCategoryName = "asp .net core".ToUpper(),
-                CreationTime = DateTime.Now,
-                CreatorId = Guid.Parse("e712ab75-c63b-40ac-a11f-46bd942c1ffa")
-            };
-            await _context.Categories.AddAsync(category);
-            await _context.SaveChangesAsync();
+                var user = new AppUser
+                {
+                    Id = Guid.NewGuid(),
+                    Username = input.Email,
+                    Password = (BlogConsts.PasswordSalt + input.Password).ToMD5(),
+                    NormalizedUsername = input.Email.ToUpper(),
+                    Email = input.Email,
+                    NormalizedEmail = input.Email.ToUpper(),
+                    Mobile = "13160217271",
+                    CreationTime = DateTime.Now,
+                    Status = true
+                };
+                await _context.Users.AddAsync(user);
+                await _context.SaveChangesAsync();
+                await LoginAsync(new LoginInputModel { Email = user.Email, Password = input.Password });
+            }
+            return View();
         }
     }
 }
