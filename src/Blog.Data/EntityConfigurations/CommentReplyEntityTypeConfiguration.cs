@@ -11,11 +11,42 @@ namespace Blog.Data.EntityConfigurations
     {
         public void Configure(EntityTypeBuilder<CommentReply> builder)
         {
+            builder.ToTable("comment_reply");
+
             builder.HasKey(cr => cr.Id);
 
-            builder.HasOne(c => c.Creator)
+            builder.Property(cr => cr.Id)
+                .HasColumnType("varchar(50)");
+
+            builder.Property(cr => cr.CommentId)
+                .HasColumnType("varchar(50)")
+                .IsRequired();
+
+            builder.Property(cr => cr.ReplyContent)
+                .HasMaxLength(250)
+                .IsRequired();
+
+            builder.Property(cr => cr.CreatorId)
+                .HasColumnType("varchar(50)")
+                .IsRequired();
+
+            builder.Property(cr => cr.CreationTime)
+                .IsRequired();
+
+            builder.Property(cr => cr.IsDeleted)
+                .IsRequired();
+
+            builder.Property(cr => cr.DeleterId)
+                .HasColumnType("varchar(50)")
+                .IsRequired(false);
+
+            builder.Property(cr => cr.DeletionTime)
+                .IsRequired(false);
+
+            builder.HasOne(cr => cr.Creator)
                 .WithMany()
-                .HasForeignKey(c => c.CreatorId);
+                .HasForeignKey(cr => cr.CreatorId)
+                .IsRequired();
         }
     }
 }

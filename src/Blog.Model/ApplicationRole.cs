@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,17 +7,15 @@ using System.Text;
 
 namespace Blog.Model
 {
-    public class CommentReply
+    public class ApplicationRole : IdentityRole<Guid>
     {
-        public Guid Id { get; set; }
-
-        public Guid CommentId { get; set; }
-
-        public string ReplyContent { get; set; }
+        public DateTime CreationTime { get; set; }
 
         public Guid CreatorId { get; set; }
 
-        public DateTime CreationTime { get; set; }
+        public DateTime? LastModificationTime { get; set; }
+
+        public Guid? LastModifierId { get; set; }
 
         public bool IsDeleted { get; set; }
 
@@ -26,6 +25,8 @@ namespace Blog.Model
 
         public virtual ApplicationUser Creator { get; set; }
 
-        public virtual Comment Comment { get; set; }
+        public virtual ICollection<ApplicationUserRole> UserRoles { get; set; }
+
+        public virtual ICollection<ApplicationRoleClaim> RoleClaims { get; set; }
     }
 }

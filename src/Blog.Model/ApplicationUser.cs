@@ -1,0 +1,28 @@
+﻿using Microsoft.AspNetCore.Identity;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text;
+
+namespace Blog.Model
+{
+    public class ApplicationUser : IdentityUser<Guid>
+    {
+        public string NickName { get; set; }
+
+        public DateTime CreationTime { get; set; } = DateTime.Now;
+
+        public DateTime? LastModificationTime { get; set; }
+
+        public DateTime? LastLoginTime { get; set; }
+
+        public virtual ICollection<ApplicationUserClaim> Claims { get; set; }
+
+        public virtual ICollection<ApplicationUserLogin> Logins { get; set; }
+
+        public virtual ICollection<ApplicationUserToken> Tokens { get; set; }
+
+        public virtual ICollection<ApplicationUserRole> UserRoles { get; set; }
+    }
+}

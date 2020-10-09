@@ -1,5 +1,6 @@
 ﻿using Blog.Data.EntityConfigurations;
 using Blog.Model;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,14 @@ using System.Text;
 
 namespace Blog.Data
 {
-    public class BlogDbContext : DbContext
+    public class BlogDbContext : IdentityDbContext<ApplicationUser,
+        ApplicationRole,
+        Guid,
+        ApplicationUserClaim,
+        ApplicationUserRole,
+        ApplicationUserLogin,
+        ApplicationRoleClaim,
+        ApplicationUserToken>
     {
         public BlogDbContext(DbContextOptions<BlogDbContext> options) : base(options)
         {
@@ -15,21 +23,21 @@ namespace Blog.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.ApplyConfiguration(new AppUserEntityTypeConfiguration());
-            builder.ApplyConfiguration(new RoleEntityTypeConfiguration());
-            builder.ApplyConfiguration(new UserRoleEntityTypeConfiguration());
+            base.OnModelCreating(builder);
+
+            builder.ApplyConfiguration(new ApplicationUserEntityTypeConfiguration());
+            builder.ApplyConfiguration(new ApplicationRoleEntityTypeConfiguration());
+            builder.ApplyConfiguration(new ApplicationUserRoleEntityTypeConfiguration());
+            builder.ApplyConfiguration(new ApplicationUserClaimEntityTypeConfiguration());
+            builder.ApplyConfiguration(new ApplicationRoleClaimEntityTypeConfiguration());
+            builder.ApplyConfiguration(new ApplicationUserLoginEntityTypeConfiguration());
+            builder.ApplyConfiguration(new ApplicationUserTokenEntityTypeConfiguration());
             builder.ApplyConfiguration(new CategoryEntityTypeConfiguration());
             builder.ApplyConfiguration(new PostEntityTypeConfiguration());
             builder.ApplyConfiguration(new PostCategoryEntityTypeConfiguration());
             builder.ApplyConfiguration(new CommentEntityTypeConfiguration());
             builder.ApplyConfiguration(new CommentReplyEntityTypeConfiguration());
         }
-
-        public DbSet<AppUser> Users { get; set; }
-
-        public DbSet<Role> Roles { get; set; }
-
-        public DbSet<UserRole> UserRoles { get; set; }
 
         public DbSet<Post> Posts { get; set; }
 
