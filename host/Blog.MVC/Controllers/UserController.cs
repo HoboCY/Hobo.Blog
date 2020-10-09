@@ -43,7 +43,7 @@ namespace Blog.MVC.Controllers
             {
                 return NotFound();
             }
-            return View(_mapper.Map<AppUser, UserViewModel>(user));
+            return View(_mapper.Map<ApplicationUser, UserViewModel>(user));
         }
     }
 }

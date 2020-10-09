@@ -6,20 +6,21 @@ using System.Threading.Tasks;
 
 namespace Blog.MVC.Models
 {
-    public class SignUpInputModel
+    public class RegisterInputModel
     {
-        [Required(ErrorMessage = "Please enter email address")]
-        [StringLength(maximumLength: 50, MinimumLength = 6, ErrorMessage = "Please enter an email address with 6-50 length")]
-        [DataType(DataType.EmailAddress)]
+        [Required]
+        [EmailAddress]
+        [Display(Name = "Email")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Please enter password")]
-        [StringLength(maximumLength: 20, MinimumLength = 6, ErrorMessage = "Please enter an password with 6-20 length")]
+        [Required]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
+        [Display(Name = "Password")]
         public string Password { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm Password")]
+        [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
     }

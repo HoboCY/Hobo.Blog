@@ -12,7 +12,7 @@ namespace Blog.MVC
     {
         public AutoMapperProfile()
         {
-            CreateMap<AppUser, UserViewModel>();
+            CreateMap<ApplicationUser, UserViewModel>();
         }
     }
 }

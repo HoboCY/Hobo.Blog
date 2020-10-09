@@ -8,14 +8,17 @@ namespace Blog.MVC.Models
 {
     public class LoginInputModel
     {
-        [Required(ErrorMessage = "Please enter email address")]
-        [StringLength(maximumLength:50,MinimumLength =6,ErrorMessage = "Please enter an email address with 6-50 length")]
-        [DataType(DataType.EmailAddress)]
+        [Required]
+        [StringLength(maximumLength: 50, MinimumLength = 6)]
+        [EmailAddress]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Please enter password")]
-        [StringLength(maximumLength: 20, MinimumLength = 6, ErrorMessage = "Please enter an password with 6-20 length")]
+        [Required]
+        [StringLength(maximumLength: 50, MinimumLength = 6)]
         [DataType(DataType.Password)]
         public string Password { get; set; }
+
+        [Display(Name = "Remember me?")]
+        public bool RememberMe { get; set; }
     }
 }

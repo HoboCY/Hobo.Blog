@@ -4,6 +4,7 @@ using Blog.MVC.Extensions;
 using Blog.MVC.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -17,12 +18,23 @@ namespace Blog.MVC.Controllers
     public class AccountController : Controller
     {
         private readonly ILogger<AccountController> _logger;
-        private readonly BlogDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public AccountController(ILogger<AccountController> logger, BlogDbContext context)
+        public AccountController(
+            ILogger<AccountController> logger,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager)
         {
             _logger = logger;
-            _context = context;
+            _userManager = userManager;
+            _signInManager = signInManager;
+        }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
         }
 
         [HttpGet]
@@ -31,77 +43,130 @@ namespace Blog.MVC.Controllers
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> LoginAsync(LoginInputModel model)
+        [HttpGet]
+        public IActionResult Lockout()
         {
-            if (ModelState.IsValid)
-            {
-                var user = await _context.Users.SingleOrDefaultAsync(u => u.NormalizedEmail == model.Email.ToUpper());
-                if (user == null)
-                {
-                    return NotFound();
-                }
-                if (user.Password != (BlogConsts.PasswordSalt + model.Password).ToMD5())
-                {
-                    ModelState.AddModelError("", "密码错误");
-                    return View();
-                }
-                if (!user.Status)
-                {
-                    ModelState.AddModelError("", "用户未经授权");
-                    return View();
-                }
-
-                var claims = new List<Claim>
-                        {
-                            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                            new Claim(ClaimTypes.Name,user.Username.ToString()),
-                            new Claim(ClaimTypes.Email, user.Email)
-                        };
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
-                user.LastLoginTime = DateTime.Now;
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(HomeController.Index), "Home");
-            }
             return View();
-
-        }
-
-        public async Task<IActionResult> LogoutAsync()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
         [HttpGet]
-        public IActionResult SignUp()
+        public IActionResult ForgotPassword()
         {
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> SignUpAsync(SignUpInputModel input)
+        public async Task<IActionResult> LoginAsync(LoginInputModel input)
         {
             if (ModelState.IsValid)
             {
-                var user = new AppUser
+                var result = await _signInManager.PasswordSignInAsync(input.Email, input.Password, isPersistent: input.RememberMe, lockoutOnFailure: true);
+                if (result.Succeeded)
                 {
-                    Id = Guid.NewGuid(),
-                    Username = input.Email,
-                    Password = (BlogConsts.PasswordSalt + input.Password).ToMD5(),
-                    NormalizedUsername = input.Email.ToUpper(),
-                    Email = input.Email,
-                    NormalizedEmail = input.Email.ToUpper(),
-                    Mobile = "13160217271",
-                    CreationTime = DateTime.Now,
-                    Status = true
-                };
-                await _context.Users.AddAsync(user);
-                await _context.SaveChangesAsync();
-                await LoginAsync(new LoginInputModel { Email = user.Email, Password = input.Password });
+                    _logger.LogInformation("User logged in.");
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+                if (result.IsLockedOut)
+                {
+                    _logger.LogWarning("User account locked out.");
+                    return RedirectToAction(nameof(AccountController.Lockout));
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt");
+                    return View();
+                }
             }
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LogoutAsync(string returnUrl = null)
+        {
+            await _signInManager.SignOutAsync();
+            _logger.LogInformation("User logged out.");
+            if (returnUrl != null)
+            {
+                return LocalRedirect(returnUrl);
+            }
+            else
+            {
+                return View();
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RegisterAsync(RegisterInputModel input)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new ApplicationUser { UserName = input.Email, Email = input.Email };
+                var result = await _userManager.CreateAsync(user, input.Password);
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("User created a new account with password.");
+
+                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    //var callbackUrl = Url.Page(
+                    //    "/Account/ConfirmEmail",
+                    //    pageHandler: null,
+                    //    values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
+                    //    protocol: Request.Scheme);
+
+                    //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                    //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    //if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                    //{
+                    //    return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                    //}
+                    //else
+                    //{
+                    //    await _signInManager.SignInAsync(user, isPersistent: false);
+                    //    return LocalRedirect(returnUrl);
+                    //}
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction(nameof(HomeController.Index), "Home");
+                }
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPasswordAsync(ForgotPasswordInputModel input)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(input.Email);
+                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                {
+                    // Don't reveal that the user does not exist or is not confirmed
+                    //return RedirectToPage("./ForgotPasswordConfirmation");
+                }
+
+                // For more information on how to enable account confirmation and password reset please
+                // visit https://go.microsoft.com/fwlink/?LinkID=532713
+                //var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                //var callbackUrl = Url.Page(
+                //    "/Account/ResetPassword",
+                //    pageHandler: null,
+                //    values: new { area = "Identity", code },
+                //    protocol: Request.Scheme);
+
+                //await _emailSender.SendEmailAsync(
+                //    Input.Email,
+                //    "Reset Password",
+                //    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                //return RedirectToPage("./ForgotPasswordConfirmation");
+            }
+
             return View();
         }
     }
