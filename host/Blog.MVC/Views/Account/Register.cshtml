@@ -1,30 +1,7 @@
-﻿@*@model RegisterInputModel
-    @{
-        ViewData["Title"] = "Register";
-    }
-    <div class="row">
-        <form class="login-form" method="post" asp-controller="Account" asp-action="Register">
-            <div class="form-group">
-                <label asp-for="Email">Email Address</label>
-                <input class="form-control" asp-for="Email" aria-describedby="emailHelp">
-                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Password">Password</label>
-                <input class="form-control" asp-for="Password">
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ConfirmPassword"></label>
-                <input class="form-control" asp-for="ConfirmPassword">
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
-            <div style="font-size:1.5rem;" asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <button type="submit" class="btn btn-primary">SignUp</button>
-        </form>
-    </div>*@
-@model RegisterInputModel
+﻿@model RegisterInputModel
+@{
+    ViewData["Title"] = "Register";
+}
 <h1>@ViewData["Title"]</h1>
 
 <div class="row">

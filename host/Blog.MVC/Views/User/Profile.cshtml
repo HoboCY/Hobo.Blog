@@ -1,41 +1,37 @@
 ﻿@model UserViewModel
 @{
-    ViewData["title"] = "Profile";
+    ViewData["Title"] = "Profile";
 }
-<form class="profile-form">
-    <div class="form-group row">
-        <label for="username" class="col-sm-4 col-form-label">Username</label>
-        <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="username" value="@Model.Username">
-        </div>
+<h1>@ViewData["Title"]</h1>
+<div class="row">
+    <div class="col-md-4">
+        <form id="profile">
+            <h4>User Profile.</h4>
+            <hr />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Username"></label>
+                <input class="form-control" asp-for="Username" readonly>
+            </div>
+            <div class="form-group">
+                <label asp-for="NickName"></label>
+                <input class="form-control" asp-for="NickName">
+            </div>
+            <div class="form-group">
+                <label asp-for="NormalizedEmail"></label>
+                <input class="form-control" asp-for="NormalizedEmail" readonly>
+            </div>
+            <div class="form-group">
+                <label asp-for="Mobile"></label>
+                <input class="form-control" asp-for="Mobile" readonly>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastLoginTime"></label>
+                <input class="form-control" asp-for="LastLoginTime" readonly>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
     </div>
-    <div class="form-group row">
-        <label for="nickName" class="col-sm-4 col-form-label">Nick Name</label>
-        <div class="col-sm-8">
-            <input type="text" class="form-control" id="nickName" value="@Model.NickName">
-        </div>
-    </div>
-    <div class="form-group row">
-        <label for="email" class="col-sm-4 col-form-label">Email</label>
-        <div class="col-sm-8">
-            <input type="email" class="form-control-plaintext" id="email" value="@Model.NormalizedEmail" readonly>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label for="mobile" class="col-sm-4 col-form-label">Mobile</label>
-        <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="mobile" value="@Model.Mobile">
-        </div>
-    </div>
-    <div class="form-group row">
-        <label for="lastLoginTime" class="col-sm-4 col-form-label">Last Login Time</label>
-        <div class="col-sm-8">
-            <input type="text" readonly class="form-control-plaintext" id="lastLoginTime" value="@Model.LastLoginTime">
-        </div>
-    </div>
-    <div class="form-group row">
-        <div class="col-sm-8">
-            <button type="submit" class="btn btn-primary">Submit Update</button>
-        </div>
-    </div>
-</form>
+</div>

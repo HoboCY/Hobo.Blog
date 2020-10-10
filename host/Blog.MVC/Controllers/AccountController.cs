@@ -1,21 +1,16 @@
-﻿using Blog.Data;
-using Blog.Model;
-using Blog.MVC.Extensions;
+﻿using Blog.Model;
 using Blog.MVC.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Blog.MVC.Controllers
 {
-    public class AccountController : Controller
+    [AllowAnonymous]
+    public class AccountController : BlogController
     {
         private readonly ILogger<AccountController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -38,8 +33,9 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public async Task<IActionResult> LoginAsync()
         {
+            await _signInManager.SignOutAsync();
             return View();
         }
 
@@ -60,11 +56,14 @@ namespace Blog.MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(input.Email, input.Password, isPersistent: input.RememberMe, lockoutOnFailure: true);
+                var result = await _signInManager.PasswordSignInAsync(input.Email, input.Password, input.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return RedirectToAction(nameof(HomeController.Index), "Home");
+                    var user = await _userManager.GetUserAsync(User);
+                    user.LastLoginTime = DateTime.Now;
+                    await _userManager.UpdateAsync(user);
+                    return RedirectToAction(nameof(PostController.Index), "Post");
                 }
                 if (result.IsLockedOut)
                 {
@@ -114,12 +113,12 @@ namespace Blog.MVC.Controllers
                     //    values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
                     //    protocol: Request.Scheme);
 
-                    //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                    //await _emailSender.SendEmailAsync(input.Email, "Confirm your email",
                     //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                     //if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     //{
-                    //    return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                    //    return RedirectToPage("RegisterConfirmation", new { email = input.Email, returnUrl = returnUrl });
                     //}
                     //else
                     //{
@@ -127,7 +126,7 @@ namespace Blog.MVC.Controllers
                     //    return LocalRedirect(returnUrl);
                     //}
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction(nameof(HomeController.Index), "Home");
+                    return RedirectToAction(nameof(PostController.Index), "Post");
                 }
                 foreach (var error in result.Errors)
                 {
@@ -166,7 +165,6 @@ namespace Blog.MVC.Controllers
 
                 //return RedirectToPage("./ForgotPasswordConfirmation");
             }
-
             return View();
         }
     }
