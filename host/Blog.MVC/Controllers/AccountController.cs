@@ -52,7 +52,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> LoginAsync(LoginInputModel input)
+        public async Task<IActionResult> LoginAsync(LoginModel input)
         {
             if (ModelState.IsValid)
             {
@@ -60,7 +60,7 @@ namespace Blog.MVC.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    var user = await _userManager.GetUserAsync(User);
+                    var user = await _userManager.FindByEmailAsync(input.Email);
                     user.LastLoginTime = DateTime.Now;
                     await _userManager.UpdateAsync(user);
                     return RedirectToAction(nameof(PostController.Index), "Post");
@@ -95,7 +95,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RegisterAsync(RegisterInputModel input)
+        public async Task<IActionResult> RegisterAsync(RegisterModel input)
         {
             if (ModelState.IsValid)
             {
@@ -137,7 +137,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ForgotPasswordAsync(ForgotPasswordInputModel input)
+        public async Task<IActionResult> ForgotPasswordAsync(ForgotPasswordModel input)
         {
             if (ModelState.IsValid)
             {

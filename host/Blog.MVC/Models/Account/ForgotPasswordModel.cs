@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Blog.MVC.Models
 {
-    public class ForgotPasswordInputModel
+    public class ForgotPasswordModel
     {
         [Required]
         [EmailAddress]

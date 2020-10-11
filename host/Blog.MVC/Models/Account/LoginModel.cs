@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Blog.MVC.Models
 {
-    public class LoginInputModel
+    public class LoginModel
     {
         [Required]
         [StringLength(maximumLength: 50, MinimumLength = 6)]

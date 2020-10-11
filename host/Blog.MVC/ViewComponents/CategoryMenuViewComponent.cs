@@ -27,12 +27,7 @@ namespace Blog.MVC.ViewComponents
                     CategoryName = c.CategoryName,
                     NormalizedCategoryName = c.NormalizedCategoryName
                 }).ToListAsync();
-            if (categories?.Count > 0)
-            {
-                return View(categories);
-            }
-            ViewBag.ComponentErrorMessage = "Categories not found";
-            return View("~/Views/Shared/ComponentError.cshtml");
+            return View(categories);
         }
     }
 }
