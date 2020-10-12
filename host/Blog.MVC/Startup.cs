@@ -49,6 +49,7 @@ namespace Blog.MVC
             })
             .AddIdentity<ApplicationUser, ApplicationRole>()
             .AddEntityFrameworkStores<BlogDbContext>()
+            .AddDefaultUI()
             .AddDefaultTokenProviders()
             ;
 
