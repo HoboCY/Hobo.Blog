@@ -133,7 +133,9 @@ namespace Blog.MVC.Controllers
                 return View();
             }
 
-            var result = await _userManager.DeleteAsync(user);
+            user.IsDeleted = true;
+            user.DeletionTime = DateTime.Now;
+            var result = await _userManager.UpdateAsync(user);
             var userId = await _userManager.GetUserIdAsync(user);
             if (!result.Succeeded)
             {
@@ -148,7 +150,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> EmailAsync()
+        public async Task<IActionResult> EmailAsync(string statusMessage = null)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -217,8 +219,14 @@ namespace Blog.MVC.Controllers
                 TempData["StatusMessage"] = "Your email is changed.";
                 return RedirectToAction("Email");
             }
-            ViewData["StatusMessage"] = "Your email is unchanged.";
+            TempData["StatusMessage"] = "Your email is unchanged.";
             return RedirectToAction("Email");
+        }
+
+        [HttpGet]
+        public IActionResult Post()
+        {
+            return View();
         }
 
         [AllowAnonymous]

@@ -56,11 +56,16 @@ namespace Blog.MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(input.Email, input.Password, input.RememberMe, lockoutOnFailure: true);
+                var user = await _userManager.FindByNameAsync(input.Email);
+                if (user == null || user.IsDeleted)
+                {
+                    ModelState.AddModelError(string.Empty, "Username not found");
+                    return View();
+                }
+                var result = await _signInManager.PasswordSignInAsync(user, input.Password, input.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    var user = await _userManager.FindByEmailAsync(input.Email);
                     user.LastLoginTime = DateTime.Now;
                     await _userManager.UpdateAsync(user);
                     return RedirectToAction(nameof(PostController.Index), "Post");

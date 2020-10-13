@@ -17,6 +17,10 @@ namespace Blog.Model
 
         public DateTime? LastLoginTime { get; set; }
 
+        public bool IsDeleted { get; set; }
+
+        public DateTime? DeletionTime { get; set; }
+
         public virtual ICollection<ApplicationUserClaim> Claims { get; set; }
 
         public virtual ICollection<ApplicationUserLogin> Logins { get; set; }

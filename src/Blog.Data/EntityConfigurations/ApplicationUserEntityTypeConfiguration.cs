@@ -38,6 +38,8 @@ namespace Blog.Data.EntityConfigurations
             builder.Property(au => au.CreationTime).IsRequired();
             builder.Property(au => au.LastLoginTime).IsRequired(false);
             builder.Property(au => au.LastModificationTime).IsRequired(false);
+            builder.Property(au => au.IsDeleted).IsRequired();
+            builder.Property(au => au.DeletionTime).IsRequired(false);
 
             // Each User can have many UserClaims
             builder.HasMany(au => au.Claims)
