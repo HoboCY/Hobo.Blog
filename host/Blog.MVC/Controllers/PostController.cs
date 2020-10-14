@@ -20,5 +20,11 @@ namespace Blog.MVC.Controllers
         {
             return View();
         }
+
+        [HttpGet]
+        public IActionResult AddPost()
+        {
+            return View();
+        }
     }
 }

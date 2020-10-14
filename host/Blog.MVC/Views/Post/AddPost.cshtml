@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Add Post";
+    ViewData["ActivePage"] = ManageNavPages.AddPost;
+}
+<h4>@ViewData["Title"]</h4>
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+<div class="row">
+    <div class="col-md-12">
+        <div id="editor">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script type="text/javascript" src="//unpkg.com/wangeditor/dist/wangEditor.min.js"></script>
+    <script type="text/javascript" src="~/js/editor.js"></script>
+}

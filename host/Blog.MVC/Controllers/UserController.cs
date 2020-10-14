@@ -223,12 +223,6 @@ namespace Blog.MVC.Controllers
             return RedirectToAction("Email");
         }
 
-        [HttpGet]
-        public IActionResult Post()
-        {
-            return View();
-        }
-
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmailChangeAsync(string userId, string email, string code)
         {
