@@ -4,6 +4,6 @@ namespace Tencent.COS.SDK
 {
     public interface ICosService
     {
-        void Upload(byte[] data);
+        string Upload(byte[] data,string extensionName);
     }
 }

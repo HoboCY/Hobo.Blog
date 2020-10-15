@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Blog.MVC.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -28,15 +29,24 @@ namespace Blog.MVC.Controllers
             try
             {
                 var files = Request.Form.Files;
+                var result = new ImageUploadResult();
                 foreach (var file in files)
                 {
                     using (var memoryStream = new MemoryStream())
                     {
-                        await file.CopyToAsync(memoryStream);
-                        _cosService.Upload(memoryStream.ToArray());
+                        try
+                        {
+                            await file.CopyToAsync(memoryStream);
+                            var url = _cosService.Upload(memoryStream.ToArray(), Path.GetExtension(file.FileName));
+                            result.Data.Add(url);
+                        }
+                        catch (Exception ex)
+                        {
+                            result.Errno = 1;
+                        }
                     }
                 }
-                return Ok();
+                return Ok(result);
             }
             catch (Exception ex)
             {
