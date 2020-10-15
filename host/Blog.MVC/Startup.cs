@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Tencent.COS.SDK;
 
 namespace Blog.MVC
 {
@@ -77,6 +78,9 @@ namespace Blog.MVC
                 options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
                 options.SlidingExpiration = true;
             });
+
+            services.Configure<CosOptions>(Configuration.GetSection("Tencent.QCloud.CosOptions"));
+            services.AddCos();
 
             services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
             services.AddHttpContextAccessor();

@@ -299,5 +299,11 @@ namespace Blog.MVC.Controllers
             ViewData["StatusMessage"] = "Your password has been changed.";
             return View();
         }
+
+        [HttpGet]
+        public IActionResult AddPost()
+        {
+            return View();
+        }
     }
 }
