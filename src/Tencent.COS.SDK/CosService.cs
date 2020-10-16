@@ -26,7 +26,7 @@ namespace Tencent.COS.SDK
             _logger = logger;
 
             //初始化 CosXmlConfig
-            string region = "ap-shanghai"; //设置一个默认的存储桶地域
+            string region = _options.Region; //设置一个默认的存储桶地域
             CosXmlConfig config = new CosXmlConfig.Builder()
               .IsHttps(true)  //设置默认 HTTPS 请求
               .SetRegion(region)  //设置一个默认的存储桶地域
@@ -40,13 +40,13 @@ namespace Tencent.COS.SDK
             _cosXml = new CosXmlServer(config, cosCredentialProvider);
         }
 
-        public string Upload(byte[] data, string extensionName)
+        public string Upload(byte[] data, string fileName)
         {
             // 上传对象
             try
             {
                 string bucket = $"{_options.BucketName}-{_options.AppId}"; //存储桶，格式：BucketName-APPID
-                string cosPath = Guid.NewGuid().ToString() + extensionName; // 对象键
+                string cosPath = fileName; // 对象键
                 PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, cosPath, data);
 
                 _cosXml.PutObject(putObjectRequest);

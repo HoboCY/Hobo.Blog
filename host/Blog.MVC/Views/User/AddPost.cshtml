@@ -1,4 +1,5 @@
-﻿@{
+﻿@model AddPostModel
+@{
     ViewData["Title"] = "Add Post";
     ViewData["ActivePage"] = ManageNavPages.AddPost;
 }
@@ -6,8 +7,21 @@
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div class="row">
     <div class="col-md-12">
-        <div id="editor">
-        </div>
+        <form method="post" asp-controller="User" asp-action="AddPost">
+            <div class="form-group">
+                <label asp-for="Title"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div id="editor">
+                </div>
+                <span asp-validation-for="Content" class="text-danger"></span>
+                <textarea id="editor-content" asp-for="Content" class="d-lg-none d-md-none d-sm-none d-xl-none"></textarea>
+            </div>
+
+            <button id="add-post-button" type="submit" class="btn btn-primary mt-lg-5">Submit</button>
+        </form>
     </div>
 </div>
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -303,6 +304,24 @@ namespace Blog.MVC.Controllers
         [HttpGet]
         public IActionResult AddPost()
         {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddPostAsync(AddPostModel model)
+        {
+            var post = new Post
+            {
+                Id = Guid.NewGuid(),
+                Title = model.Title,
+                Content = model.Content,
+                ContentAbstract = model.Content.Substring(0, model.Content.Length - 10),
+                CreationTime = DateTime.Now,
+                CreatorId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))
+            };
+
+            await _context.Posts.AddAsync(post);
+            await _context.SaveChangesAsync();
             return View();
         }
     }
