@@ -30,7 +30,9 @@ namespace Blog.Data.Migrations
                     NickName = table.Column<string>(maxLength: 50, nullable: true),
                     CreationTime = table.Column<DateTime>(nullable: false),
                     LastModificationTime = table.Column<DateTime>(nullable: true),
-                    LastLoginTime = table.Column<DateTime>(nullable: true)
+                    LastLoginTime = table.Column<DateTime>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    DeletionTime = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -42,8 +44,8 @@ namespace Blog.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "varchar(50)", nullable: false),
-                    Name = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
+                    Name = table.Column<string>(nullable: true),
+                    NormalizedName = table.Column<string>(nullable: true),
                     ConcurrencyStamp = table.Column<string>(nullable: true),
                     CreationTime = table.Column<DateTime>(nullable: false),
                     CreatorId = table.Column<string>(type: "varchar(50)", nullable: false),
@@ -328,26 +330,9 @@ namespace Blog.Data.Migrations
                 column: "CreatorId");
 
             migrationBuilder.CreateIndex(
-                name: "RoleNameIndex",
-                table: "application_role",
-                column: "NormalizedName",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_application_role_claim_RoleId",
                 table: "application_role_claim",
                 column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "EmailIndex",
-                table: "application_user",
-                column: "NormalizedEmail");
-
-            migrationBuilder.CreateIndex(
-                name: "UserNameIndex",
-                table: "application_user",
-                column: "NormalizedUserName",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_application_user_claim_UserId",

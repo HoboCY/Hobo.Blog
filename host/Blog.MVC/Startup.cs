@@ -62,7 +62,7 @@ namespace Blog.MVC
                 options.Lockout.AllowedForNewUsers = true;
 
                 // User Settings
-                options.User.RequireUniqueEmail = true;
+                options.User.RequireUniqueEmail = false;
 
                 // SignIn Settings
                 options.SignIn.RequireConfirmedEmail = true;
@@ -85,7 +85,8 @@ namespace Blog.MVC
             services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
             services.AddHttpContextAccessor();
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                .AddRazorRuntimeCompilation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

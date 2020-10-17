@@ -308,7 +308,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddPostAsync(AddPostModel model)
+        public async Task<IActionResult> AddPostAsync(CreateOrEditModel model)
         {
             var post = new Post
             {

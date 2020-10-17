@@ -1,0 +1,56 @@
+﻿@model CreateOrEditModel
+@{
+    Layout = "_LayoutUserManage";
+    ViewData["Title"] = "Create or Edit Post";
+    ViewData["ActivePage"] = ManageNavPages.CreatePost;
+}
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script type="text/javascript" src="//unpkg.com/wangeditor/dist/wangEditor.min.js"></script>
+    <script type="text/javascript" src="~/js/editor.js" asp-append-version="true"></script>
+}
+<h4>@ViewData["Title"]</h4>
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+<div class="row">
+    <div class="col-md-12">
+        <form method="post" asp-controller="User" asp-action="AddPost">
+            <div class="row">
+                <div class="col-md-9">
+                    <div class="form-group">
+                        <label asp-for="Title"></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span class="text-danger" asp-validation-for="Title"></span>
+                    </div>
+                    <div class="form-group">
+                        <div id="editor">
+                        </div>
+                        <span class="text-danger" asp-validation-for="Content"></span>
+                        <textarea id="editor-content" asp-for="Content" class="invisible" style="width:0;height:0;"></textarea>
+                    </div>
+                    <button id="add-post-button" type="submit" class="btn btn-primary">Submit</button>
+                </div>
+                <div class="col-md-3" style="margin-top:10%;">
+                    <div class="card">
+                        <div class="card-header">
+                            Categories
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    Default checkbox
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    Default checkbox
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Blog.MVC.Models.User
 {
-    public class AddPostModel
+    public class CreateOrEditModel
     {
         [Required]
         [StringLength(50, MinimumLength = 5)]
