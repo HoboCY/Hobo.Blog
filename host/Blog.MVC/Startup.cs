@@ -62,7 +62,7 @@ namespace Blog.MVC
                 options.Lockout.AllowedForNewUsers = true;
 
                 // User Settings
-                options.User.RequireUniqueEmail = false;
+                options.User.RequireUniqueEmail = true;
 
                 // SignIn Settings
                 options.SignIn.RequireConfirmedEmail = true;

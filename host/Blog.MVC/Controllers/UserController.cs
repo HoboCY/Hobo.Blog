@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Blog.Data;
 using Blog.Model;
+using Blog.MVC.Models.Post;
 using Blog.MVC.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

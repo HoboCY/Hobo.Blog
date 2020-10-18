@@ -23,7 +23,7 @@ namespace Blog.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            //base.OnModelCreating(builder);
+            base.OnModelCreating(builder);
 
             builder.ApplyConfiguration(new ApplicationUserEntityTypeConfiguration());
             builder.ApplyConfiguration(new ApplicationRoleEntityTypeConfiguration());
