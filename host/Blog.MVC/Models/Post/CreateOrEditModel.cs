@@ -10,11 +10,9 @@ namespace Blog.MVC.Models.Post
 {
     public class CreateOrEditModel
     {
-
         public CreateOrEditModel()
         {
             Id = Guid.Empty;
-            CategoryList = new List<CheckBoxViewModel>();
         }
 
         [HiddenInput]

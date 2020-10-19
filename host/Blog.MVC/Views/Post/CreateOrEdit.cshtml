@@ -2,7 +2,7 @@
 @{
     Layout = "_LayoutUserManage";
     ViewData["Title"] = "Create or Edit Post";
-    ViewData["ActivePage"] = ManageNavPages.CreatePost;
+    ViewData["ActivePage"] = ManageNavPages.CreateOrEditPost;
 }
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
@@ -39,10 +39,10 @@
                             {
                                 @foreach (var category in Model.CategoryList)
                                 {
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="@category.Value" name="SelectedCategoryIds"
+                                    <div class="custom-control custom-checkbox">
+                                        <input id="cat-@category.Value" class="custom-control-input" type="checkbox" value="@category.Value" name="SelectedCategoryIds"
                                                @(category.IsChecked ? "checked=\"checked\"" : null)>
-                                        <label class="form-check-label" for="@category.Value">
+                                        <label class="custom-control-label" for="cat-@category.Value">
                                             @category.DisplayText
                                         </label>
                                     </div>

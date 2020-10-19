@@ -29,42 +29,49 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpGet]
-        public IActionResult CreateOrEdit()
+        public async Task<IActionResult> CreateOrEditAsync()
         {
-            var model = new CreateOrEditModel();
-            return View(model);
-        }
-
-
-        [HttpGet]
-        public async Task<IActionResult> Create(Guid id)
-        {
-
-            var post = await _context.Posts.SingleOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
-            if (post != null)
+            var categories = await _context.Categories.Where(c => !c.IsDeleted).ToListAsync();
+            if (categories != null)
             {
                 var model = new CreateOrEditModel
                 {
-                    Id = post.Id,
-                    Title = post.Content,
-                    Content = post.Content
+                    Id = Guid.Empty
                 };
-
-                var categories = await _context.Categories.Where(c => !c.IsDeleted).ToListAsync();
-                if (categories == null)
-                {
-                    return View("~/Views/Shared/ServerError.cshtml", "Categories has no data");
-                }
-
-                model.CategoryList = await _context.Categories.Select(c =>
-                                 new CheckBoxViewModel(
-                                     c.NormalizedCategoryName,
-                                     c.Id.ToString(),
-                                     post.PostCategories.Any(pc => pc.PostId == c.Id))).ToListAsync();
-
+                model.CategoryList = categories.Select(c =>
+                                     new CheckBoxViewModel(c.NormalizedCategoryName, c.Id.ToString(), false)).ToList();
                 return View(model);
             }
-            return View();
+            return View("~/Views/Shared/ServerError.cshtml", "Categories has no data");
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> CreateOrEditAsync(Guid id)
+        {
+            var model = new CreateOrEditModel();
+            if (id != null)
+            {
+                var post = await _context.Posts.SingleOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+                if (post != null)
+                {
+                    model.Id = post.Id;
+                    model.Title = post.Content;
+                    model.Content = post.Content;
+
+                    var categories = await _context.Categories.ToListAsync();
+                    if (categories == null)
+                    {
+                        return View("~/Views/Shared/ServerError.cshtml", "Categories has no data");
+                    }
+                    model.CategoryList = categories.Select(c =>
+                                     new CheckBoxViewModel(
+                                         c.NormalizedCategoryName,
+                                         c.Id.ToString(),
+                                         post.PostCategories.Any(pc => pc.PostId == c.Id))).ToList();
+                    return View(model);
+                }
+            }
+            return View(model);
         }
     }
 }

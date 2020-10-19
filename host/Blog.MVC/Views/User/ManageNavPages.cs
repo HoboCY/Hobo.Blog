@@ -18,7 +18,7 @@ namespace Blog.MVC.Views.User
 
         public static string PersonalData => "PersonalData";
 
-        public static string CreatePost => "CreatePost";
+        public static string CreateOrEditPost => "CreateOrEditPost";
 
         public static string IndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, Index);
 
@@ -30,7 +30,7 @@ namespace Blog.MVC.Views.User
 
         public static string PersonalDataNavClass(ViewContext viewContext) => PageNavClass(viewContext, PersonalData);
 
-        public static string CreatePostNavClass(ViewContext viewContext) => PageNavClass(viewContext, CreatePost);
+        public static string CreatePostNavClass(ViewContext viewContext) => PageNavClass(viewContext, CreateOrEditPost);
 
         private static string PageNavClass(ViewContext viewContext, string page)
         {
