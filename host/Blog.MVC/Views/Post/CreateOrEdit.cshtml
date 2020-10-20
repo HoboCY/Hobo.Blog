@@ -13,9 +13,10 @@
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div class="row">
     <div class="col-md-12">
-        <form method="post" asp-controller="User" asp-action="AddPost">
+        <form method="post" asp-controller="Post" asp-action="CreateOrEdit">
+            <div class="text-danger" asp-validation-summary="All"></div>
             <div class="row">
-                <div class="col-md-9">
+                <div class="col-md-8">
                     <div class="form-group">
                         <label asp-for="Title"></label>
                         <input asp-for="Title" class="form-control" />
@@ -29,7 +30,7 @@
                     </div>
                     <button id="add-post-button" type="submit" class="btn btn-primary">Submit</button>
                 </div>
-                <div class="col-md-3" style="margin-top:10%;">
+                <div class="col-md-4" style="margin-top:10%;">
                     <div class="card">
                         <div class="card-header">
                             Categories

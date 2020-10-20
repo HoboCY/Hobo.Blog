@@ -9,7 +9,12 @@ namespace Blog.Model
     [Table("post")]
     public class Post
     {
-        public Guid Id { get; set; }
+        public Post()
+        {
+            PostCategories = new HashSet<PostCategory>();
+        }
+
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         public string Title { get; set; }
 
@@ -19,7 +24,7 @@ namespace Blog.Model
 
         public Guid CreatorId { get; set; }
 
-        public DateTime CreationTime { get; set; }
+        public DateTime CreationTime { get; set; } = DateTime.Now;
 
         public DateTime? LastModificationTime { get; set; }
 

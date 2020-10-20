@@ -64,6 +64,9 @@ namespace Blog.MVC
                 // User Settings
                 options.User.RequireUniqueEmail = true;
 
+                // ClaimsIdentity Settings
+                options.ClaimsIdentity.UserIdClaimType = "UserId";
+
                 // SignIn Settings
                 options.SignIn.RequireConfirmedEmail = true;
                 options.SignIn.RequireConfirmedPhoneNumber = false;
