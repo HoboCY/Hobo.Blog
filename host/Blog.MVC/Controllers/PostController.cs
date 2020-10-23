@@ -38,7 +38,7 @@ namespace Blog.MVC.Controllers
             {
                 var model = new CreateOrEditModel
                 {
-                    Id = Guid.Empty
+                    PostId = Guid.Empty
                 };
                 model.CategoryList = categories.Select(c =>
                                      new CheckBoxViewModel(c.NormalizedCategoryName, c.Id.ToString(), false)).ToList();
@@ -56,7 +56,7 @@ namespace Blog.MVC.Controllers
                 var post = await _context.Posts.SingleOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
                 if (post != null)
                 {
-                    model.Id = post.Id;
+                    model.PostId = post.Id;
                     model.Title = post.Content;
                     model.Content = post.Content;
 
@@ -87,7 +87,7 @@ namespace Blog.MVC.Controllers
                     return RedirectToAction("Login", "Account");
                 }
                 Post postToAdd = null;
-                if (model.Id == Guid.Empty)
+                if (model.PostId == Guid.Empty)
                 {
                     postToAdd = new Post
                     {
@@ -112,7 +112,7 @@ namespace Blog.MVC.Controllers
                 }
                 else
                 {
-                    postToAdd = await _context.Posts.SingleOrDefaultAsync(p => p.Id == model.Id && !p.IsDeleted);
+                    postToAdd = await _context.Posts.SingleOrDefaultAsync(p => p.Id == model.PostId && !p.IsDeleted);
                     if (postToAdd == null)
                     {
                         return View("~/Views/Shared/ServerError.cshtml", "Post not found");
@@ -134,7 +134,7 @@ namespace Blog.MVC.Controllers
                 await _context.SaveChangesAsync();
                 return Redirect($"CreateOrEdit/{postToAdd.Id}");
             }
-            return View();
+            return View(model);
         }
     }
 }

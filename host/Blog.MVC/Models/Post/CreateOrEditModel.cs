@@ -12,11 +12,11 @@ namespace Blog.MVC.Models.Post
     {
         public CreateOrEditModel()
         {
-            Id = Guid.Empty;
+            PostId = Guid.Empty;
         }
 
         [HiddenInput]
-        public Guid Id { get; set; }
+        public Guid PostId { get; set; }
 
         [Required(ErrorMessage = "Please enter a title.")]
         [StringLength(50, MinimumLength = 5)]
@@ -30,6 +30,6 @@ namespace Blog.MVC.Models.Post
         public string Content { get; set; }
 
         [Required(ErrorMessage = "Please select at least one category.")]
-        public List<Guid> SelectedCategoryIds { get; set; }
+        public Guid[] SelectedCategoryIds { get; set; }
     }
 }
