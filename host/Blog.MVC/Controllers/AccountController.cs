@@ -130,7 +130,7 @@ namespace Blog.MVC.Controllers
                     //    await _signInManager.SignInAsync(user, isPersistent: false);
                     //    return LocalRedirect(returnUrl);
                     //}
-                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    //await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction(nameof(PostController.Index), "Post");
                 }
                 foreach (var error in result.Errors)
