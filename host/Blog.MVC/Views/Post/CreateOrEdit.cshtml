@@ -7,21 +7,37 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script type="text/javascript" src="//unpkg.com/wangeditor/dist/wangEditor.min.js"></script>
-    <script type="text/javascript" src="~/js/editor.js" asp-append-version="true"></script>
+    <script src="https://rawgit.com/leizongmin/js-xss/master/dist/xss.js"></script>
+    <script>
+        $(function () {
+            const E = window.wangEditor;
+            const editor = new E('#editor');
+            editor.config.placeholder = 'Please enter the content here';
+            editor.config.height = 500;
+            editor.config.uploadImgServer = "/File/Upload";
+            editor.config.uploadImgMaxSize = 2 * 1024 * 1024;
+            editor.config.uploadImgMaxLength = 5;
+
+            editor.create();
+
+            editor.txt.html("@Html.Raw(Model.Content)");
+
+        });
+    </script>
 }
 
 <h4>@ViewData["Title"]</h4>
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div class="row">
     <div class="col-md-12">
-        <form method="post">
-            <div class="text-danger" asp-validation-summary="All"></div>
-            <input type="hidden" asp-for="PostId"/>
+        <form method="post" asp-controller="Post" asp-action="CreateOrEdit">
+            <div class="alert alert-danger" asp-validation-summary="ModelOnly"></div>
+            <input type="hidden" asp-for="PostId" />
             <div class="row">
                 <div class="col-md-8">
                     <div class="form-group">
-                        <label asp-for="Title"></label>
-                        <input asp-for="Title" class="form-control" />
+                        <input asp-for="Title" class="form-control" placeholder="Title" />
+                        <span class="text-danger" asp-validation-for="Title"></span>
                     </div>
                     <div class="form-group">
                         <div id="editor">
@@ -35,17 +51,16 @@
                             分类
                         </div>
                         <div class="card-body">
-                            @if (null != Model.CategoryList && Model.CategoryList.Count > 0)
+                            @if (null != Model.CategoryList && Model.CategoryList.Any())
                             {
                                 @foreach (var category in Model.CategoryList)
                                 {
                                     <div class="custom-control custom-checkbox">
-                                        <input id="@category.Value" class="custom-control-input" type="checkbox" value="@category.Value" name="SelectedCategoryIds"
+                                        <input id="cat-@category.Value" name="SelectedCategoryIds" class="custom-control-input" type="checkbox" value="@category.Value"
                                                @(category.IsChecked ? "checked=\"checked\"" : null)>
-                                        <label class="custom-control-label" asp-for="@category.Value">
+                                        <label class="custom-control-label" for="cat-@category.Value">
                                             @category.DisplayText
                                         </label>
-                                        <span class="text-danger" asp-validation-for="@category.Value"></span>
                                     </div>
                                 }
                             }

@@ -27,6 +27,7 @@ namespace Blog.MVC.Models.Post
         public List<CheckBoxViewModel> CategoryList { get; set; }
 
         [Required(ErrorMessage = "请输入{0}")]
+        [Display(Name = "内容")]
         public string Content { get; set; }
 
         [Required(ErrorMessage = "请选择至少一个分类")]
