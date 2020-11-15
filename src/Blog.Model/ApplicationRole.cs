@@ -11,7 +11,7 @@ namespace Blog.Model
     {
         public DateTime CreationTime { get; set; }
 
-        public Guid CreatorId { get; set; }
+        public Guid? CreatorId { get; set; }
 
         public DateTime? LastModificationTime { get; set; }
 

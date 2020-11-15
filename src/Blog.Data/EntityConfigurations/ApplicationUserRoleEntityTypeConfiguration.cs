@@ -23,7 +23,7 @@ namespace Blog.Data.EntityConfigurations
 
             builder.Property(ur => ur.CreatorId)
                 .HasColumnType("varchar(50)")
-                .IsRequired();
+                .IsRequired(false);
 
             builder.Property(ur => ur.CreationTime)
                 .IsRequired();
@@ -41,7 +41,7 @@ namespace Blog.Data.EntityConfigurations
             builder.HasOne(ur => ur.Creator)
                 .WithMany()
                 .HasForeignKey(ur => ur.CreatorId)
-                .IsRequired();
+                .IsRequired(false);
         }
     }
 }

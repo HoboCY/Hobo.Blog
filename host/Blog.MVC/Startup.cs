@@ -44,7 +44,12 @@ namespace Blog.MVC
 
             services.AddDbContext<BlogDbContext>(options =>
             {
-                options.UseMySql(Configuration.GetConnectionString("Default"), x => x.MigrationsAssembly("Blog.Data"));
+                options.UseMySql(connectionString: Configuration.GetConnectionString("Default"),
+                                 mySqlOptionsAction: x =>
+                                                     {
+                                                         x.MigrationsAssembly("Blog.Data");
+                                                         x.EnableRetryOnFailure(3, TimeSpan.FromSeconds(10), null);
+                                                     });
                 options.UseLoggerFactory(EFLoggerFactory);
                 options.UseLazyLoadingProxies();
             })
