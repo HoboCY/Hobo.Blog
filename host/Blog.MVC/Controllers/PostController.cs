@@ -47,8 +47,7 @@ namespace Blog.MVC.Controllers
             return View("~/Views/Shared/ServerError.cshtml", "Categories has no data");
         }
 
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> CreateOrEditAsync(Guid id)
+        public async Task<IActionResult> UpdateAsync(Guid id)
         {
             var model = new CreateOrEditModel();
             if (id != null)
@@ -57,7 +56,7 @@ namespace Blog.MVC.Controllers
                 if (post != null)
                 {
                     model.PostId = post.Id;
-                    model.Title = post.Content;
+                    model.Title = post.Title;
                     model.Content = post.Content;
 
                     var categories = await _context.Categories.ToListAsync();
@@ -70,10 +69,11 @@ namespace Blog.MVC.Controllers
                                          c.NormalizedCategoryName,
                                          c.Id.ToString(),
                                          post.PostCategories.Any(pc => pc.PostId == c.Id))).ToList();
-                    return View(model);
+                    return View("CreateOrEdit", model);
                 }
             }
-            return View(model);
+            TempData["StatusMessage"] = "Can't load the post";
+            return RedirectToAction("CreateOrEdit");
         }
 
         [HttpPost]

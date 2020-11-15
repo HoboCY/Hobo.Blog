@@ -18,7 +18,7 @@ namespace Blog.Data.EntityConfigurations
 
             builder.Property(r => r.CreatorId)
                 .HasColumnType("varchar(50)")
-                .IsRequired();
+                .IsRequired(false);
 
             builder.Property(r => r.CreationTime)
                 .IsRequired();
@@ -53,7 +53,9 @@ namespace Blog.Data.EntityConfigurations
             builder.HasOne(r => r.Creator)
                 .WithMany()
                 .HasForeignKey(r => r.CreatorId)
-                .IsRequired();
+                .IsRequired(false);
+
+            builder.HasData(new ApplicationRole { Id = Guid.NewGuid(), Name = "administrator", NormalizedName = "ADMINISTRATOR", CreationTime = DateTime.Now });
         }
     }
 }
