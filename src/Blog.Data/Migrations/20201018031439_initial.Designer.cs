@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Blog.Data.Migrations
 {
     [DbContext(typeof(BlogDbContext))]
-    [Migration("20201110051028_initial")]
+    [Migration("20201018031439_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,6 +33,7 @@ namespace Blog.Data.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("CreatorId")
+                        .IsRequired()
                         .HasColumnType("varchar(50)");
 
                     b.Property<string>("DeleterId")
@@ -67,17 +68,6 @@ namespace Blog.Data.Migrations
                         .HasName("RoleNameIndex");
 
                     b.ToTable("application_role");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "ab7bdc62-1b73-408c-b1a2-428508e1bdd3",
-                            ConcurrencyStamp = "5eb526bc-8b9b-4641-b344-8494f06f35ad",
-                            CreationTime = new DateTime(2020, 11, 10, 13, 10, 27, 951, DateTimeKind.Local).AddTicks(500),
-                            IsDeleted = false,
-                            Name = "administrator",
-                            NormalizedName = "ADMINISTRATOR"
-                        });
                 });
 
             modelBuilder.Entity("Blog.Model.ApplicationRoleClaim", b =>
@@ -242,6 +232,7 @@ namespace Blog.Data.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("CreatorId")
+                        .IsRequired()
                         .HasColumnType("varchar(50)");
 
                     b.Property<string>("DeleterId")
@@ -296,6 +287,7 @@ namespace Blog.Data.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("CreatorId")
+                        .IsRequired()
                         .HasColumnType("varchar(50)");
 
                     b.Property<string>("DeleterId")
@@ -323,32 +315,6 @@ namespace Blog.Data.Migrations
                     b.HasIndex("CreatorId");
 
                     b.ToTable("category");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "4ea6f8e8-112f-4c04-9fcd-f800fefefed7",
-                            CategoryName = "asp .net core",
-                            CreationTime = new DateTime(2020, 11, 10, 13, 10, 27, 958, DateTimeKind.Local).AddTicks(4962),
-                            IsDeleted = false,
-                            NormalizedCategoryName = "ASP .NET CORE"
-                        },
-                        new
-                        {
-                            Id = "707ce769-8a87-4201-abd7-a92b7662980e",
-                            CategoryName = "c#",
-                            CreationTime = new DateTime(2020, 11, 10, 13, 10, 27, 958, DateTimeKind.Local).AddTicks(5469),
-                            IsDeleted = false,
-                            NormalizedCategoryName = "C#"
-                        },
-                        new
-                        {
-                            Id = "9f79b4c0-3c7b-4bb5-b21d-498b83911eb3",
-                            CategoryName = "asp .net core mvc",
-                            CreationTime = new DateTime(2020, 11, 10, 13, 10, 27, 958, DateTimeKind.Local).AddTicks(5482),
-                            IsDeleted = false,
-                            NormalizedCategoryName = "ASP .NET CORE MVC"
-                        });
                 });
 
             modelBuilder.Entity("Blog.Model.Comment", b =>
@@ -510,7 +476,9 @@ namespace Blog.Data.Migrations
                 {
                     b.HasOne("Blog.Model.ApplicationUser", "Creator")
                         .WithMany()
-                        .HasForeignKey("CreatorId");
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Blog.Model.ApplicationRoleClaim", b =>
@@ -544,7 +512,9 @@ namespace Blog.Data.Migrations
                 {
                     b.HasOne("Blog.Model.ApplicationUser", "Creator")
                         .WithMany()
-                        .HasForeignKey("CreatorId");
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Blog.Model.ApplicationRole", "Role")
                         .WithMany("UserRoles")
@@ -572,7 +542,9 @@ namespace Blog.Data.Migrations
                 {
                     b.HasOne("Blog.Model.ApplicationUser", "Creator")
                         .WithMany()
-                        .HasForeignKey("CreatorId");
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Blog.Model.Comment", b =>

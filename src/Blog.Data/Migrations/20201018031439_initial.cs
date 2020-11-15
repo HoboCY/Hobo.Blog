@@ -48,7 +48,7 @@ namespace Blog.Data.Migrations
                     NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(nullable: true),
                     CreationTime = table.Column<DateTime>(nullable: false),
-                    CreatorId = table.Column<string>(type: "varchar(50)", nullable: true),
+                    CreatorId = table.Column<string>(type: "varchar(50)", nullable: false),
                     LastModificationTime = table.Column<DateTime>(nullable: true),
                     LastModifierId = table.Column<string>(type: "varchar(50)", nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false),
@@ -63,7 +63,7 @@ namespace Blog.Data.Migrations
                         column: x => x.CreatorId,
                         principalTable: "application_user",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -135,7 +135,7 @@ namespace Blog.Data.Migrations
                     CategoryName = table.Column<string>(maxLength: 50, nullable: false),
                     NormalizedCategoryName = table.Column<string>(maxLength: 50, nullable: false),
                     CreationTime = table.Column<DateTime>(nullable: false),
-                    CreatorId = table.Column<string>(type: "varchar(50)", nullable: true),
+                    CreatorId = table.Column<string>(type: "varchar(50)", nullable: false),
                     LastModificationTime = table.Column<DateTime>(nullable: true),
                     LastModifierId = table.Column<string>(type: "varchar(50)", nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false),
@@ -150,7 +150,7 @@ namespace Blog.Data.Migrations
                         column: x => x.CreatorId,
                         principalTable: "application_user",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -231,7 +231,7 @@ namespace Blog.Data.Migrations
                     UserId = table.Column<string>(type: "varchar(50)", nullable: false),
                     RoleId = table.Column<string>(type: "varchar(50)", nullable: false),
                     CreationTime = table.Column<DateTime>(nullable: false),
-                    CreatorId = table.Column<string>(type: "varchar(50)", nullable: true),
+                    CreatorId = table.Column<string>(type: "varchar(50)", nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
                     DeleterId = table.Column<string>(type: "varchar(50)", nullable: true),
                     DeletionTime = table.Column<DateTime>(nullable: true)
@@ -244,7 +244,7 @@ namespace Blog.Data.Migrations
                         column: x => x.CreatorId,
                         principalTable: "application_user",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_application_user_role_application_role_RoleId",
                         column: x => x.RoleId,
@@ -322,21 +322,6 @@ namespace Blog.Data.Migrations
                         principalTable: "post",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "application_role",
-                columns: new[] { "Id", "ConcurrencyStamp", "CreationTime", "CreatorId", "DeleterId", "DeletionTime", "IsDeleted", "LastModificationTime", "LastModifierId", "Name", "NormalizedName" },
-                values: new object[] { "ab7bdc62-1b73-408c-b1a2-428508e1bdd3", "5eb526bc-8b9b-4641-b344-8494f06f35ad", new DateTime(2020, 11, 10, 13, 10, 27, 951, DateTimeKind.Local).AddTicks(500), null, null, null, false, null, null, "administrator", "ADMINISTRATOR" });
-
-            migrationBuilder.InsertData(
-                table: "category",
-                columns: new[] { "Id", "CategoryName", "CreationTime", "CreatorId", "DeleterId", "DeletionTime", "IsDeleted", "LastModificationTime", "LastModifierId", "NormalizedCategoryName" },
-                values: new object[,]
-                {
-                    { "4ea6f8e8-112f-4c04-9fcd-f800fefefed7", "asp .net core", new DateTime(2020, 11, 10, 13, 10, 27, 958, DateTimeKind.Local).AddTicks(4962), null, null, null, false, null, null, "ASP .NET CORE" },
-                    { "707ce769-8a87-4201-abd7-a92b7662980e", "c#", new DateTime(2020, 11, 10, 13, 10, 27, 958, DateTimeKind.Local).AddTicks(5469), null, null, null, false, null, null, "C#" },
-                    { "9f79b4c0-3c7b-4bb5-b21d-498b83911eb3", "asp .net core mvc", new DateTime(2020, 11, 10, 13, 10, 27, 958, DateTimeKind.Local).AddTicks(5482), null, null, null, false, null, null, "ASP .NET CORE MVC" }
                 });
 
             migrationBuilder.CreateIndex(

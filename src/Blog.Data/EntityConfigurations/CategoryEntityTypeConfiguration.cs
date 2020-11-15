@@ -28,7 +28,7 @@ namespace Blog.Data.EntityConfigurations
 
             builder.Property(c => c.CreatorId)
                 .HasColumnType("varchar(50)")
-                .IsRequired(false);
+                .IsRequired();
 
             builder.Property(c => c.CreationTime)
                 .IsRequired();
@@ -53,30 +53,7 @@ namespace Blog.Data.EntityConfigurations
             builder.HasOne(c => c.Creator)
                 .WithMany()
                 .HasForeignKey(c => c.CreatorId)
-                .IsRequired(false);
-
-            builder.HasData(
-                new Category 
-                { 
-                    Id = Guid.NewGuid(), 
-                    CategoryName = "asp .net core", 
-                    NormalizedCategoryName = "asp .net core".ToUpper(), 
-                    CreationTime = DateTime.Now 
-                },
-                new Category
-                {
-                    Id = Guid.NewGuid(),
-                    CategoryName = "c#",
-                    NormalizedCategoryName = "c#".ToUpper(),
-                    CreationTime = DateTime.Now
-                },
-                new Category
-                {
-                    Id = Guid.NewGuid(),
-                    CategoryName = "asp .net core mvc",
-                    NormalizedCategoryName = "asp .net core mvc".ToUpper(),
-                    CreationTime = DateTime.Now
-                });
+                .IsRequired();
         }
     }
 }
