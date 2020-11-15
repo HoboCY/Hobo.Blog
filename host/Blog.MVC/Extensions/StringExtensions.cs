@@ -26,5 +26,13 @@ namespace Blog.MVC.Extensions
             }
             return pwd;
         }
+
+        public static string FilterHtml(this string htmlStr)
+        {
+            if (!string.IsNullOrEmpty(htmlStr))
+                return System.Text.RegularExpressions.Regex.Replace(htmlStr, "<[^>]*>|&nbsp;", "");
+            else
+                return "";
+        }
     }
 }
