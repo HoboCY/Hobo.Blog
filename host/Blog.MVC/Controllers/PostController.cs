@@ -11,10 +11,10 @@ using Blog.MVC.Models.Post;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Blog.MVC.Extensions;
 
 namespace Blog.MVC.Controllers
 {
-    [Authorize]
     public class PostController : BlogController
     {
         private readonly BlogDbContext _context;
@@ -24,17 +24,15 @@ namespace Blog.MVC.Controllers
             _context = context;
         }
 
-        [AllowAnonymous]
         public IActionResult Index()
         {
             return View();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> CreateOrEditAsync()
+        public async Task<IActionResult> CreateAsync()
         {
             var categories = await _context.Categories.Where(c => !c.IsDeleted).ToListAsync();
-            if (categories != null)
+            if (categories.Any())
             {
                 var model = new CreateOrEditModel
                 {
@@ -42,99 +40,93 @@ namespace Blog.MVC.Controllers
                 };
                 model.CategoryList = categories.Select(c =>
                                      new CheckBoxViewModel(c.NormalizedCategoryName, c.Id.ToString(), false)).ToList();
-                return View(model);
+                return View("CreateOrEdit", model);
             }
-            return View("~/Views/Shared/ServerError.cshtml", "Categories has no data");
+            return View("~/Views/Shared/ServerError.cshtml", "没有分类数据");
         }
 
-        public async Task<IActionResult> UpdateAsync(Guid id)
+        [Authorize]
+        public async Task<IActionResult> EditAsync(Guid id)
         {
             var model = new CreateOrEditModel();
             if (id != null)
             {
-                var post = await _context.Posts.SingleOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+                var post = await _context.Posts.SingleOrDefaultAsync(p => p.Id == id && !p.IsDeleted && p.CreatorId == UserId);
                 if (post != null)
                 {
                     model.PostId = post.Id;
                     model.Title = post.Title;
                     model.Content = post.Content;
 
-                    var categories = await _context.Categories.ToListAsync();
-                    if (categories == null)
+                    var categories = await _context.Categories.Where(c => !c.IsDeleted).ToListAsync();
+                    if (!categories.Any())
                     {
-                        return View("~/Views/Shared/ServerError.cshtml", "Categories has no data");
+                        return View("~/Views/Shared/ServerError.cshtml", "没有分类数据");
                     }
                     model.CategoryList = categories.Select(c =>
                                      new CheckBoxViewModel(
                                          c.NormalizedCategoryName,
                                          c.Id.ToString(),
-                                         post.PostCategories.Any(pc => pc.PostId == c.Id))).ToList();
+                                         post.PostCategories.Any(pc => pc.CategoryId == c.Id && !pc.IsDeleted))).ToList();
                     return View("CreateOrEdit", model);
                 }
             }
             TempData["StatusMessage"] = "Can't load the post";
-            return RedirectToAction("CreateOrEdit");
+            return RedirectToAction("Create");
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateOrEditAsync(CreateOrEditModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model);
+            Post postToAdd = null;
+            if (model.PostId == Guid.Empty)
             {
-                Guid.TryParse(User.FindFirstValue("UserId"), out Guid userId);
-                if (userId == null)
+                postToAdd = new Post
                 {
-                    return RedirectToAction("Login", "Account");
-                }
-                Post postToAdd = null;
-                if (model.PostId == Guid.Empty)
+                    Title = model.Title,
+                    Content = model.Content.Trim(),
+                    ContentAbstract = model.Content.Trim().Substring(0, 50).FilterHtml(),
+                    CreatorId = UserId
+                };
+                foreach (var id in model.SelectedCategoryIds)
                 {
-                    postToAdd = new Post
+                    if (_context.Categories.Any(c => c.Id == id && !c.IsDeleted))
                     {
-                        Title = model.Title,
-                        Content = model.Content,
-                        ContentAbstract = model.Content.Substring(0, model.Content.Length / 2),
-                        CreatorId = userId
-                    };
-                    foreach (var id in model.SelectedCategoryIds)
-                    {
-                        if (_context.Categories.Any(c => c.Id == id && !c.IsDeleted))
+                        postToAdd.PostCategories.Add(new PostCategory
                         {
-                            postToAdd.PostCategories.Add(new PostCategory
-                            {
-                                PostId = postToAdd.Id,
-                                CategoryId = id,
-                                CreatorId = userId
-                            });
-                        }
+                            PostId = postToAdd.Id,
+                            CategoryId = id,
+                            CreatorId = UserId
+                        });
                     }
-                    await _context.Posts.AddAsync(postToAdd);
                 }
-                else
-                {
-                    postToAdd = await _context.Posts.SingleOrDefaultAsync(p => p.Id == model.PostId && !p.IsDeleted);
-                    if (postToAdd == null)
-                    {
-                        return View("~/Views/Shared/ServerError.cshtml", "Post not found");
-                    }
-                    foreach (var id in model.SelectedCategoryIds)
-                    {
-                        if (_context.Categories.Any(c => c.Id == id))
-                        {
-                            postToAdd.PostCategories.Add(new PostCategory
-                            {
-                                PostId = postToAdd.Id,
-                                CategoryId = id,
-                                CreatorId = userId
-                            });
-                        }
-                    }
-                    _context.Posts.Update(postToAdd);
-                }
-                await _context.SaveChangesAsync();
-                return Redirect($"CreateOrEdit/{postToAdd.Id}");
+                await _context.Posts.AddAsync(postToAdd);
             }
-            return View(model);
+            else
+            {
+                postToAdd = await _context.Posts.SingleOrDefaultAsync(p => p.Id == model.PostId && !p.IsDeleted);
+                if (postToAdd == null)
+                {
+                    return View("~/Views/Shared/ServerError.cshtml", "Post not found");
+                }
+                foreach (var id in model.SelectedCategoryIds)
+                {
+                    if (_context.Categories.Any(c => c.Id == id))
+                    {
+                        postToAdd.PostCategories.Add(new PostCategory
+                        {
+                            PostId = postToAdd.Id,
+                            CategoryId = id,
+                            CreatorId = UserId
+                        });
+                    }
+                }
+                _context.Posts.Update(postToAdd);
+            }
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Edit", routeValues: postToAdd.Id);
         }
     }
 }
