@@ -11,9 +11,9 @@
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@UserManager.GetUserName(User)</a>
                     <div class="dropdown-menu">
                         @*<a class="dropdown-item" asp-controller="User" asp-action="Profile">Profile</a>*@
-                        <a class="dropdown-item" asp-controller="User" asp-action="Index">Manage</a>
+                        <a class="dropdown-item" asp-controller="User" asp-action="Index">管理</a>
                         <form id="logoutForm" class="form-inline" asp-controller="Account" asp-action="Logout" asp-route-returnUrl="@Url.Action(nameof(HomeController.Index),"Home")">
-                            <button id="logout" type="submit" class="dropdown-item">Logout</button>
+                            <button id="logout" type="submit" class="dropdown-item">退出</button>
                         </form>
                     </div>
                 </li>
@@ -23,10 +23,10 @@
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">登录</a>
         </li>
         <li class="nav-item ml-lg-5">
-            <a class="btn btn-success" asp-controller="Account" asp-action="Register">Register</a>
+            <a class="btn btn-success" asp-controller="Account" asp-action="Register">注册</a>
         </li>
     }
 </ul>

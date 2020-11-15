@@ -8,10 +8,11 @@ namespace Blog.MVC.Models.User
 {
     public class IndexModel
     {
+        [Display(Name = "用户名")]
         public string Username { get; set; }
 
-        [Phone]
-        [Display(Name = "Phone number")]
+        [Phone(ErrorMessage = "{0}格式无效")]
+        [Display(Name = "手机号")]
         public string PhoneNumber { get; set; }
     }
 }

@@ -1,7 +1,7 @@
 ﻿@model CreateOrEditModel
 @{
     Layout = "_LayoutUserManage";
-    ViewData["Title"] = "Create or Edit Post";
+    ViewData["Title"] = "创建/编辑帖子";
     ViewData["ActivePage"] = ManageNavPages.CreateOrEditPost;
 }
 @section Scripts {
@@ -9,32 +9,30 @@
     <script type="text/javascript" src="//unpkg.com/wangeditor/dist/wangEditor.min.js"></script>
     <script type="text/javascript" src="~/js/editor.js" asp-append-version="true"></script>
 }
+
 <h4>@ViewData["Title"]</h4>
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div class="row">
     <div class="col-md-12">
-        <form method="post" asp-controller="Post" asp-action="CreateOrEdit">
+        <form method="post">
             <div class="text-danger" asp-validation-summary="All"></div>
-            <input type="hidden" asp-for="PostId" />
+            <input type="hidden" asp-for="PostId"/>
             <div class="row">
                 <div class="col-md-8">
                     <div class="form-group">
                         <label asp-for="Title"></label>
                         <input asp-for="Title" class="form-control" />
-                        <span class="text-danger" asp-validation-for="Title"></span>
                     </div>
                     <div class="form-group">
                         <div id="editor">
                         </div>
-                        <span class="text-danger" asp-validation-for="Content"></span>
-                        <textarea id="editor-content" asp-for="Content" class="invisible" style="width:0;height:0;"></textarea>
                     </div>
-                    <button id="add-post-button" type="submit" class="btn btn-primary">Submit</button>
+                    <button id="add-post-button" type="submit" class="btn btn-primary">提交</button>
                 </div>
                 <div class="col-md-4" style="margin-top:10%;">
                     <div class="card">
                         <div class="card-header">
-                            Categories
+                            分类
                         </div>
                         <div class="card-body">
                             @if (null != Model.CategoryList && Model.CategoryList.Count > 0)
@@ -42,12 +40,12 @@
                                 @foreach (var category in Model.CategoryList)
                                 {
                                     <div class="custom-control custom-checkbox">
-                                        <input id="cat-@category.Value" class="custom-control-input" type="checkbox" value="@category.Value" name="SelectedCategoryIds"
+                                        <input id="@category.Value" class="custom-control-input" type="checkbox" value="@category.Value" name="SelectedCategoryIds"
                                                @(category.IsChecked ? "checked=\"checked\"" : null)>
-                                        <label class="custom-control-label" for="cat-@category.Value">
+                                        <label class="custom-control-label" asp-for="@category.Value">
                                             @category.DisplayText
                                         </label>
-                                        <span asp-validation-for="SelectedCategoryIds" class="text-danger"></span>
+                                        <span class="text-danger" asp-validation-for="@category.Value"></span>
                                     </div>
                                 }
                             }

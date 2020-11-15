@@ -1,7 +1,7 @@
 ﻿@model DeletePersonalDataModel
 @{
     Layout = "_LayoutUserManage";
-    ViewData["Title"] = "Delete Personal Data";
+    ViewData["Title"] = "删除个人资料";
     ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
@@ -9,7 +9,7 @@
 
 <div class="alert alert-warning" role="alert">
     <p>
-        <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
+        <strong>删除此数据将永久删除您的帐户，并且无法恢复。</strong>
     </p>
 </div>
 
@@ -21,7 +21,7 @@
             <input asp-for="Password" class="form-control" />
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
-        <button class="btn btn-danger" type="submit">Delete data and close my account</button>
+        <button class="btn btn-danger" type="submit">删除数据并关闭我的帐户</button>
     </form>
 </div>
 

@@ -1,6 +1,6 @@
 ﻿@{
     Layout = "_LayoutUserManage";
-    ViewData["Title"] = "Personal Data";
+    ViewData["Title"] = "个人资料";
     ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
@@ -8,12 +8,16 @@
 
 <div class="row">
     <div class="col-md-6">
-        <p>Your account contains personal data that you have given us. This page allows you to delete that data.</p>
         <p>
-            <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
+            您的帐户包含您提供给我们的个人数据。此页允许您删除该数据。
         </p>
         <p>
-            <a id="delete" asp-controller="User" asp-action="DeletePersonalData" class="btn btn-primary">Delete</a>
+            <strong>
+                删除此数据将永久删除您的帐户，并且无法恢复。
+            </strong>
+        </p>
+        <p>
+            <a id="delete" asp-controller="User" asp-action="DeletePersonalData" class="btn btn-primary">删除</a>
         </p>
     </div>
 </div>
