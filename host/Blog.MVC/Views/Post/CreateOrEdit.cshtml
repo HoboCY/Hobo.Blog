@@ -6,23 +6,25 @@
 }
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script type="text/javascript" src="//unpkg.com/wangeditor/dist/wangEditor.min.js"></script>
-    <script src="https://rawgit.com/leizongmin/js-xss/master/dist/xss.js"></script>
-    <script>
-        $(function () {
-            const E = window.wangEditor;
-            const editor = new E('#editor');
-            editor.config.placeholder = 'Please enter the content here';
-            editor.config.height = 500;
-            editor.config.uploadImgServer = "/File/Upload";
-            editor.config.uploadImgMaxSize = 2 * 1024 * 1024;
-            editor.config.uploadImgMaxLength = 5;
-
-            editor.create();
-
-            editor.txt.html("@Html.Raw(Model.Content)");
-
-        });
+    <script type="text/javascript" src="~/lib/3rd/wangEditor.min.js"></script>
+    <script defer type="text/javascript" src="~/lib/3rd/jquery.serializejson.js"></script>
+    <script defer src="https://rawgit.com/leizongmin/js-xss/master/dist/xss.js"></script>
+    <script asp-append-version="true">
+        const E = window.wangEditor;
+        const editor = new E('#editor');
+        editor.config.placeholder = 'Please enter the content here';
+        editor.config.height = 500;
+        editor.config.uploadImgServer = "/File/Upload";
+        editor.config.uploadImgMaxSize = 2 * 1024 * 1024;
+        editor.config.uploadImgMaxLength = 5;
+        const $content = $("#content");
+        editor.config.onchange = function (html) {
+            // 第二步，监控变化，同步更新到 textarea
+            $content.val(html)
+        }
+        editor.create();
+        
+        editor.txt.html("@Html.Raw(Model.Content)");
     </script>
 }
 
@@ -30,20 +32,21 @@
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div class="row">
     <div class="col-md-12">
-        <form method="post" asp-controller="Post" asp-action="CreateOrEdit">
-            <div class="alert alert-danger" asp-validation-summary="ModelOnly"></div>
-            <input type="hidden" asp-for="PostId" />
+        <form method="post" id="PostForm" asp-controller="Post" asp-action="CreateOrEdit">
+            <div class="text-danger" asp-validation-summary="All"></div>
+            <input type="hidden" name="PostId"/>
             <div class="row">
                 <div class="col-md-8">
                     <div class="form-group">
-                        <input asp-for="Title" class="form-control" placeholder="Title" />
-                        <span class="text-danger" asp-validation-for="Title"></span>
+                        <input name="Title" class="form-control" placeholder="Title" />
+                        @*<span class="text-danger" asp-validation-for="Title"></span>*@
                     </div>
                     <div class="form-group">
                         <div id="editor">
                         </div>
+                        <input id="content" type="hidden" name="Content"/>
                     </div>
-                    <button id="add-post-button" type="submit" class="btn btn-primary">提交</button>
+                    <button id="submit-button" type="submit" class="btn btn-primary">提交</button>
                 </div>
                 <div class="col-md-4" style="margin-top:10%;">
                     <div class="card">

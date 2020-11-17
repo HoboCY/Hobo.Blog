@@ -87,7 +87,8 @@ namespace Blog.MVC.Controllers
                 {
                     Title = model.Title,
                     Content = model.Content.Trim(),
-                    ContentAbstract = model.Content.Trim().Substring(0, 50).FilterHtml(),
+                    ContentAbstract = model.Content.Trim().Length > 50 ? 
+                    model.Content.Trim().FilterHtml().Substring(0, 50) : model.Content.Trim().FilterHtml().Substring(0, model.Content.Length / 2),
                     CreatorId = UserId
                 };
                 foreach (var id in model.SelectedCategoryIds)
