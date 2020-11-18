@@ -6,9 +6,11 @@
 }
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script type="text/javascript" src="~/lib/3rd/xss.js"></script>
-    <script type="text/javascript" src="~/lib/3rd/wangEditor.min.js"></script>
+    <script src="~/lib/3rd/xss.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.2/highlight.min.js"></script>
+    <script src="~/lib/3rd/wangEditor.min.js"></script>
     <script asp-append-version="true">
+        //import hljs from 'highlight.js'
         const E = window.wangEditor;
         const editor = new E('#editor');
         editor.config.placeholder = 'Please enter the content here';
@@ -16,6 +18,7 @@
         editor.config.uploadImgServer = "/File/Upload";
         editor.config.uploadImgMaxSize = 2 * 1024 * 1024;
         editor.config.uploadImgMaxLength = 5;
+        editor.highlight = hljs;
         const $content = $("#content");
         editor.config.onchange = function (html) {
             // 第二步，监控变化，同步更新到 textarea
