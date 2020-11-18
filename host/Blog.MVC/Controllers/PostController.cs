@@ -80,14 +80,14 @@ namespace Blog.MVC.Controllers
         public async Task<IActionResult> CreateOrEditAsync(CreateOrEditModel model)
         {
             if (!ModelState.IsValid) return View(model);
-            Post postToAdd = null;
+            Post postEntity = null;
             if (model.PostId == Guid.Empty)
             {
-                postToAdd = new Post
+                postEntity = new Post
                 {
                     Title = model.Title,
                     Content = model.Content.Trim(),
-                    ContentAbstract = model.Content.Trim().Length > 50 ? 
+                    ContentAbstract = model.Content.Trim().Length > 50 ?
                     model.Content.Trim().FilterHtml().Substring(0, 50) : model.Content.Trim().FilterHtml().Substring(0, model.Content.Length / 2),
                     CreatorId = UserId
                 };
@@ -95,39 +95,41 @@ namespace Blog.MVC.Controllers
                 {
                     if (_context.Categories.Any(c => c.Id == id && !c.IsDeleted))
                     {
-                        postToAdd.PostCategories.Add(new PostCategory
+                        postEntity.PostCategories.Add(new PostCategory
                         {
-                            PostId = postToAdd.Id,
+                            PostId = postEntity.Id,
                             CategoryId = id,
                             CreatorId = UserId
                         });
                     }
                 }
-                await _context.Posts.AddAsync(postToAdd);
+                await _context.Posts.AddAsync(postEntity);
             }
             else
             {
-                postToAdd = await _context.Posts.SingleOrDefaultAsync(p => p.Id == model.PostId && !p.IsDeleted);
-                if (postToAdd == null)
+                postEntity = await _context.Posts.SingleOrDefaultAsync(p => p.Id == model.PostId && !p.IsDeleted);
+                if (postEntity == null)
                 {
                     return View("~/Views/Shared/ServerError.cshtml", "Post not found");
                 }
+                postEntity.ContentAbstract = model.Content.Trim().Length > 50 ?
+                    model.Content.Trim().FilterHtml().Substring(0, 50) : model.Content.Trim().FilterHtml().Substring(0, model.Content.Length / 2);
                 foreach (var id in model.SelectedCategoryIds)
                 {
                     if (_context.Categories.Any(c => c.Id == id))
                     {
-                        postToAdd.PostCategories.Add(new PostCategory
+                        postEntity.PostCategories.Add(new PostCategory
                         {
-                            PostId = postToAdd.Id,
+                            PostId = postEntity.Id,
                             CategoryId = id,
                             CreatorId = UserId
                         });
                     }
                 }
-                _context.Posts.Update(postToAdd);
+                _context.Posts.Update(postEntity);
             }
             await _context.SaveChangesAsync();
-            return RedirectToAction("Edit", routeValues: postToAdd.Id);
+            return Redirect($"/Post/Edit/{postEntity.Id}");
         }
     }
 }

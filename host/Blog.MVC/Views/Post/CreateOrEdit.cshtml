@@ -7,7 +7,6 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script type="text/javascript" src="~/lib/3rd/wangEditor.min.js"></script>
-    <script defer type="text/javascript" src="~/lib/3rd/jquery.serializejson.js"></script>
     <script defer src="https://rawgit.com/leizongmin/js-xss/master/dist/xss.js"></script>
     <script asp-append-version="true">
         const E = window.wangEditor;
@@ -23,7 +22,9 @@
             $content.val(html)
         }
         editor.create();
-        
+
+        $("#title").val("@Model.Title")
+
         editor.txt.html("@Html.Raw(Model.Content)");
     </script>
 }
@@ -34,11 +35,11 @@
     <div class="col-md-12">
         <form method="post" id="PostForm" asp-controller="Post" asp-action="CreateOrEdit">
             <div class="text-danger" asp-validation-summary="All"></div>
-            <input type="hidden" name="PostId"/>
+            <input asp-for="PostId"/>
             <div class="row">
                 <div class="col-md-8">
                     <div class="form-group">
-                        <input name="Title" class="form-control" placeholder="Title" />
+                        <input name="Title" id="title" class="form-control" placeholder="Title" />
                         @*<span class="text-danger" asp-validation-for="Title"></span>*@
                     </div>
                     <div class="form-group">
