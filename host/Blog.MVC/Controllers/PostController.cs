@@ -112,8 +112,12 @@ namespace Blog.MVC.Controllers
                 {
                     return View("~/Views/Shared/ServerError.cshtml", "Post not found");
                 }
+                postEntity.Title = model.Title;
+                postEntity.Content = model.Content;
                 postEntity.ContentAbstract = model.Content.Trim().Length > 50 ?
                     model.Content.Trim().FilterHtml().Substring(0, 50) : model.Content.Trim().FilterHtml().Substring(0, model.Content.Length / 2);
+                postEntity.LastModificationTime = DateTime.UtcNow;
+                postEntity.PostCategories.Clear();
                 foreach (var id in model.SelectedCategoryIds)
                 {
                     if (_context.Categories.Any(c => c.Id == id))
