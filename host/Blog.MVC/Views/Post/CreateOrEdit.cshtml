@@ -6,8 +6,8 @@
 }
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script type="text/javascript" src="~/lib/3rd/xss.js"></script>
     <script type="text/javascript" src="~/lib/3rd/wangEditor.min.js"></script>
-    <script defer src="https://rawgit.com/leizongmin/js-xss/master/dist/xss.js"></script>
     <script asp-append-version="true">
         const E = window.wangEditor;
         const editor = new E('#editor');
@@ -19,7 +19,8 @@
         const $content = $("#content");
         editor.config.onchange = function (html) {
             // 第二步，监控变化，同步更新到 textarea
-            $content.val(html)
+            var xssHtml = filterXSS(html);
+            $content.val(xssHtml);
         }
         editor.create();
 
@@ -35,7 +36,7 @@
     <div class="col-md-12">
         <form method="post" id="PostForm" asp-controller="Post" asp-action="CreateOrEdit">
             <div class="text-danger" asp-validation-summary="All"></div>
-            <input asp-for="PostId"/>
+            <input asp-for="PostId" />
             <div class="row">
                 <div class="col-md-8">
                     <div class="form-group">
@@ -45,7 +46,7 @@
                     <div class="form-group">
                         <div id="editor">
                         </div>
-                        <input id="content" type="hidden" name="Content"/>
+                        <input id="content" type="hidden" name="Content" />
                     </div>
                     <button id="submit-button" type="submit" class="btn btn-primary">提交</button>
                 </div>
