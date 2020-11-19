@@ -4,11 +4,15 @@
     ViewData["Title"] = "创建/编辑帖子";
     ViewData["ActivePage"] = ManageNavPages.CreateOrEditPost;
 }
+@section Css {
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.2/styles/vs.min.css">
+}
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="~/lib/3rd/xss.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.2/highlight.min.js"></script>
-    <script src="~/lib/3rd/wangEditor.min.js"></script>
+    <script src="//unpkg.com/wangeditor/dist/wangEditor.min.js"></script>
     <script asp-append-version="true">
         //import hljs from 'highlight.js'
         const E = window.wangEditor;
@@ -19,6 +23,7 @@
         editor.config.uploadImgMaxSize = 2 * 1024 * 1024;
         editor.config.uploadImgMaxLength = 5;
         editor.highlight = hljs;
+        hljs.initHighlightingOnLoad();
         const $content = $("#content");
         editor.config.onchange = function (html) {
             // 第二步，监控变化，同步更新到 textarea
@@ -27,9 +32,9 @@
         }
         editor.create();
 
-        $("#title").val("@Model.Title")
+        var content = `@Html.Raw(Model.Content)`;
 
-        editor.txt.html("@Html.Raw(Model.Content)");
+        editor.txt.html(content);
     </script>
 }
 
@@ -43,8 +48,7 @@
             <div class="row">
                 <div class="col-md-8">
                     <div class="form-group">
-                        <input name="Title" id="title" class="form-control" placeholder="Title" />
-                        @*<span class="text-danger" asp-validation-for="Title"></span>*@
+                        <input asp-for="Title" class="form-control" placeholder="Title" />
                     </div>
                     <div class="form-group">
                         <div id="editor">

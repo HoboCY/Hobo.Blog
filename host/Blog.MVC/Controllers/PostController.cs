@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Blog.MVC.Extensions;
+using System.Text.Encodings.Web;
 
 namespace Blog.MVC.Controllers
 {
