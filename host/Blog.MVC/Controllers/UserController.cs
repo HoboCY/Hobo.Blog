@@ -136,7 +136,7 @@ namespace Blog.MVC.Controllers
             }
 
             user.IsDeleted = true;
-            user.DeletionTime = DateTime.Now;
+            user.DeletionTime = DateTime.UtcNow;
             var result = await _userManager.UpdateAsync(user);
             var userId = await _userManager.GetUserIdAsync(user);
             if (!result.Succeeded)
@@ -317,7 +317,6 @@ namespace Blog.MVC.Controllers
                 Title = model.Title,
                 Content = model.Content,
                 ContentAbstract = model.Content.Substring(0, model.Content.Length - 10),
-                CreationTime = DateTime.Now,
                 CreatorId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))
             };
 

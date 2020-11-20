@@ -55,7 +55,7 @@ namespace Blog.Data.EntityConfigurations
                 .HasForeignKey(r => r.CreatorId)
                 .IsRequired(false);
 
-            builder.HasData(new ApplicationRole { Id = Guid.NewGuid(), Name = "administrator", NormalizedName = "ADMINISTRATOR", CreationTime = DateTime.Now });
+            builder.HasData(new ApplicationRole { Id = Guid.NewGuid(), Name = "administrator", NormalizedName = "ADMINISTRATOR", CreationTime = DateTime.UtcNow });
         }
     }
 }

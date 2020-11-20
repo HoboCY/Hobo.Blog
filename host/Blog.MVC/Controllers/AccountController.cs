@@ -66,7 +66,7 @@ namespace Blog.MVC.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    user.LastLoginTime = DateTime.Now;
+                    user.LastLoginTime = DateTime.UtcNow;
                     await _userManager.UpdateAsync(user);
                     return RedirectToAction(nameof(PostController.Index), "Post");
                 }

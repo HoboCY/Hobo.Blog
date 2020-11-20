@@ -13,7 +13,7 @@ namespace Blog.Model
 
         public Guid PostId { get; set; }
 
-        public DateTime CreationTime { get; set; } = DateTime.Now;
+        public DateTime CreationTime { get; set; } = DateTime.UtcNow;
 
         public Guid CreatorId { get; set; }
 

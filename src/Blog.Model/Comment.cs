@@ -16,7 +16,7 @@ namespace Blog.Model
 
         public Guid CreatorId { get; set; }
 
-        public DateTime CreationTime { get; set; }
+        public DateTime CreationTime { get; set; } = DateTime.UtcNow;
 
         public bool IsDeleted { get; set; }
 

@@ -61,21 +61,21 @@ namespace Blog.Data.EntityConfigurations
                     Id = Guid.NewGuid(), 
                     CategoryName = "asp .net core", 
                     NormalizedCategoryName = "asp .net core".ToUpper(), 
-                    CreationTime = DateTime.Now 
+                    CreationTime = DateTime.UtcNow 
                 },
                 new Category
                 {
                     Id = Guid.NewGuid(),
                     CategoryName = "c#",
                     NormalizedCategoryName = "c#".ToUpper(),
-                    CreationTime = DateTime.Now
+                    CreationTime = DateTime.UtcNow
                 },
                 new Category
                 {
                     Id = Guid.NewGuid(),
                     CategoryName = "asp .net core mvc",
                     NormalizedCategoryName = "asp .net core mvc".ToUpper(),
-                    CreationTime = DateTime.Now
+                    CreationTime = DateTime.UtcNow
                 });
         }
     }

@@ -14,7 +14,7 @@ namespace Blog.Model
 
         public string NormalizedCategoryName { get; set; }
 
-        public DateTime CreationTime { get; set; }
+        public DateTime CreationTime { get; set; } = DateTime.UtcNow;
 
         public Guid? CreatorId { get; set; }
 
