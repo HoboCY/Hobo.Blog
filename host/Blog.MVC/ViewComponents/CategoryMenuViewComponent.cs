@@ -20,7 +20,7 @@ namespace Blog.MVC.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var categories = await _context.Categories.Where(c => !c.IsDeleted)
+            var categories = await _context.Categories
                 .Select(c => new CategoryViewModel
                 {
                     Id = c.Id,

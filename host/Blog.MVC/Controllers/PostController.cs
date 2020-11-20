@@ -32,7 +32,7 @@ namespace Blog.MVC.Controllers
 
         public async Task<IActionResult> CreateAsync()
         {
-            var categories = await _context.Categories.Where(c => !c.IsDeleted).ToListAsync();
+            var categories = await _context.Categories.ToListAsync();
             if (categories.Any())
             {
                 var model = new CreateOrEditModel
@@ -52,14 +52,14 @@ namespace Blog.MVC.Controllers
             var model = new CreateOrEditModel();
             if (id != null)
             {
-                var post = await _context.Posts.SingleOrDefaultAsync(p => p.Id == id && !p.IsDeleted && p.CreatorId == UserId);
+                var post = await _context.Posts.SingleOrDefaultAsync(p => p.Id == id && p.CreatorId == UserId);
                 if (post != null)
                 {
                     model.PostId = post.Id;
                     model.Title = post.Title;
                     model.Content = post.Content;
 
-                    var categories = await _context.Categories.Where(c => !c.IsDeleted).ToListAsync();
+                    var categories = await _context.Categories.ToListAsync();
                     if (!categories.Any())
                     {
                         return View("~/Views/Shared/ServerError.cshtml", "没有分类数据");
@@ -68,7 +68,7 @@ namespace Blog.MVC.Controllers
                                      new CheckBoxViewModel(
                                          c.NormalizedCategoryName,
                                          c.Id.ToString(),
-                                         post.PostCategories.Any(pc => pc.CategoryId == c.Id && !pc.IsDeleted))).ToList();
+                                         post.PostCategories.Any(pc => pc.CategoryId == c.Id))).ToList();
                     return View("CreateOrEdit", model);
                 }
             }
@@ -94,7 +94,7 @@ namespace Blog.MVC.Controllers
                 };
                 foreach (var id in model.SelectedCategoryIds)
                 {
-                    if (_context.Categories.Any(c => c.Id == id && !c.IsDeleted))
+                    if (_context.Categories.Any(c => c.Id == id))
                     {
                         postEntity.PostCategories.Add(new PostCategory
                         {
@@ -108,7 +108,7 @@ namespace Blog.MVC.Controllers
             }
             else
             {
-                postEntity = await _context.Posts.SingleOrDefaultAsync(p => p.Id == model.PostId && !p.IsDeleted);
+                postEntity = await _context.Posts.SingleOrDefaultAsync(p => p.Id == model.PostId);
                 if (postEntity == null)
                 {
                     return View("~/Views/Shared/ServerError.cshtml", "Post not found");

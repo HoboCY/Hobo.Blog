@@ -52,6 +52,8 @@ namespace Blog.Data.EntityConfigurations
                 .WithOne(cr => cr.Comment)
                 .HasForeignKey(cr => cr.CommentId)
                 .IsRequired();
+
+            builder.HasQueryFilter(c => !c.IsDeleted);
         }
     }
 }

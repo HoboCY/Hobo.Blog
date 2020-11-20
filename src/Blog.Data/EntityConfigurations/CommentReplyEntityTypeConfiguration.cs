@@ -47,6 +47,8 @@ namespace Blog.Data.EntityConfigurations
                 .WithMany()
                 .HasForeignKey(cr => cr.CreatorId)
                 .IsRequired();
+
+            builder.HasQueryFilter(cr => !cr.IsDeleted);
         }
     }
 }

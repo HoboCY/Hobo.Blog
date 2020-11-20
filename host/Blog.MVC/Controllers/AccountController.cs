@@ -57,9 +57,9 @@ namespace Blog.MVC.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByNameAsync(input.Email);
-                if (user == null || user.IsDeleted)
+                if (user == null)
                 {
-                    ModelState.AddModelError(string.Empty, "Username not found");
+                    ModelState.AddModelError(string.Empty, "User not found");
                     return View();
                 }
                 var result = await _signInManager.PasswordSignInAsync(user, input.Password, input.RememberMe, lockoutOnFailure: true);

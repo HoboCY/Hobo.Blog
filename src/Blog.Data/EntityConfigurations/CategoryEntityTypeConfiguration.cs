@@ -55,6 +55,8 @@ namespace Blog.Data.EntityConfigurations
                 .HasForeignKey(c => c.CreatorId)
                 .IsRequired(false);
 
+            builder.HasQueryFilter(c => !c.IsDeleted);
+
             builder.HasData(
                 new Category 
                 { 

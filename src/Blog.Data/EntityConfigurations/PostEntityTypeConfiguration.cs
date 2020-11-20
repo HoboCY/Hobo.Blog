@@ -55,6 +55,8 @@ namespace Blog.Data.EntityConfigurations
                 .WithOne(pc => pc.Post)
                 .HasForeignKey(pc => pc.PostId)
                 .IsRequired();
+
+            builder.HasQueryFilter(p => !p.IsDeleted);
         }
     }
 }
