@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using AutoMapper;
 using Blog.Data;
 using Blog.Model;
 using Blog.MVC.Models;
@@ -80,14 +77,19 @@ namespace Blog.MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrEditAsync(CreateOrEditModel model)
         {
-            if (!ModelState.IsValid) return View(model);
+            if (!ModelState.IsValid)
+            {
+                model.CategoryList = await _context.Categories.Select(c =>
+                                    new CheckBoxViewModel(c.NormalizedCategoryName, c.Id.ToString(), false)).ToListAsync();
+                return View(model);
+            }
             Post postEntity = null;
             if (model.PostId == Guid.Empty)
             {
                 postEntity = new Post
                 {
                     Title = model.Title,
-                    Content = model.Content.Trim(),
+                    Content = HtmlEncoder.Default.Encode(model.Content.Trim()),
                     ContentAbstract = model.Content.Trim().Length > 50 ?
                     model.Content.Trim().FilterHtml().Substring(0, 50) : model.Content.Trim().FilterHtml().Substring(0, model.Content.Length / 2),
                     CreatorId = UserId
