@@ -1,14 +1,12 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using AutoMapper;
 using Blog.Data;
 using Blog.Model;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -34,13 +32,7 @@ namespace Blog.MVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            //    .AddCookie(options =>
-            //    {
-            //        options.LoginPath = "/account/login";
-            //        options.LogoutPath = "/account/logout";
-            //        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-            //    });
+            services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.All));   //解决Html中文编码问题
 
             services.AddDbContext<BlogDbContext>(options =>
             {
@@ -56,8 +48,7 @@ namespace Blog.MVC
             .AddIdentity<ApplicationUser, ApplicationRole>()
             .AddEntityFrameworkStores<BlogDbContext>()
             .AddDefaultUI()
-            .AddDefaultTokenProviders()
-            ;
+            .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
             {
