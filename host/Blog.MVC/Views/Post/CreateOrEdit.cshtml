@@ -12,9 +12,8 @@
     <partial name="_ValidationScriptsPartial" />
     <script src="~/lib/3rd/xss.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.2/highlight.min.js"></script>
-    <script src="//unpkg.com/wangeditor/dist/wangEditor.min.js"></script>
+    <script src="~/lib/3rd/wangEditor.min.js"></script>
     <script asp-append-version="true">
-        //import hljs from 'highlight.js'
         const E = window.wangEditor;
         const editor = new E('#editor');
         editor.config.placeholder = 'Please enter the content here';
@@ -24,17 +23,62 @@
         editor.config.uploadImgMaxLength = 5;
         editor.highlight = hljs;
         hljs.initHighlightingOnLoad();
-        const $content = $("#content");
+        const $content = $("#editor-content");
+        const $title = $("#title");
         editor.config.onchange = function (html) {
-            // 第二步，监控变化，同步更新到 textarea
             var xssHtml = filterXSS(html);
             $content.val(xssHtml);
         }
         editor.create();
 
+        var title = "@Model.Title";
         var content = `@Html.Raw(Model.Content)`;
 
+        $title.val(title);
         editor.txt.html(content);
+
+        $("#PostForm").validate({
+            rules: {
+                Title: {
+                    required: true,
+                    minlength: 5,
+                    maxlength: 50
+                },
+                Content: {
+                    required: true,
+                    minlength: 50
+                },
+                SelectedCategoryIds: {
+                    required: true,
+                    minlength: 1
+                }
+            },
+            messages: {
+                Title: {
+                    required: "请输入标题",
+                    minlength: "标题至少5个字符",
+                    maxlength: "标题最多5个字符"
+                },
+                Content: {
+                    required: "请输入内容",
+                    minlength: "内容至少50个字符",
+                },
+                SelectedCategoryIds: {
+                    required: "请选择至少一个分类",
+                    minlength: "请选择至少{0}个分类"
+                }
+            },
+            ignore: "",
+            submitHandler: function (form) {
+                form.submit();
+            },
+            errorElement: "li",
+            errorClass: "text-danger",
+            errorPlacement: function (error, element) {
+                $("#error-list").append(error);
+            }
+
+        });
     </script>
 }
 
@@ -42,18 +86,18 @@
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div class="row">
     <div class="col-md-12">
-        <form method="post" id="PostForm" asp-controller="Post" asp-action="CreateOrEdit">
-            <div class="text-danger" asp-validation-summary="All"></div>
+        <form method="post" id="PostForm" asp-controller="Post" asp-action="CreateOrEdit" novalidate>
+            <div id="error-list" class="text-danger" asp-validation-summary="All"></div>
             <input asp-for="PostId" />
             <div class="row">
                 <div class="col-md-8">
                     <div class="form-group">
-                        <input asp-for="Title" class="form-control" placeholder="Title" />
+                        <input id="title" name="Title" class="form-control" placeholder="Title" />
                     </div>
                     <div class="form-group">
+                        <input id="editor-content" name="Content" class="form-control" type="hidden" />
                         <div id="editor">
                         </div>
-                        <input id="content" type="hidden" name="Content" />
                     </div>
                     <button id="submit-button" type="submit" class="btn btn-primary">提交</button>
                 </div>

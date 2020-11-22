@@ -2,9 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace Blog.MVC.Models.Post
 {
@@ -28,6 +26,7 @@ namespace Blog.MVC.Models.Post
 
         [Required(ErrorMessage = "请输入{0}")]
         [Display(Name = "内容")]
+        [MinLength(50)]
         public string Content { get; set; }
 
         [Required(ErrorMessage = "请选择至少一个分类")]
