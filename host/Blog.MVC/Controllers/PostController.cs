@@ -27,6 +27,7 @@ namespace Blog.MVC.Controllers
             return View();
         }
 
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateAsync()
         {
             var categories = await _context.Categories.ToListAsync();
