@@ -1,0 +1,10 @@
+﻿.post-title {
+    color: #2a579a;
+    cursor: pointer;
+}
+
+.post-content-abstract {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

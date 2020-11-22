@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Blog.MVC.Extensions;
 using System.Text.Encodings.Web;
+using X.PagedList;
 
 namespace Blog.MVC.Controllers
 {
@@ -22,12 +23,28 @@ namespace Blog.MVC.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            return View();
+            var pageSize = 10;
+            var posts = await _context.Posts.OrderByDescending(p => p.CreationTime)
+                                            .Select(p => new PostViewModel
+                                            {
+                                                Id = p.Id,
+                                                Title = p.Title,
+                                                ContentAbstract = p.ContentAbstract,
+                                                CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local),
+                                                CreatorId = p.Creator.Id,
+                                                CreatorName = p.Creator.UserName
+                                            }).Skip((page - 1) * pageSize).Take(pageSize).AsNoTracking().ToListAsync();
+
+            var count = await _context.Posts.CountAsync();
+
+            var list = new StaticPagedList<PostViewModel>(posts, page, pageSize, count);
+
+            return View(list);
         }
 
-        [ValidateAntiForgeryToken]
+        
         public async Task<IActionResult> CreateAsync()
         {
             var categories = await _context.Categories.ToListAsync();
@@ -76,6 +93,7 @@ namespace Blog.MVC.Controllers
 
         [Authorize]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateOrEditAsync(CreateOrEditModel model)
         {
             if (!ModelState.IsValid)

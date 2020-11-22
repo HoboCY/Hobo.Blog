@@ -1,6 +1,39 @@
-﻿@{
+﻿@using X.PagedList.Mvc.Core
+@using X.PagedList.Mvc.Core.Common
+@model X.PagedList.StaticPagedList<PostViewModel>
+@{
     ViewData["Title"] = "Post";
 }
-<div>
-    This is Post Index;
-</div>
+
+@section Scripts{
+    <link href="~/css/post.css" rel="stylesheet" />
+}
+
+<h3 class="h3-cat-list">
+    <a class="float-right d-none d-md-block" title="Subscribe Recent 20 Posts">
+        <span class="icon-rss"></span>
+    </a>
+    <span>
+        全部文章
+    </span>
+</h3>
+<hr />
+
+@if (Model.Any())
+{
+    <partial name="_PostList" />
+    @Html.PagedListPager(Model, page => $"?page={page}", new PagedListRenderOptions
+    {
+        LiElementClasses = new[] { "page-item" },
+        PageClasses = new[] { "page-link" },
+        UlElementClasses = new[] { "pagination justify-content-end" },
+        MaximumPageNumbersToDisplay = 5,
+        DisplayEllipsesWhenNotShowingAllPageNumbers = false
+    })
+}
+else
+{
+    <div class="alert alert-info">
+        No Posts.
+    </div>
+}
