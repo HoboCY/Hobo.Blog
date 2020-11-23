@@ -23,7 +23,7 @@ namespace Blog.Data.EntityConfigurations
                 .IsRequired();
 
             builder.Property(p => p.ContentAbstract)
-                .HasMaxLength(255)
+                .HasColumnType("text")
                 .IsRequired();
 
             builder.Property(p => p.CreatorId)
