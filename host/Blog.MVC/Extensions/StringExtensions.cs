@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Blog.MVC.Extensions
 {
@@ -25,14 +21,6 @@ namespace Blog.MVC.Extensions
 
             }
             return pwd;
-        }
-
-        public static string FilterHtml(this string htmlStr)
-        {
-            if (!string.IsNullOrEmpty(htmlStr))
-                return System.Text.RegularExpressions.Regex.Replace(htmlStr, "<[^>]*>|&nbsp;", "");
-            else
-                return "";
         }
     }
 }
