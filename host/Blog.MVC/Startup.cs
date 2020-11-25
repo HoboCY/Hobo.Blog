@@ -4,10 +4,13 @@ using System.Text.Unicode;
 using AutoMapper;
 using Blog.Data;
 using Blog.Model;
+using Blog.MVC.Mails;
+using Blog.MVC.Options;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +29,7 @@ namespace Blog.MVC
 
         public IConfiguration Configuration { get; }
 
-        public static readonly ILoggerFactory EFLoggerFactory
+        public static readonly ILoggerFactory EfLoggerFactory
     = LoggerFactory.Create(builder => { builder.AddConsole(); });
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -42,7 +45,7 @@ namespace Blog.MVC
                                                          x.MigrationsAssembly("Blog.Data");
                                                          x.EnableRetryOnFailure(3, TimeSpan.FromSeconds(10), null);
                                                      });
-                options.UseLoggerFactory(EFLoggerFactory);
+                options.UseLoggerFactory(EfLoggerFactory);
                 options.UseLazyLoadingProxies();
             })
             .AddIdentity<ApplicationUser, ApplicationRole>()
@@ -78,7 +81,11 @@ namespace Blog.MVC
                 options.SlidingExpiration = true;
             });
 
+            services.Configure<EmailOptions>(Configuration.GetSection("EmailOptions"));
             services.Configure<CosOptions>(Configuration.GetSection("Tencent.QCloud.CosOptions"));
+
+            services.AddTransient<IEmailSender, EmailSender>();
+
             services.AddCos();
 
             services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
