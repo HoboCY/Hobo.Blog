@@ -20,20 +20,18 @@
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <div class="checkbox">
-                    <label asp-for="RememberMe">
-                        <input asp-for="RememberMe" />
-                        @Html.DisplayNameFor(m => m.RememberMe)
-                    </label>
-                </div>
+                <label asp-for="RememberMe">
+                    <input asp-for="RememberMe" />
+                    @Html.DisplayNameFor(m => m.RememberMe)
+                </label>
             </div>
             <div class="form-group">
                 <button type="submit" class="btn btn-primary">登录</button>
             </div>
             <div class="form-group">
-                @*<p>
-                        <a id="forgot-password" asp-controller="Account" asp-action="ForgotPassword">Forgot your password?</a>
-                    </p>*@
+                <p>
+                    <a asp-controller="Account" asp-action="ForgotPassword">忘记密码?</a>
+                </p>
                 <p>
                     <a asp-controller="Account" asp-action="Register">注册</a>
                 </p>
