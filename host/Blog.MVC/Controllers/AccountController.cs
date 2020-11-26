@@ -8,6 +8,7 @@ using System;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Blog.MVC.Models.Account;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
 
@@ -58,6 +59,63 @@ namespace Blog.MVC.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmailAsync(string userId, string code)
+        {
+            if (userId == null || code == null)
+            {
+                return RedirectToAction(nameof(PostController.Index), "Post");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                ViewData["StatusMessage"] = new StatusMessage { StatusMessageClass = "danger", Message = $"无法加载ID为 '{userId}' 的用户。" };
+                return View();
+            }
+
+            code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+            ViewData["StatusMessage"] = new StatusMessage { StatusMessageClass = result.Succeeded ? "success" : "danger", Message = result.Succeeded ? "感谢你确认你的电子邮件。" : "确认你的电子邮件时出错。" };
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult RegisterConfirmation()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string code = null)
+        {
+            if (code == null)
+            {
+                ModelState.AddModelError(string.Empty, "必须提供密码重置代码。");
+                return View();
+            }
+            else
+            {
+                var input = new ResetPasswordModel()
+                {
+                    Code = code
+                };
+                return View(input);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> LoginAsync(LoginModel input)
         {
@@ -66,10 +124,12 @@ namespace Blog.MVC.Controllers
                 var user = await _userManager.FindByNameAsync(input.Email);
                 if (user == null)
                 {
-                    ModelState.AddModelError(string.Empty, "User not found");
+                    ModelState.AddModelError(string.Empty, "未找到使用该邮箱的用户");
                     return View();
                 }
-                var result = await _signInManager.PasswordSignInAsync(user, input.Password, input.RememberMe, lockoutOnFailure: true);
+
+                var result = await _signInManager.PasswordSignInAsync(user, input.Password, input.RememberMe,
+                    lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
@@ -77,17 +137,19 @@ namespace Blog.MVC.Controllers
                     await _userManager.UpdateAsync(user);
                     return RedirectToAction(nameof(PostController.Index), "Post");
                 }
+
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning("User account locked out.");
-                    return RedirectToAction(nameof(AccountController.Lockout));
+                    return RedirectToAction(nameof(Lockout));
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt");
+                    ModelState.AddModelError(string.Empty, "登录信息无效");
                     return View();
                 }
             }
+
             return View();
         }
 
@@ -119,10 +181,11 @@ namespace Blog.MVC.Controllers
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.ActionLink("ConfirmEmail", "Account", new { userId = user.Id, code = code });
+                    var callbackUrl = Url.ActionLink("ConfirmEmail", "Account", new { userId = user.Id, code = code },
+                        Request.Scheme);
 
                     await _emailSender.SendEmailAsync(input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        $"确认你的账户请<a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>点击此处</a>。");
 
                     if (_userManager.Options.SignIn.RequireConfirmedEmail)
                     {
@@ -134,40 +197,15 @@ namespace Blog.MVC.Controllers
                         return RedirectToAction(nameof(PostController.Index), "Post");
                     }
                 }
+
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
+
             return View();
         }
-
-        [HttpGet]
-        public async Task<IActionResult> ConfirmEmailAsync(string userId, string code)
-        {
-            if (userId == null || code == null)
-            {
-                return RedirectToAction("Index", "Post");
-            }
-
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return NotFound($"Unable to load user with ID '{userId}'.");
-            }
-
-            code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
-            var result = await _userManager.ConfirmEmailAsync(user, code);
-            ViewData["StatusMessage"] = result.Succeeded ? "Thank you for confirming your email." : "Error confirming your email.";
-            return View();
-        }
-
-        [HttpGet]
-        public IActionResult RegisterConfirmation()
-        {
-            return View();
-        }
-
 
         [HttpPost]
         public async Task<IActionResult> ForgotPasswordAsync(ForgotPasswordModel input)
@@ -177,26 +215,53 @@ namespace Blog.MVC.Controllers
                 var user = await _userManager.FindByEmailAsync(input.Email);
                 if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
                 {
-                    // Don't reveal that the user does not exist or is not confirmed
-                    //return RedirectToPage("./ForgotPasswordConfirmation");
+                    ModelState.AddModelError(string.Empty, "该邮箱未注册");
+                    return View();
                 }
 
-                // For more information on how to enable account confirmation and password reset please
-                // visit https://go.microsoft.com/fwlink/?LinkID=532713
-                //var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                //var callbackUrl = Url.Page(
-                //    "/Account/ResetPassword",
-                //    pageHandler: null,
-                //    values: new { area = "Identity", code },
-                //    protocol: Request.Scheme);
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                var callbackUrl = Url.ActionLink(
+                    nameof(ResetPassword), "Account",
+                    values: new { code },
+                    protocol: Request.Scheme);
 
-                //await _emailSender.SendEmailAsync(
-                //    Input.Email,
-                //    "Reset Password",
-                //    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                await _emailSender.SendEmailAsync(
+                    input.Email,
+                    "Reset Password",
+                    $"重置密码请 <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>点击此处</a>。");
 
-                //return RedirectToPage("./ForgotPasswordConfirmation");
+                return RedirectToAction(nameof(ForgotPasswordConfirmation));
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPasswordAsync(ResetPasswordModel input)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+
+            var user = await _userManager.FindByEmailAsync(input.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "该邮箱未注册");
+                return View();
+            }
+
+            var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(input.Code));
+            var result = await _userManager.ResetPasswordAsync(user, code, input.Password);
+            if (result.Succeeded)
+            {
+                return RedirectToAction("ResetPasswordConfirmation");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
             }
             return View();
         }

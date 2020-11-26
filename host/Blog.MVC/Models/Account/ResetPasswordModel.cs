@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Blog.MVC.Models
+namespace Blog.MVC.Models.Account
 {
-    public class RegisterModel
+    public class ResetPasswordModel
     {
         [Required(ErrorMessage = "请输入{0}")]
         [EmailAddress(ErrorMessage = "{0}格式无效")]
@@ -19,5 +19,7 @@ namespace Blog.MVC.Models
         [Display(Name = "确认密码")]
         [Compare("Password", ErrorMessage = "密码和确认密码不匹配。")]
         public string ConfirmPassword { get; set; }
+
+        public string Code { get; set; }
     }
 }
