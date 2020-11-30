@@ -16,17 +16,17 @@ namespace Tencent.COS.SDK
     public class CosService : ICosService
     {
         private readonly CosXml _cosXml;
-        private readonly CosOptions _options;
+        private readonly CosSettings _cosSettings;
         private readonly ILogger<CosService> _logger;
 
-        public CosService(IOptions<CosOptions> options,
+        public CosService(IOptions<TencentCloudSettings> options,
             ILogger<CosService> logger)
         {
-            _options = options.Value;
+            _cosSettings = options.Value.CosSettings;
             _logger = logger;
 
             //初始化 CosXmlConfig
-            string region = _options.Region; //设置一个默认的存储桶地域
+            string region = _cosSettings.Region; //设置一个默认的存储桶地域
             CosXmlConfig config = new CosXmlConfig.Builder()
               .IsHttps(true)  //设置默认 HTTPS 请求
               .SetRegion(region)  //设置一个默认的存储桶地域
@@ -35,7 +35,7 @@ namespace Tencent.COS.SDK
 
             long durationSecond = 600;  //每次请求签名有效时长，单位为秒
             QCloudCredentialProvider cosCredentialProvider = new DefaultQCloudCredentialProvider(
-              _options.SecretId, _options.SecretKey, durationSecond);
+              _cosSettings.SecretId, _cosSettings.SecretKey, durationSecond);
 
             _cosXml = new CosXmlServer(config, cosCredentialProvider);
         }
@@ -45,12 +45,12 @@ namespace Tencent.COS.SDK
             // 上传对象
             try
             {
-                string bucket = $"{_options.BucketName}-{_options.AppId}"; //存储桶，格式：BucketName-APPID
+                string bucket = $"{_cosSettings.BucketName}-{_cosSettings.AppId}"; //存储桶，格式：BucketName-APPID
                 string cosPath = fileName; // 对象键
                 PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, cosPath, data);
 
                 _cosXml.PutObject(putObjectRequest);
-                return $"https://{bucket}.cos.{_options.Region}.myqcloud.com/{cosPath}";
+                return $"https://{bucket}.cos.{_cosSettings.Region}.myqcloud.com/{cosPath}";
             }
             catch (CosClientException clientEx)
             {
@@ -70,18 +70,20 @@ namespace Tencent.COS.SDK
         {
             try
             {
-                PreSignatureStruct preSignatureStruct = new PreSignatureStruct();
-                preSignatureStruct.appid = _options.AppId;//腾讯云账号 APPID
-                preSignatureStruct.region = _options.Region; //存储桶地域
-                preSignatureStruct.bucket = $"{_options.BucketName}-{_options.AppId}"; //存储桶
-                preSignatureStruct.key = name; //对象键
-                preSignatureStruct.httpMethod = "GET"; //HTTP 请求方法
-                preSignatureStruct.isHttps = true; //生成 HTTPS 请求 URL
-                preSignatureStruct.signDurationSecond = 600; //请求签名时间为600s
-                preSignatureStruct.headers = null;//签名中需要校验的 header
-                preSignatureStruct.queryParameters = null; //签名中需要校验的 URL 中请求参数
+                PreSignatureStruct preSignatureStruct = new PreSignatureStruct
+                {
+                    appid = _cosSettings.AppId,                                 // 腾讯云账号 APPID
+                    region = _cosSettings.Region,                               // 存储桶地域
+                    bucket = $"{_cosSettings.BucketName}-{_cosSettings.AppId}", // 存储桶
+                    key = name,                                                 // 对象键
+                    httpMethod = "GET",                                         // HTTP 请求方法
+                    isHttps = true,                                             // 生成 HTTPS 请求 URL
+                    signDurationSecond = 600,                                   // 请求签名时间为600s
+                    headers = null,                                             // 签名中需要校验的 header
+                    queryParameters = null                                      // 签名中需要校验的 URL 中请求参数
+                };
 
-                string requestSignURL = _cosXml.GenerateSignURL(preSignatureStruct);
+                string requestSignUrl = _cosXml.GenerateSignURL(preSignatureStruct);
 
                 //下载请求预签名 URL (使用永久密钥方式计算的签名 URL)
                 //string localDir = System.IO.Path.GetTempPath();//本地文件夹
@@ -98,7 +100,7 @@ namespace Tencent.COS.SDK
                 //GetObjectResult result = cosXml.GetObject(request);
                 ////请求成功
                 //Console.WriteLine(result.GetResultInfo());
-                Console.WriteLine(requestSignURL);
+                Console.WriteLine(requestSignUrl);
             }
             catch (CosClientException clientEx)
             {

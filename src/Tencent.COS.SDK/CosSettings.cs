@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Tencent.COS.SDK
 {
-    public class CosOptions
+   public class CosSettings
     {
         public string AppId { get; set; }
 

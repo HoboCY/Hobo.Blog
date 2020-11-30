@@ -10,17 +10,17 @@ namespace Blog.MVC.Mails
 {
     public class EmailSender : IEmailSender
     {
-        private readonly EmailOptions _options;
+        private readonly EmailSettings _emailSettings;
 
-        public EmailSender(IOptions<EmailOptions> options)
+        public EmailSender(IOptions<EmailSettings> options)
         {
-            _options = options.Value;
+            _emailSettings = options.Value;
         }
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(_options.Username, "825646490@qq.com"));
+            message.From.Add(new MailboxAddress(_emailSettings.Username, "825646490@qq.com"));
             message.To.Add(new MailboxAddress(email.Split('@')[0], email));
 
             message.Subject = subject;
@@ -38,14 +38,14 @@ namespace Blog.MVC.Mails
                 ServerCertificateValidationCallback = (s, c, h, e) => true
             };
 
-            await client.ConnectAsync(_options.Host, _options.Port, false);
+            await client.ConnectAsync(_emailSettings.Host, _emailSettings.Port, false);
 
             // Note: since we don't have an OAuth2 token, disable
             // the XOAUTH2 authentication mechanism.
             client.AuthenticationMechanisms.Remove("XOAUTH2");
 
             // Note: only needed if the SMTP server requires authentication
-            await client.AuthenticateAsync(_options.EmailAddress, _options.Password);
+            await client.AuthenticateAsync(_emailSettings.EmailAddress, _emailSettings.Password);
 
             await client.SendAsync(message);
             await client.DisconnectAsync(true);

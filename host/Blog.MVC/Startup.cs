@@ -81,8 +81,8 @@ namespace Blog.MVC
                 options.SlidingExpiration = true;
             });
 
-            services.Configure<EmailOptions>(Configuration.GetSection("EmailOptions"));
-            services.Configure<CosOptions>(Configuration.GetSection("Tencent.QCloud.CosOptions"));
+            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
+            services.Configure<TencentCloudSettings>(Configuration.GetSection("TencentCloudSettings"));
 
             services.AddTransient<IEmailSender, EmailSender>();
 
