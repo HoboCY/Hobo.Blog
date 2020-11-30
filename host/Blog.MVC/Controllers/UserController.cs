@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Blog.Data;
 using Blog.Model;
+using Blog.MVC.Models;
 using Blog.MVC.Models.Post;
 using Blog.MVC.Models.User;
 using Microsoft.AspNetCore.Authorization;
@@ -14,6 +16,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Blog.MVC.Controllers
 {
@@ -42,144 +45,102 @@ namespace Blog.MVC.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> IndexAsync()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return View("~/Views/Shared/ServerError.cshtml", "Unable to load user.");
-            }
-            var model = await LoadIndexModelAsync(user);
-            return View(model);
-        }
 
-        private async Task<IndexModel> LoadIndexModelAsync(ApplicationUser user)
-        {
-            var userName = await _userManager.GetUserNameAsync(user);
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            return new IndexModel
-            {
-                Username = userName,
-                PhoneNumber = phoneNumber
-            };
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> IndexAsync(IndexModel input)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return View("~/Views/Shared/ServerError.cshtml", "Unable to load user.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                var model = await LoadIndexModelAsync(user);
-                return View(model);
-            }
-
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (input.PhoneNumber != phoneNumber)
-            {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, input.PhoneNumber);
-                if (!setPhoneResult.Succeeded)
-                {
-                    TempData["StatusMessage"] = "Unexpected error when trying to set phone number.";
-                    return RedirectToAction("Index");
-                }
-            }
-
-            await _signInManager.RefreshSignInAsync(user);
-            TempData["StatusMessage"] = "Your profile has been updated";
-            return RedirectToAction("Index");
-        }
 
         [HttpGet]
-        public async Task<IActionResult> PersonalDataAsync()
+        public async Task<IActionResult> Email(string statusMessage = null)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return View("~/Views/Shared/ServerError.cshtml", "Unable to load user.");
-            }
-
-            return View();
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> DeletePersonalDataAsync()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return View("~/Views/Shared/ServerError.cshtml", "Unable to load user.");
-            }
-
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeletePersonalDataAsync(DeletePersonalDataModel input)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return View("~/Views/Shared/ServerError.cshtml", "Unable to load user.");
-            }
-
-            if (!await _userManager.CheckPasswordAsync(user, input.Password))
-            {
-                ModelState.AddModelError(string.Empty, "Incorrect password.");
-                return View();
-            }
-
-            user.IsDeleted = true;
-            user.DeletionTime = DateTime.UtcNow;
-            var result = await _userManager.UpdateAsync(user);
-            var userId = await _userManager.GetUserIdAsync(user);
-            if (!result.Succeeded)
-            {
-                throw new InvalidOperationException($"Unexpected error occurred deleting user with ID '{userId}'.");
-            }
-
-            await _signInManager.SignOutAsync();
-
-            _logger.LogInformation("User with ID '{UserId}' deleted themselves.", userId);
-
-            return Redirect("~/");
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> EmailAsync(string statusMessage = null)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return View("~/Views/Shared/ServerError.cshtml", "Unable to load user.");
+                return View("~/Views/Shared/ServerError.cshtml", "无法加载用户。");
             }
             var model = await LoadEmailModelAsync(user);
             return View(model);
         }
 
-        private async Task<EmailModel> LoadEmailModelAsync(ApplicationUser user)
-        {
-            var model = new EmailModel();
-            var email = await _userManager.GetEmailAsync(user);
-            model.Email = email;
-            model.NewEmail = email;
-
-            model.IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
-            return model;
-        }
-
-        public async Task<IActionResult> EmailAsync(EmailModel input)
+        [HttpGet]
+        public async Task<IActionResult> ChangePassword()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return View("~/Views/Shared/ServerError.cshtml", "Unable to load user.");
+                return View("~/Views/Shared/ServerError.cshtml", "无法加载用户。");
+            }
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PersonalData()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            return user == null ? View("~/Views/Shared/ServerError.cshtml", "无法加载用户。") : View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DeletePersonalData()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            return user == null ? View("~/Views/Shared/ServerError.cshtml", "无法加载用户。") : View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return View("~/Views/Shared/ServerError.cshtml", "无法加载用户。");
+            }
+            var model = await LoadProfileModelAsync(user);
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Profile(ProfileModel input)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return View("~/Views/Shared/ServerError.cshtml", "无法加载用户。");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var model = await LoadProfileModelAsync(user);
+                return View(model);
+            }
+
+            if (input.Username != user.UserName)
+            {
+                user.UserName = input.Username;
+            }
+
+            if (input.PhoneNumber != user.PhoneNumber)
+            {
+                user.PhoneNumber = input.PhoneNumber;
+            }
+
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                var model = await LoadProfileModelAsync(user);
+                TempData["StatusMessage"] = JsonConvert.SerializeObject(new StatusMessage("danger", $"尝试更新个人信息时出现意外错误：{updateResult.Errors?.ToList()[0]?.Description}"));
+                return View(model);
+            }
+
+            await _signInManager.RefreshSignInAsync(user);
+            TempData["StatusMessage"] = JsonConvert.SerializeObject(new StatusMessage("success", "你的个人信息更新成功。"));
+            return RedirectToAction(nameof(Profile));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Email(EmailModel input)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return View("~/Views/Shared/ServerError.cshtml", "无法加载用户。");
             }
 
             if (!ModelState.IsValid)
@@ -191,89 +152,52 @@ namespace Blog.MVC.Controllers
             var email = await _userManager.GetEmailAsync(user);
             if (input.NewEmail != email)
             {
-                //var userId = await _userManager.GetUserIdAsync(user);
-                //var code = await _userManager.GenerateChangeEmailTokenAsync(user, input.NewEmail);
-                //var callbackUrl = Url.Action("ConfirmEmailChange", "User",
-                //    values: new { userId = userId, email = input.NewEmail, code = code },
-                //    protocol: Request.Scheme);
-                //await _emailSender.SendEmailAsync(
-                //    input.NewEmail,
-                //    "Confirm your email",
-                //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-                //ViewData["StatusMessage"] = "Confirmation link to change email sent. Please check your email.";
-                //return RedirectToAction("Email");
+                var userId = await _userManager.GetUserIdAsync(user);
                 var code = await _userManager.GenerateChangeEmailTokenAsync(user, input.NewEmail);
-                var changeEmailResult = await _userManager.ChangeEmailAsync(user, input.NewEmail, code);
-                if (!changeEmailResult.Succeeded)
-                {
-                    TempData["StatusMessage"] = "Error changing email.";
-                    return RedirectToAction("Email");
-                }
-                var setUserNameResult = await _userManager.SetUserNameAsync(user, input.NewEmail);
-                if (!setUserNameResult.Succeeded)
-                {
-                    TempData["StatusMessage"] = "Error changing user name.";
-                    return RedirectToAction("Email");
-                }
-
-                await _signInManager.RefreshSignInAsync(user);
-                TempData["StatusMessage"] = "Your email is changed.";
-                return RedirectToAction("Email");
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                var callbackUrl = Url.Action(nameof(ConfirmEmailChange), "User",
+                    values: new { userId, email = input.NewEmail, code },
+                    protocol: Request.Scheme);
+                await _emailSender.SendEmailAsync(
+                    input.NewEmail,
+                    "Confirm your email",
+                    $"确认你的邮箱请 <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>点击这里。</a>.");
+                TempData["StatusMessage"] = JsonConvert.SerializeObject(new StatusMessage("success", "邮箱更改的确认链接已经发送，请检查你的邮件。"));
+                return RedirectToAction(nameof(Email));
             }
-            TempData["StatusMessage"] = "Your email is unchanged.";
-            return RedirectToAction("Email");
+            TempData["StatusMessage"] = JsonConvert.SerializeObject(new StatusMessage("danger", "您的邮箱没有更改。"));
+            return RedirectToAction(nameof(Email));
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmailChangeAsync(string userId, string email, string code)
+        public async Task<IActionResult> ConfirmEmailChange(string userId, string email, string code)
         {
             if (userId == null || email == null || code == null)
             {
-                return RedirectToAction(nameof(IndexAsync));
+                return RedirectToAction(nameof(Profile));
             }
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return View("~/Views/Shared/ServerError.cshtml", "Unable to load user.");
+                return View("~/Views/Shared/ServerError.cshtml", "无法加载用户。");
             }
 
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
             var result = await _userManager.ChangeEmailAsync(user, email, code);
             if (!result.Succeeded)
             {
-                ViewData["StatusMessage"] = "Error changing email.";
-                return View();
-            }
-
-            // In our UI email and user name are one and the same, so when we update the email
-            // we need to update the user name.
-            var setUserNameResult = await _userManager.SetUserNameAsync(user, email);
-            if (!setUserNameResult.Succeeded)
-            {
-                ViewData["StatusMessage"] = "Error changing user name.";
+                TempData["StatusMessage"] = JsonConvert.SerializeObject(new StatusMessage("danger", $"更改邮箱时出错:{result.Errors?.ToList()[0]?.Description}"));
                 return View();
             }
 
             await _signInManager.RefreshSignInAsync(user);
-            ViewData["StatusMessage"] = "Thank you for confirming your email change.";
-            return View();
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> ChangePasswordAsync()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return View("~/Views/Shared/ServerError.cshtml", "Unable to load user.");
-            }
+            TempData["StatusMessage"] = JsonConvert.SerializeObject(new StatusMessage("success", "邮箱修改成功"));
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> ChangePasswordAsync(ChangePasswordModel input)
+        public async Task<IActionResult> ChangePassword(ChangePasswordModel input)
         {
             if (!ModelState.IsValid)
             {
@@ -283,7 +207,7 @@ namespace Blog.MVC.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return View("~/Views/Shared/ServerError.cshtml", "Unable to load user.");
+                return View("~/Views/Shared/ServerError.cshtml", "无法加载用户。");
             }
 
             var changePasswordResult = await _userManager.ChangePasswordAsync(user, input.OldPassword, input.NewPassword);
@@ -298,31 +222,60 @@ namespace Blog.MVC.Controllers
 
             await _signInManager.RefreshSignInAsync(user);
             _logger.LogInformation("User changed password successfully.");
-            ViewData["StatusMessage"] = "Your password has been changed.";
-            return View();
-        }
-
-        [HttpGet]
-        public IActionResult AddPost()
-        {
+            TempData["StatusMessage"] = JsonConvert.SerializeObject(new StatusMessage("success", "更改密码成功。"));
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddPostAsync(CreateOrEditModel model)
+        public async Task<IActionResult> DeletePersonalData(DeletePersonalDataModel input)
         {
-            var post = new Post
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                Id = Guid.NewGuid(),
-                Title = model.Title,
-                Content = model.Content,
-                ContentAbstract = model.Content.Substring(0, model.Content.Length - 10),
-                CreatorId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))
-            };
+                return View("~/Views/Shared/ServerError.cshtml", "无法加载用户。");
+            }
 
-            await _context.Posts.AddAsync(post);
-            await _context.SaveChangesAsync();
-            return View();
+            if (!await _userManager.CheckPasswordAsync(user, input.Password))
+            {
+                ModelState.AddModelError(string.Empty, "密码错误。");
+                return View();
+            }
+
+            user.IsDeleted = true;
+            user.DeletionTime = DateTime.UtcNow;
+            var result = await _userManager.UpdateAsync(user);
+            var userId = await _userManager.GetUserIdAsync(user);
+            if (!result.Succeeded)
+            {
+                throw new InvalidOperationException($"删除Id为：'{userId}' 的用户时发生意外错误:{result.Errors?.ToList()[0]?.Description}");
+            }
+
+            await _signInManager.SignOutAsync();
+
+            _logger.LogInformation("User with ID '{UserId}' deleted themselves.", userId);
+
+            return Redirect("~/");
+        }
+
+        private async Task<ProfileModel> LoadProfileModelAsync(ApplicationUser user)
+        {
+            var userName = await _userManager.GetUserNameAsync(user);
+            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+            return new ProfileModel
+            {
+                Username = userName,
+                PhoneNumber = phoneNumber
+            };
+        }
+
+        private async Task<EmailModel> LoadEmailModelAsync(ApplicationUser user)
+        {
+            var model = new EmailModel();
+            var email = await _userManager.GetEmailAsync(user);
+            model.Email = email;
+
+            model.IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+            return model;
         }
     }
 }
