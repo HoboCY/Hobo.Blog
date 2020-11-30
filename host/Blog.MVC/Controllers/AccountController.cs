@@ -41,7 +41,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> LoginAsync()
+        public async Task<IActionResult> Login()
         {
             await _signInManager.SignOutAsync();
             return View();
@@ -56,27 +56,6 @@ namespace Blog.MVC.Controllers
         [HttpGet]
         public IActionResult ForgotPassword()
         {
-            return View();
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> ConfirmEmailAsync(string userId, string code)
-        {
-            if (userId == null || code == null)
-            {
-                return RedirectToAction(nameof(PostController.Index), "Post");
-            }
-
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                ViewData["StatusMessage"] = new StatusMessage { StatusMessageClass = "danger", Message = $"无法加载ID为 '{userId}' 的用户。" };
-                return View();
-            }
-
-            code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
-            var result = await _userManager.ConfirmEmailAsync(user, code);
-            ViewData["StatusMessage"] = new StatusMessage { StatusMessageClass = result.Succeeded ? "success" : "danger", Message = result.Succeeded ? "感谢你确认你的电子邮件。" : "确认你的电子邮件时出错。" };
             return View();
         }
 
@@ -100,14 +79,12 @@ namespace Blog.MVC.Controllers
                 ModelState.AddModelError(string.Empty, "必须提供密码重置代码。");
                 return View();
             }
-            else
+
+            var input = new ResetPasswordModel()
             {
-                var input = new ResetPasswordModel()
-                {
-                    Code = code
-                };
-                return View(input);
-            }
+                Code = code
+            };
+            return View(input);
         }
 
         [HttpGet]
@@ -116,12 +93,32 @@ namespace Blog.MVC.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        {
+            if (userId == null || code == null)
+            {
+                return RedirectToAction(nameof(PostController.Index), "Post");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return View("~/Views/Shared/ServerError.cshtml", "无法加载用户。");
+            }
+
+            code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+            TempData["StatusMessage"] = new StatusMessage(result.Succeeded ? "success" : "danger", result.Succeeded ? "感谢你确认你的电子邮件。" : "确认你的电子邮件时出错。");
+            return View();
+        }
+
         [HttpPost]
-        public async Task<IActionResult> LoginAsync(LoginModel input)
+        public async Task<IActionResult> Login(LoginModel input)
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByNameAsync(input.Email);
+                var user = await _userManager.FindByEmailAsync(input.Email);
                 if (user == null)
                 {
                     ModelState.AddModelError(string.Empty, "未找到使用该邮箱的用户");
@@ -143,18 +140,16 @@ namespace Blog.MVC.Controllers
                     _logger.LogWarning("User account locked out.");
                     return RedirectToAction(nameof(Lockout));
                 }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "登录信息无效");
-                    return View();
-                }
+
+                ModelState.AddModelError(string.Empty, "登录信息无效");
+                return View();
             }
 
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> LogoutAsync(string returnUrl = null)
+        public async Task<IActionResult> Logout(string returnUrl = null)
         {
             await _signInManager.SignOutAsync();
             _logger.LogInformation("User logged out.");
@@ -162,14 +157,12 @@ namespace Blog.MVC.Controllers
             {
                 return LocalRedirect(returnUrl);
             }
-            else
-            {
-                return View();
-            }
+
+            return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> RegisterAsync(RegisterModel input)
+        public async Task<IActionResult> Register(RegisterModel input)
         {
             if (ModelState.IsValid)
             {
@@ -191,11 +184,9 @@ namespace Blog.MVC.Controllers
                     {
                         return RedirectToAction("RegisterConfirmation");
                     }
-                    else
-                    {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return RedirectToAction(nameof(PostController.Index), "Post");
-                    }
+
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction(nameof(PostController.Index), "Post");
                 }
 
                 foreach (var error in result.Errors)
@@ -208,37 +199,34 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ForgotPasswordAsync(ForgotPasswordModel input)
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel input)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View();
+            var user = await _userManager.FindByEmailAsync(input.Email);
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
             {
-                var user = await _userManager.FindByEmailAsync(input.Email);
-                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
-                {
-                    ModelState.AddModelError(string.Empty, "该邮箱未注册");
-                    return View();
-                }
-
-                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                var callbackUrl = Url.ActionLink(
-                    nameof(ResetPassword), "Account",
-                    values: new { code },
-                    protocol: Request.Scheme);
-
-                await _emailSender.SendEmailAsync(
-                    input.Email,
-                    "Reset Password",
-                    $"重置密码请 <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>点击此处</a>。");
-
-                return RedirectToAction(nameof(ForgotPasswordConfirmation));
+                ModelState.AddModelError(string.Empty, "该邮箱未注册");
+                return View();
             }
 
-            return View();
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var callbackUrl = Url.ActionLink(
+                nameof(ResetPassword), "Account",
+                values: new { code },
+                protocol: Request.Scheme);
+
+            await _emailSender.SendEmailAsync(
+                input.Email,
+                "Reset Password",
+                $"重置密码请 <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>点击此处</a>。");
+
+            return RedirectToAction(nameof(ForgotPasswordConfirmation));
+
         }
 
         [HttpPost]
-        public async Task<IActionResult> ResetPasswordAsync(ResetPasswordModel input)
+        public async Task<IActionResult> ResetPassword(ResetPasswordModel input)
         {
             if (!ModelState.IsValid)
             {
@@ -256,7 +244,7 @@ namespace Blog.MVC.Controllers
             var result = await _userManager.ResetPasswordAsync(user, code, input.Password);
             if (result.Succeeded)
             {
-                return RedirectToAction("ResetPasswordConfirmation");
+                return RedirectToAction(nameof(ResetPasswordConfirmation));
             }
 
             foreach (var error in result.Errors)
