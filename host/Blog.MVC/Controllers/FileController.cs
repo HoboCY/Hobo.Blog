@@ -34,19 +34,17 @@ namespace Blog.MVC.Controllers
             var result = new ImageUploadResult();
             foreach (var file in files)
             {
-                using (var memoryStream = new MemoryStream())
+                await using var memoryStream = new MemoryStream();
+                try
                 {
-                    try
-                    {
-                        await file.CopyToAsync(memoryStream);
-                        var url = _cosService.Upload(memoryStream.ToArray(), $"{User.Identity.Name}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}");
-                        result.Data.Add(url);
-                    }
-                    catch (Exception ex)
-                    {
-                        result.Errno = 1;
-                        _logger.LogError(ex.Message);
-                    }
+                    await file.CopyToAsync(memoryStream);
+                    var url = _cosService.Upload(memoryStream.ToArray(), $"{User.Identity.Name}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}");
+                    result.Data.Add(url);
+                }
+                catch (Exception ex)
+                {
+                    result.Errno = 1;
+                    _logger.LogError(ex.Message);
                 }
             }
             return Ok(result);
