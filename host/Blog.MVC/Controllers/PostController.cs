@@ -44,8 +44,9 @@ namespace Blog.MVC.Controllers
             return View(list);
         }
 
-        
-        public async Task<IActionResult> CreateAsync()
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Create()
         {
             var categories = await _context.Categories.ToListAsync();
             if (categories.Any())
@@ -62,10 +63,11 @@ namespace Blog.MVC.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> EditAsync(Guid id)
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
         {
             var model = new CreateOrEditModel();
-            if (id != null)
+            if (id !=Guid.Empty)
             {
                 var post = await _context.Posts.SingleOrDefaultAsync(p => p.Id == id && p.CreatorId == UserId);
                 if (post != null)
@@ -88,13 +90,13 @@ namespace Blog.MVC.Controllers
                 }
             }
             TempData["StatusMessage"] = "Can't load the post";
-            return RedirectToAction("Create");
+            return RedirectToAction(nameof(Create));
         }
 
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateOrEditAsync(CreateOrEditModel model)
+        public async Task<IActionResult> CreateOrEdit(CreateOrEditModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -108,9 +110,8 @@ namespace Blog.MVC.Controllers
                 postEntity = new Post
                 {
                     Title = model.Title,
-                    Content = HtmlEncoder.Default.Encode(model.Content.Trim()),
-                    ContentAbstract = model.Content.Trim().Length > 50 ?
-                    model.Content.Trim().FilterHtml().Substring(0, 50) : model.Content.Trim().FilterHtml().Substring(0, model.Content.Length / 2),
+                    Content = model.Content.Trim(),
+                    ContentAbstract = ContentProcessor.GetPostAbstract(model.Content, 400),
                     CreatorId = UserId
                 };
                 foreach (var id in model.SelectedCategoryIds)
@@ -136,8 +137,7 @@ namespace Blog.MVC.Controllers
                 }
                 postEntity.Title = model.Title;
                 postEntity.Content = model.Content;
-                postEntity.ContentAbstract = model.Content.Trim().Length > 50 ?
-                    model.Content.Trim().FilterHtml().Substring(0, 50) : model.Content.Trim().FilterHtml().Substring(0, model.Content.Length / 2);
+                postEntity.ContentAbstract = ContentProcessor.GetPostAbstract(model.Content, 400);
                 postEntity.LastModificationTime = DateTime.UtcNow;
                 postEntity.PostCategories.Clear();
                 foreach (var id in model.SelectedCategoryIds)
