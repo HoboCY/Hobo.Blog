@@ -4,12 +4,10 @@
     ViewData["Title"] = "创建/编辑帖子";
     ViewData["ActivePage"] = ManageNavPages.CreateOrEditPost;
 }
-@section Css {
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.2/styles/vs.min.css">
-}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.2/styles/vs.min.css">
     <script src="~/lib/3rd/xss.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.3.2/highlight.min.js"></script>
     <script src="~/lib/3rd/wangEditor.min.js"></script>
@@ -112,9 +110,9 @@
                                 @foreach (var category in Model.CategoryList)
                                 {
                                     <div class="custom-control custom-checkbox">
-                                        <input id="cat-@category.Value" name="SelectedCategoryIds" class="custom-control-input" type="checkbox" value="@category.Value"
+                                        <input id="@category.Value" name="SelectedCategoryIds" class="custom-control-input" type="checkbox" value="@category.Value"
                                                @(category.IsChecked ? "checked=\"checked\"" : null)>
-                                        <label class="custom-control-label" for="cat-@category.Value">
+                                        <label class="custom-control-label" for="@category.Value">
                                             @category.DisplayText
                                         </label>
                                     </div>

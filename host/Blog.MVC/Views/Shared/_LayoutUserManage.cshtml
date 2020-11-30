@@ -3,10 +3,6 @@
 }
 <h2>管理你的账户</h2>
 
-@section Css {
-    @RenderSection("Css", required: false)
-}
-
 <div>
     <h4>更改账户设置</h4>
     <hr />
@@ -21,5 +17,5 @@
 </div>
 
 @section Scripts {
-    @RenderSection("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 }

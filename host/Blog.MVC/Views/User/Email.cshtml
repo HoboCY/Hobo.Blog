@@ -9,7 +9,7 @@
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div class="row">
     <div class="col-md-6">
-        <form id="email-form" method="post" asp-controller="User" asp-action="Email">
+        <form id="email-form" method="post" asp-action="@nameof(UserController.Email)">
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Email"></label>
@@ -33,7 +33,7 @@
                 <input asp-for="NewEmail" class="form-control" />
                 <span asp-validation-for="NewEmail" class="text-danger"></span>
             </div>
-            <button id="change-email-button" type="submit" class="btn btn-primary">更改邮箱</button>
+            <button id="change-email-button" type="submit" class="btn btn-primary">提交</button>
         </form>
     </div>
 </div>

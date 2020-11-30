@@ -8,7 +8,7 @@ namespace Blog.MVC.Views.User
 {
     public static class ManageNavPages
     {
-        public static string Index => "Index";
+        public static string Profile => "Profile";
 
         public static string Email => "Email";
 
@@ -20,7 +20,7 @@ namespace Blog.MVC.Views.User
 
         public static string CreateOrEditPost => "CreateOrEditPost";
 
-        public static string IndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, Index);
+        public static string IndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, Profile);
 
         public static string EmailNavClass(ViewContext viewContext) => PageNavClass(viewContext, Email);
 
