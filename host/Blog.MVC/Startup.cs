@@ -6,6 +6,7 @@ using Blog.Data;
 using Blog.Model;
 using Blog.MVC.Mails;
 using Blog.MVC.Options;
+using Blog.MVC.Settings;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -81,6 +82,7 @@ namespace Blog.MVC
                 options.SlidingExpiration = true;
             });
 
+            services.Configure<BlogSettings>(Configuration.GetSection("BlogSettings"));
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.Configure<TencentCloudSettings>(Configuration.GetSection("TencentCloudSettings"));
 
