@@ -1,0 +1,22 @@
+﻿@{
+    var currentAction = ViewContext.RouteData?.Values["action"]?.ToString();
+}
+
+<h3>
+    文章
+    <a class="btn btn-outline-success float-right" asp-controller="Post" asp-action="Create">
+        <img src="~/lib/bootstrap-icons-1.1.0/plus.svg" width="25" height="25">
+        新建
+    </a>
+</h3>
+<hr />
+
+<ul class="nav nav-tabs">
+    <li role="presentation" class="nav-item">
+        <a class="nav-link @(currentAction == "Manage" ? "active" : null)" asp-controller="Post" asp-action="@nameof(PostController.Manage)">已发布</a>
+    </li>
+    <li role="presentation" class="nav-item">
+        <a class="nav-link @(currentAction == "RecycleBin" ? "active" : null)" asp-controller="Post" asp-action="@nameof(PostController.RecycleBin)">回收站</a>
+    </li>
+</ul>
+<div class="mb-3"></div>

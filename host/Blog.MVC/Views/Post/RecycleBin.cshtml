@@ -1,0 +1,94 @@
+﻿@{
+    Layout = "_LayoutUserManage";
+    ViewData["Title"] = "管理文章";
+    ViewData["ActivePage"] = ManageNavPages.ManagePost;
+}
+
+@model IReadOnlyList<Blog.MVC.Models.Post.PostListViewModel>
+
+@section head{
+    <link href="~/lib/3rd/DataTables/datatables.min.css" rel="stylesheet" />
+    <style>
+        .table .table-item-w20 {
+            width: 20%;
+        }
+
+        .table .table-item-w30 {
+            width: 30%;
+        }
+    </style>
+}
+
+@section Scripts{
+    <script src="~/lib/3rd/DataTables/datatables.min.js"></script>
+    <script>
+        $(function () {
+            $(".btn-delete").click(function () {
+                var cfm = confirm("Delete Confirmation?");
+                if (cfm) {
+                    deletePost($(this).data("postid"));
+                }
+            });
+
+            $("#posts-table").DataTable({
+                "order": [[1, "desc"]],
+                "lengthMenu": [[10, 15, 20, 25, 50, -1], [10, 15, 20, 25, 50, "All"]],
+                "pageLength": 10
+            });
+        });
+
+            function deletePost(postid) {
+                $(`#span-processing-${postid}`).show();
+                //$.delete("/post/")
+                //callApi(`/post/${postid}/recycle`, 'DELETE', {},
+                //    (resp) => {
+                //        $(`#tr-${postid}`).hide();
+                //    });
+            }
+    </script>
+}
+
+<partial name="_PostManageHeader" />
+
+@if (Model.Any())
+{
+    @Html.AntiForgeryToken()
+    <table id="posts-table" class="table">
+        <thead>
+            <tr>
+                <th>标题</th>
+                <th class="table-item-w30">发布时间</th>
+                <th class="table-item-w20">选项</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var post in Model)
+            {
+                <tr id="tr-@post.Id">
+                    <td>
+                        <a asp-controller="Post" asp-action="Preview"
+                           asp-route-id="@post.Id" target="_blank">
+                            @post.Title
+                        </a>
+                    </td>
+                    <td class="text-muted">
+                        @post.CreationTime.ToShortDateString()
+                    </td>
+                    <td class="p-2">
+                        <a class="btn btn-outline-primary btn-sm btn-edit" asp-controller="Post" asp-action="Edit" asp-route-id="@post.Id">
+                            <img src="/lib/bootstrap-icons-1.1.0/pencil-square.svg" alt="edit" />
+                        </a>
+                        <a class="btn btn-outline-danger btn-sm btn-delete" data-postid="@post.Id" href="javascript:;">
+                            <img src="/lib/bootstrap-icons-1.1.0/trash.svg" alt="delete" />
+                        </a>
+                        <span id="span-processing-@post.Id" style="display: none">...</span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <partial name="_NoPosts" />
+}

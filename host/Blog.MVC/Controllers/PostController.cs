@@ -10,22 +10,31 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Blog.MVC.Extensions;
 using System.Text.Encodings.Web;
+using Blog.MVC.Settings;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using X.PagedList;
 
 namespace Blog.MVC.Controllers
 {
+    [Authorize]
     public class PostController : BlogController
     {
         private readonly BlogDbContext _context;
+        private readonly BlogSettings _blogSettings;
 
-        public PostController(BlogDbContext context)
+        public PostController(
+            BlogDbContext context,
+            IOptions<BlogSettings> options)
         {
             _context = context;
+            _blogSettings = options.Value;
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Index(int page = 1)
         {
-            var pageSize = 10;
+            var pageSize = _blogSettings.PostListPageSize;
             var posts = await _context.Posts.OrderByDescending(p => p.CreationTime)
                                             .Select(p => new PostViewModel
                                             {
@@ -44,7 +53,34 @@ namespace Blog.MVC.Controllers
             return View(list);
         }
 
-        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> Manage()
+        {
+            var postList = await _context.Posts.Where(p => p.CreatorId == UserId).OrderByDescending(p => p.CreationTime)
+                .Select(p => new PostListViewModel()
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local),
+                    IsDeleted = p.IsDeleted
+                }).ToListAsync();
+            return View(postList);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> RecycleBin()
+        {
+            var postList = await _context.Posts.IgnoreQueryFilters().Where(p => p.IsDeleted && p.CreatorId == UserId).OrderByDescending(p => p.CreationTime)
+                .Select(p => new PostListViewModel()
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local),
+                    IsDeleted = p.IsDeleted
+                }).ToListAsync();
+            return View(postList);
+        }
+
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -53,21 +89,20 @@ namespace Blog.MVC.Controllers
             {
                 var model = new CreateOrEditModel
                 {
-                    PostId = Guid.Empty
+                    PostId = Guid.Empty,
+                    CategoryList = categories.Select(c =>
+                        new CheckBoxViewModel(c.NormalizedCategoryName, c.Id.ToString(), false)).ToList()
                 };
-                model.CategoryList = categories.Select(c =>
-                                     new CheckBoxViewModel(c.NormalizedCategoryName, c.Id.ToString(), false)).ToList();
                 return View("CreateOrEdit", model);
             }
             return View("~/Views/Shared/ServerError.cshtml", "没有分类数据");
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
             var model = new CreateOrEditModel();
-            if (id !=Guid.Empty)
+            if (id != Guid.Empty)
             {
                 var post = await _context.Posts.SingleOrDefaultAsync(p => p.Id == id && p.CreatorId == UserId);
                 if (post != null)
@@ -89,11 +124,10 @@ namespace Blog.MVC.Controllers
                     return View("CreateOrEdit", model);
                 }
             }
-            TempData["StatusMessage"] = "Can't load the post";
+            TempData["StatusMessage"] = JsonConvert.SerializeObject(new StatusMessage("danger", "无法加载文章。"));
             return RedirectToAction(nameof(Create));
         }
 
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateOrEdit(CreateOrEditModel model)
@@ -111,7 +145,7 @@ namespace Blog.MVC.Controllers
                 {
                     Title = model.Title,
                     Content = model.Content.Trim(),
-                    ContentAbstract = ContentProcessor.GetPostAbstract(model.Content, 400),
+                    ContentAbstract = ContentProcessor.GetPostAbstract(model.Content, _blogSettings.PostAbstractWords),
                     CreatorId = UserId
                 };
                 foreach (var id in model.SelectedCategoryIds)
@@ -133,7 +167,7 @@ namespace Blog.MVC.Controllers
                 postEntity = await _context.Posts.SingleOrDefaultAsync(p => p.Id == model.PostId);
                 if (postEntity == null)
                 {
-                    return View("~/Views/Shared/ServerError.cshtml", "Post not found");
+                    return View("~/Views/Shared/ServerError.cshtml", "没有找到文章。");
                 }
                 postEntity.Title = model.Title;
                 postEntity.Content = model.Content;
@@ -155,7 +189,7 @@ namespace Blog.MVC.Controllers
                 _context.Posts.Update(postEntity);
             }
             await _context.SaveChangesAsync();
-            return Redirect($"/Post/Edit/{postEntity.Id}");
+            return RedirectToAction(nameof(Edit), new { id = postEntity.Id });
         }
     }
 }
