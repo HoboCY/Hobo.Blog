@@ -1,6 +1,9 @@
 ﻿@{
     Layout = "_Layout";
 }
+@section head{
+    @await RenderSectionAsync("head", false)
+}
 <h2>管理你的账户</h2>
 
 <div>
