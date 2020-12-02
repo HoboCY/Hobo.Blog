@@ -24,27 +24,51 @@
     <script>
         $(function () {
             $(".btn-delete").click(function () {
-                var cfm = confirm("Delete Confirmation?");
+                var cfm = confirm("确认删除?");
                 if (cfm) {
                     deletePost($(this).data("postid"));
                 }
             });
 
-            $("#posts-table").DataTable({
-                "order": [[1, "desc"]],
-                "lengthMenu": [[10, 15, 20, 25, 50, -1], [10, 15, 20, 25, 50, "All"]],
-                "pageLength": 10
+            $(".btn-restore").click(function () {
+                restorePost($(this).data("postid"));
             });
         });
 
-            function deletePost(postid) {
-                $(`#span-processing-${postid}`).show();
-                //$.delete("/post/")
-                //callApi(`/post/${postid}/recycle`, 'DELETE', {},
-                //    (resp) => {
-                //        $(`#tr-${postid}`).hide();
-                //    });
-            }
+        function deletePost(postid) {
+            var csrfValue = $("input[name='__RequestVerificationToken']").val();
+            $.ajax({
+                type: "DELETE",
+                url: `/Post/Delete/${postid}`,
+                data: { "__RequestVerificationToken": csrfValue },
+                contentType: "application/x-www-form-urlencoded;",
+                success: function (data, textStatus, jqXHR) {
+                    alert("删除成功");
+                    $(`#tr-${postid}`).hide();
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+        }
+
+        function restorePost(postid) {
+            var csrfValue = $("input[name='__RequestVerificationToken']").val();
+            console.log(csrfValue);
+            $.ajax({
+                type: "POST",
+                url: `/Post/Restore`,
+                data: { postid, "__RequestVerificationToken": csrfValue },
+                contentType: "application/x-www-form-urlencoded",
+                success: function (data, textStatus, jqXHR) {
+                    alert("成功恢复");
+                    $(`#tr-${postid}`).hide();
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+        }
     </script>
 }
 
@@ -53,12 +77,12 @@
 @if (Model.Any())
 {
     @Html.AntiForgeryToken()
-    <table id="posts-table" class="table">
+    <table id="posts-table" class="table table-bordered">
         <thead>
             <tr>
                 <th>标题</th>
-                <th class="table-item-w30">发布时间</th>
-                <th class="table-item-w20">选项</th>
+                <th class="table-item-w20">发布时间</th>
+                <th class="table-item-w30">选项</th>
             </tr>
         </thead>
         <tbody>
@@ -66,20 +90,19 @@
             {
                 <tr id="tr-@post.Id">
                     <td>
-                        <a asp-controller="Post" asp-action="Preview"
-                           asp-route-id="@post.Id" target="_blank">
-                            @post.Title
-                        </a>
+                        @post.Title
                     </td>
                     <td class="text-muted">
                         @post.CreationTime.ToShortDateString()
                     </td>
                     <td class="p-2">
-                        <a class="btn btn-outline-primary btn-sm btn-edit" asp-controller="Post" asp-action="Edit" asp-route-id="@post.Id">
-                            <img src="/lib/bootstrap-icons-1.1.0/pencil-square.svg" alt="edit" />
+                        <a class="btn btn-outline-primary btn-sm btn-restore" data-postid="@post.Id">
+                            <img src="/lib/bootstrap-icons-1.1.0/arrow-return-left.svg" alt="restore" />
+                            恢复
                         </a>
                         <a class="btn btn-outline-danger btn-sm btn-delete" data-postid="@post.Id" href="javascript:;">
                             <img src="/lib/bootstrap-icons-1.1.0/trash.svg" alt="delete" />
+                            彻底删除
                         </a>
                         <span id="span-processing-@post.Id" style="display: none">...</span>
                     </td>

@@ -24,7 +24,7 @@
     <script>
         $(function () {
             $(".btn-delete").click(function () {
-                var cfm = confirm("Delete Confirmation?");
+                var cfm = confirm("确认删除?");
                 if (cfm) {
                     deletePost($(this).data("postid"));
                 }
@@ -37,14 +37,22 @@
             });
         });
 
-            function deletePost(postid) {
-                $(`#span-processing-${postid}`).show();
-                //$.delete("/post/")
-                //callApi(`/post/${postid}/recycle`, 'DELETE', {},
-                //    (resp) => {
-                //        $(`#tr-${postid}`).hide();
-                //    });
-            }
+        function deletePost(postid) {
+            var csrfValue = $("input[name='__RequestVerificationToken']").val();
+            $.ajax({
+                type: "DELETE",
+                url: `/Post/Recycle/${postid}`,
+                data: { "__RequestVerificationToken": csrfValue },
+                contentType: "application/x-www-form-urlencoded;",
+                success: function (data, textStatus, jqXHR) {
+                    alert("删除成功");
+                    $(`#tr-${postid}`).hide();
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+        }
     </script>
 }
 
@@ -53,7 +61,7 @@
 @if (Model.Any())
 {
     @Html.AntiForgeryToken()
-    <table id="posts-table" class="table">
+    <table id="posts-table" class="table table-bordered">
         <thead>
             <tr>
                 <th>标题</th>
@@ -75,13 +83,14 @@
                         @post.CreationTime.ToShortDateString()
                     </td>
                     <td class="p-2">
-                        <a class="btn btn-outline-primary btn-sm" asp-controller="Post" asp-action="Edit" asp-route-id="@post.Id">
+                        <a class="btn btn-outline-primary btn-sm" asp-controller="Post" asp-action="@nameof(PostController.Edit)" asp-route-id="@post.Id">
                             <img src="~/lib/bootstrap-icons-1.1.0/pencil-square.svg" alt="edit" />
+                            编辑
                         </a>
                         <a class="btn btn-outline-danger btn-sm btn-delete" data-postid="@post.Id" href="javascript:;">
                             <img src="~/lib/bootstrap-icons-1.1.0/trash.svg" alt="delete" />
+                            删除
                         </a>
-                        <span id="span-processing-@post.Id" style="display: none">...</span>
                     </td>
                 </tr>
             }

@@ -81,6 +81,63 @@ namespace Blog.MVC.Controllers
             return View(postList);
         }
 
+        [HttpDelete]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Recycle(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest("参数错误，删除失败");
+            }
+
+            var post = await _context.Posts.FindAsync(id);
+            
+            if (post != null)
+            {
+                post.IsDeleted = true;
+                await _context.SaveChangesAsync();
+            }
+            return Ok();
+        }
+
+        [HttpDelete]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest("参数错误，删除失败");
+            }
+
+            var post = await _context.Posts.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == id);
+
+            if (post != null)
+            {
+                _context.Posts.Remove(post);
+                await _context.SaveChangesAsync();
+            }
+            return Ok();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Restore(Guid postId)
+        {
+            if (postId == Guid.Empty)
+            {
+                return BadRequest("参数错误，恢复失败");
+            }
+
+            var post = await _context.Posts.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == postId);
+            
+            if (post != null)
+            {
+                post.IsDeleted = false;
+                await _context.SaveChangesAsync();
+            }
+            return Ok();
+        }
+
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -189,7 +246,7 @@ namespace Blog.MVC.Controllers
                 _context.Posts.Update(postEntity);
             }
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Edit), new { id = postEntity.Id });
+            return RedirectToAction(nameof(Manage));
         }
     }
 }
