@@ -1,0 +1,145 @@
+﻿@{
+    Layout = "_LayoutAdmin";
+}
+
+@model Blog.MVC.Models.Admin.CategoryManageViewModel
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        var emptyGuid = '00000000-0000-0000-0000-000000000000';
+        $(".btn-delete").click(function () {
+            var cfm = confirm("确认删除?");
+            if (cfm) deleteCat($(this).data("catid"));
+        });
+
+        $(".btn-edit").click(function () {
+            editCat($(this).data("catid"));
+        });
+
+        function deleteCat(id) {
+            var csrfValue = $("input[name='__RequestVerificationToken']").val();
+            $.ajax({
+                type: "DELETE",
+                url: `/Category/Delete/${id}`,
+                data: { "__RequestVerificationToken": csrfValue },
+                contentType: "application/x-www-form-urlencoded;",
+                success: function (data, textStatus, jqXHR) {
+                    alert("删除成功");
+                    $(`#card-${id}`).hide();
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+        }
+
+        function editCat(id) {
+            $.ajax({
+                type: "GET",
+                url: `/Category/Edit/${id}`,
+                data: {},
+                contentType: "application/json",
+                success: function (data, textStatus, jqXHR) {
+                    $("#CategoryEditViewModel_Id").val(data.id);
+                    $("#CategoryEditViewModel_CategoryName").val(data.categoryName);
+                    $("#editCatModal").modal();
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+        }
+
+        $(".btn-submit").click(function () {
+            if ($("#edit-form").valid()) {
+                var action = '';
+                var catId = $("#CategoryEditViewModel_Id").val();
+                if (catId == emptyGuid) {
+                    action = "create";
+                } else {
+                    action = "edit";
+                }
+
+                var csrfValue = $("input[name='__RequestVerificationToken']").val();
+
+                $.ajax({
+                    type: "POST",
+                    url: `/Category/${action}`,
+                    data: {
+                        "Id": $("#CategoryEditViewModel_Id").val(),
+                        "CategoryName": $("#CategoryEditViewModel_CategoryName").val(),
+                        "__RequestVerificationToken": csrfValue
+                    },
+                    contentType: "application/x-www-form-urlencoded;",
+                    success: function (data, textStatus, jqXHR) {
+                        alert("编辑成功");
+                        $("#edit-form")[0].reset();
+                        $("#editCatModal").modal('hide');
+                        window.location.reload();
+                    },
+                    error: function (data) {
+                        alert(data.responseText);
+                    }
+                });
+            }
+        });
+    </script>
+}
+<h3>
+    分类
+    <a class="btn btn-outline-success float-right" href="javascript:initCreateCategory();">
+        <img src="~/lib/bootstrap-icons-1.1.0/plus.svg" alt="New" />
+        新建
+    </a>
+</h3>
+<hr />
+@Html.AntiForgeryToken()
+
+<div class="card-columns">
+    @foreach (var cat in Model.Categories.OrderBy(c => c.NormalizedCategoryName))
+    {
+        <div class="card mb-4" id="card-@cat.Id">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <a target="_blank">
+                        @cat.NormalizedCategoryName
+                    </a>
+                </h6>
+            </div>
+            <div class="card-footer">
+                <a href="javascript:;" data-catid="@cat.Id" class="btn btn-sm btn-primary btn-edit"><img src="~/lib/bootstrap-icons-1.1.0/pencil.svg" /></a>
+                <a href="javascript:;" data-catid="@cat.Id" class="btn btn-sm btn-danger btn-delete"><img src="~/lib/bootstrap-icons-1.1.0/trash.svg" /></a>
+            </div>
+        </div>
+    }
+</div>
+
+
+<div class="modal fade" id="editCatModal" tabindex="-1" role="dialog" aria-labelledby="editCatModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCatModalLabel">分类信息</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="edit-form" method="post">
+                <div class="modal-body">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <input type="hidden" asp-for="CategoryEditViewModel.Id" />
+                    <div class="form-group">
+                        <label asp-for="CategoryEditViewModel.CategoryName" class="control-label"></label>
+                        <input asp-for="CategoryEditViewModel.CategoryName" class="form-control" />
+                        <span asp-validation-for="CategoryEditViewModel.CategoryName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success btn-submit">提交</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

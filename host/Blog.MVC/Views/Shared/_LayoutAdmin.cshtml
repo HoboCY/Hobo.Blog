@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        Hobo.Blog-Admin
+    </title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        .admin-nav .list-group-item span {
+            width: 22px;
+            font-size: 16px;
+            display: inline-block;
+        }
+
+        .admin-nav .list-group-item.active {
+            color: #000;
+        }
+
+        .admin-nav-section .list-group-item {
+            background-color: transparent;
+            border: 0 none;
+        }
+
+            .admin-nav-section .list-group-item.active,
+            .admin-nav-section .list-group-item:hover {
+                background-color: #ccc;
+            }
+    </style>
+</head>
+<body>
+    <nav class="admin-nav navbar navbar-dark navbar-expand-lg" style="background-color: #2a579a;">
+        <span class="navbar-brand">Hobo.Blog-Admin</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Post" asp-action="@nameof(PostController.Index)" target="_blank">
+                        <img src="~/lib/bootstrap-icons-1.1.0/house.svg" alt="Home" />
+                    </a>
+                </li>
+            </ul>
+            <span class="navbar-text" style="color: white;">
+                @User.Identity.Name
+            </span>
+        </div>
+    </nav>
+    <div class="d-flex">
+        <aside class="admin-nav" style="background-color: #f2f2f2; width: 190px; min-height: 100vh;">
+            <section class="admin-nav-section mt-4 mb-3">
+                <div class="list-group list-group-flush">
+                    <a asp-controller="Admin" asp-action="@nameof(AdminController.Category)" class="list-group-item list-group-item-action active">
+                        <img src="~/lib/bootstrap-icons-1.1.0/folder.svg" alt="分类" />
+                        分类管理
+                    </a>
+                </div>
+            </section>
+        </aside>
+        <div class="pt-4 pr-3 pl-3">
+            <div class="container-fluid">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", false)
+</body>
+</html>
