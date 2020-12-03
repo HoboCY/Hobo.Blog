@@ -1,9 +1,18 @@
 ﻿.post-title {
     color: #2a579a;
-    cursor: pointer;
+    font-size: 1.5rem;
 }
 
 .post-content-abstract {
     word-break: break-all;
     word-wrap: break-word;
+}
+
+.post-time {
+    color: #333;
+    font-size: 0.8rem;
+}
+
+pre code {
+    border: 1px solid #d3d3d3;
 }
