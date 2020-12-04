@@ -78,6 +78,7 @@ namespace Blog.MVC
                 options.Cookie.HttpOnly = false;    //客户端脚本是否可以访问Cookie
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
                 options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Account/AccessDenied";
                 options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
                 options.SlidingExpiration = true;
             });
