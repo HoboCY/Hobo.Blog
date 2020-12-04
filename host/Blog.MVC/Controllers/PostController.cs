@@ -54,6 +54,60 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> CategoryList(Guid categoryId, int page = 1)
+        {
+            var pageSize = _blogSettings.PostListPageSize;
+            var posts = await _context.Posts.Where(p => p.PostCategories.Any(pc => pc.CategoryId == categoryId)).OrderByDescending(p => p.CreationTime)
+                .Select(p => new PostViewModel
+                {
+                    Id = p.Id,
+                    Title = p.Title,
+                    ContentAbstract = p.ContentAbstract,
+                    CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local),
+                    CreatorId = p.Creator.Id,
+                    CreatorName = p.Creator.UserName
+                }).Skip((page - 1) * pageSize).Take(pageSize).AsNoTracking().ToListAsync();
+
+            ViewBag.CategoryName = (await _context.Categories.FindAsync(categoryId)).NormalizedCategoryName;
+
+            var count = await _context.Posts.CountAsync();
+
+            var list = new StaticPagedList<PostViewModel>(posts, page, pageSize, count);
+
+            return View(list);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> Preview(Guid postId)
+        {
+            var post = await _context.Posts.FindAsync(postId);
+            if (post == null)
+            {
+                return View("~/Views/Shared/ServerError.cshtml", "无法加载文章。");
+            }
+
+            var viewModel = new PostPreviewViewModel
+            {
+                Id = post.Id,
+                Title = post.Title,
+                Content = post.Content,
+                CreationTime = post.CreationTime,
+                ContentAbstract = post.ContentAbstract,
+                Categories = post.PostCategories.Select(pc => pc.Category).Select(c => new Category()
+                {
+                    Id = c.Id,
+                    CategoryName = c.CategoryName,
+                    NormalizedCategoryName = c.NormalizedCategoryName
+                }).ToArray(),
+                LastModificationTime = post.LastModificationTime
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Manage()
         {
             var postList = await _context.Posts.Where(p => p.CreatorId == UserId).OrderByDescending(p => p.CreationTime)
@@ -61,8 +115,7 @@ namespace Blog.MVC.Controllers
                 {
                     Id = p.Id,
                     Title = p.Title,
-                    CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local),
-                    IsDeleted = p.IsDeleted
+                    CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local)
                 }).ToListAsync();
             return View(postList);
         }
@@ -75,8 +128,7 @@ namespace Blog.MVC.Controllers
                 {
                     Id = p.Id,
                     Title = p.Title,
-                    CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local),
-                    IsDeleted = p.IsDeleted
+                    CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local)
                 }).ToListAsync();
             return View(postList);
         }
@@ -91,10 +143,12 @@ namespace Blog.MVC.Controllers
             }
 
             var post = await _context.Posts.FindAsync(id);
-            
+
             if (post != null)
             {
                 post.IsDeleted = true;
+                post.DeleterId = UserId;
+                post.DeletionTime = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
             return Ok();
@@ -129,7 +183,7 @@ namespace Blog.MVC.Controllers
             }
 
             var post = await _context.Posts.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == postId);
-            
+
             if (post != null)
             {
                 post.IsDeleted = false;
@@ -195,7 +249,7 @@ namespace Blog.MVC.Controllers
                                     new CheckBoxViewModel(c.NormalizedCategoryName, c.Id.ToString(), false)).ToListAsync();
                 return View(model);
             }
-            Post postEntity = null;
+            Post postEntity;
             if (model.PostId == Guid.Empty)
             {
                 postEntity = new Post
@@ -212,8 +266,7 @@ namespace Blog.MVC.Controllers
                         postEntity.PostCategories.Add(new PostCategory
                         {
                             PostId = postEntity.Id,
-                            CategoryId = id,
-                            CreatorId = UserId
+                            CategoryId = id
                         });
                     }
                 }
@@ -238,8 +291,7 @@ namespace Blog.MVC.Controllers
                         postEntity.PostCategories.Add(new PostCategory
                         {
                             PostId = postEntity.Id,
-                            CategoryId = id,
-                            CreatorId = UserId
+                            CategoryId = id
                         });
                     }
                 }

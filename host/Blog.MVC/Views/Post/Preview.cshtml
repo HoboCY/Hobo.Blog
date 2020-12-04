@@ -1,0 +1,57 @@
+﻿@model PostPreviewViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "文章预览";
+}
+
+@section head{
+    <link href="~/css/post.css" rel="stylesheet" />
+    <link href="~/lib/3rd/highlight/styles/github.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="~/lib/3rd/highlight/highlight.pack.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
+        });
+    </script>
+}
+
+<article class="border p-4" data-postid="@Model.Id">
+    <header>
+        <h1 class="post-title">
+            @Model.Title
+        </h1>
+
+        <div class="d-none d-md-block post-time mb-2">
+            <time datetime="@Model.CreationTime.ToString("u")" title="GMT @Model.CreationTime">@Model.CreationTime.ToString("MM/dd/yyyy")</time>
+            @if (Model.LastModificationTime.HasValue)
+            {
+                <span>(编辑于 @Model.LastModificationTime.Value.ToString("MM/dd/yyyy HH:mm"))</span>
+            }
+        </div>
+
+        <hr class="d-none d-md-block" />
+    </header>
+    <section class="clearfix">
+        @Html.Raw(Model.Content)
+    </section>
+    
+    <hr class="d-none d-md-block" />
+    <section>
+        <ul class="d-flex flex-row list-unstyled mb-0">
+            @foreach (var item in Model.Categories)
+            {
+                <li>
+                    <a class="btn btn-sm btn-outline-success ml-2">
+                        <img src="~/lib/bootstrap-icons-1.1.0/folder.svg" alt="@item.NormalizedCategoryName" />
+                        @item.NormalizedCategoryName
+                    </a>
+                </li>
+            }
+        </ul>
+    </section>
+</article>
