@@ -1,0 +1,36 @@
+﻿@using X.PagedList.Mvc.Core.Common
+@using X.PagedList.Mvc.Core
+@model X.PagedList.StaticPagedList<PostViewModel>
+
+@{
+    ViewData["Title"] = "首页";
+}
+
+@section Scripts{
+    <link href="~/css/post.css" rel="stylesheet" asp-append-version="true" />
+}
+
+<h3>
+    <a class="float-right d-none d-md-block" title="Subscribe Recent 10 Posts">
+    </a>
+    <span>
+        @ViewBag.CategoryName
+    </span>
+</h3>
+<hr />
+@if (Model.Any())
+{
+    <partial name="_PostList" />
+    @Html.PagedListPager(Model, page => $"?page={page}", new PagedListRenderOptions
+    {
+        LiElementClasses = new[] { "page-item" },
+        PageClasses = new[] { "page-link" },
+        UlElementClasses = new[] { "pagination justify-content-end" },
+        MaximumPageNumbersToDisplay = 5,
+        DisplayEllipsesWhenNotShowingAllPageNumbers = false
+    })
+}
+else
+{
+    <partial name="_NoPosts" />
+}

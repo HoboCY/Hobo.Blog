@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Blog.Data;
 using Blog.Model;
 using Blog.MVC.Models.Admin;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blog.MVC.Controllers
 {
@@ -81,13 +81,17 @@ namespace Blog.MVC.Controllers
             }
 
             var category = await _context.Categories.FindAsync(id);
-            if (category != null)
-            {
-                category.IsDeleted = true;
-                category.DeleterId = UserId;
-                category.DeletionTime = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
-            }
+
+            if (category == null) return Ok();
+
+            var pcs = await _context.PostCategories.Where(pc => pc.CategoryId == category.Id).ToListAsync();
+
+            _context.PostCategories.RemoveRange(pcs);
+
+            category.IsDeleted = true;
+            category.DeleterId = UserId;
+            category.DeletionTime = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
             return Ok();
         }
     }
