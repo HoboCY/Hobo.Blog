@@ -13,20 +13,8 @@ namespace Blog.Model
 
         public Guid PostId { get; set; }
 
-        public DateTime CreationTime { get; set; } = DateTime.UtcNow;
-
-        public Guid CreatorId { get; set; }
-
-        public bool IsDeleted { get; set; }
-
-        public Guid? DeleterId { get; set; }
-
-        public DateTime? DeletionTime { get; set; }
-
         public virtual Post Post { get; set; }
 
         public virtual Category Category { get; set; }
-
-        public virtual ApplicationUser Creator { get; set; }
     }
 }

@@ -21,34 +21,10 @@ namespace Blog.Data.EntityConfigurations
             builder.Property(pc => pc.CategoryId)
                .HasColumnType("varchar(50)");
 
-            builder.Property(pc => pc.CreatorId)
-                .HasColumnType("varchar(50)")
-                .IsRequired();
-
-            builder.Property(pc => pc.CreationTime)
-                .IsRequired();
-
-            builder.Property(pc => pc.IsDeleted)
-                .IsRequired();
-
-            builder.Property(pc => pc.DeleterId)
-                .HasColumnType("varchar(50)")
-                .IsRequired(false);
-
-            builder.Property(pc => pc.DeletionTime)
-                .IsRequired(false);
-
-            builder.HasOne(pc => pc.Creator)
-                .WithMany()
-                .HasForeignKey(pc => pc.CreatorId)
-                .IsRequired();
-
             builder.HasOne(pc => pc.Category)
                 .WithMany()
                 .HasForeignKey(pc => pc.CategoryId)
                 .IsRequired();
-
-            builder.HasQueryFilter(pc => !pc.IsDeleted);
         }
     }
 }
