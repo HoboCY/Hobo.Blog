@@ -10,7 +10,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@UserManager.GetUserName(User)</a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" asp-controller="User" asp-action="Profile">管理</a>
+                        <a class="dropdown-item" asp-controller="User" asp-action="Profile">账号管理</a>
                         <form id="logoutForm" class="form-inline" asp-controller="Account" asp-action="Logout" asp-route-returnUrl="@Url.Action(nameof(PostController.Index),"Post")">
                             <button id="logout" type="submit" class="dropdown-item">退出</button>
                         </form>

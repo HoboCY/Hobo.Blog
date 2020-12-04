@@ -48,6 +48,12 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public IActionResult Lockout()
         {
             return View();
@@ -98,7 +104,7 @@ namespace Blog.MVC.Controllers
         {
             if (userId == null || code == null)
             {
-                return RedirectToAction(nameof(PostController.Index), "Post");
+                return RedirectToAction(nameof(PostController.CategoryList), "Post");
             }
 
             var user = await _userManager.FindByIdAsync(userId);
@@ -132,7 +138,7 @@ namespace Blog.MVC.Controllers
                     _logger.LogInformation("User logged in.");
                     user.LastLoginTime = DateTime.UtcNow;
                     await _userManager.UpdateAsync(user);
-                    return RedirectToAction(nameof(PostController.Index), "Post");
+                    return RedirectToAction(nameof(PostController.CategoryList), "Post");
                 }
 
                 if (result.IsLockedOut)
@@ -186,7 +192,7 @@ namespace Blog.MVC.Controllers
                     }
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction(nameof(PostController.Index), "Post");
+                    return RedirectToAction(nameof(PostController.CategoryList), "Post");
                 }
 
                 foreach (var error in result.Errors)
