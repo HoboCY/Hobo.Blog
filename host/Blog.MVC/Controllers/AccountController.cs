@@ -138,7 +138,7 @@ namespace Blog.MVC.Controllers
                     _logger.LogInformation("User logged in.");
                     user.LastLoginTime = DateTime.UtcNow;
                     await _userManager.UpdateAsync(user);
-                    return RedirectToAction(nameof(PostController.CategoryList), "Post");
+                    return RedirectToAction(nameof(PostController.Index), "Post");
                 }
 
                 if (result.IsLockedOut)
