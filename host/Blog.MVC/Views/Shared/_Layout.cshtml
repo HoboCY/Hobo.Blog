@@ -22,9 +22,7 @@
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 分类
                             </a>
-                            <cache expires-after="@TimeSpan.FromMinutes(30)">
-                                @await Component.InvokeAsync("CategoryMenu")
-                            </cache>
+                            @await Component.InvokeAsync("CategoryMenu")
                         </li>
                     </ul>
                     <form class="form-inline mr-lg-5">
