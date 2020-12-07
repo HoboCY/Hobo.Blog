@@ -76,7 +76,7 @@ namespace Blog.MVC
             {
                 options.Cookie.Name = "Hobo.Blog.Cookie";
                 options.Cookie.HttpOnly = false;    //客户端脚本是否可以访问Cookie
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                options.ExpireTimeSpan = TimeSpan.FromDays(1);
                 options.LoginPath = "/Account/Login";
                 options.AccessDeniedPath = "/Account/AccessDenied";
                 options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
@@ -91,11 +91,9 @@ namespace Blog.MVC
 
             services.AddCos();
 
-            services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
             services.AddHttpContextAccessor();
 
-            services.AddControllersWithViews()
-                .AddRazorRuntimeCompilation();
+            services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -107,9 +105,10 @@ namespace Blog.MVC
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
+                app.UseStatusCodePagesWithReExecute("/error", "?statuscode={0}");
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
