@@ -120,6 +120,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginModel input)
         {
             if (ModelState.IsValid)
@@ -168,6 +169,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterModel input)
         {
             if (ModelState.IsValid)
@@ -205,6 +207,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordModel input)
         {
             if (!ModelState.IsValid) return View();
@@ -232,6 +235,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(ResetPasswordModel input)
         {
             if (!ModelState.IsValid)
