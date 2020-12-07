@@ -1,7 +1,6 @@
 using System;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
-using AutoMapper;
 using Blog.Data;
 using Blog.Model;
 using Blog.MVC.Mails;
@@ -74,7 +73,7 @@ namespace Blog.MVC
 
             services.ConfigureApplicationCookie(options =>
             {
-                options.Cookie.Name = "Hobo.Blog.Cookie";
+                options.Cookie.Name = "996bug.icu.Cookie";
                 options.Cookie.HttpOnly = false;    //客户端脚本是否可以访问Cookie
                 options.ExpireTimeSpan = TimeSpan.FromDays(1);
                 options.LoginPath = "/Account/Login";

@@ -7,8 +7,19 @@
 
 @section Scripts{
     <partial name="_ValidationScriptsPartial" />
-    <script>
+    <script  asp-append-version="true">
         var emptyGuid = '00000000-0000-0000-0000-000000000000';
+
+        function initCreateCategory() {
+            $("#CategoryEditViewModel_Id").val(emptyGuid);
+            $("#edit-form")[0].reset();
+            $('#editCatModal').modal();
+        }
+
+        $(".btn-add").click(function () {
+            initCreateCategory();
+        });
+
         $(".btn-delete").click(function () {
             var cfm = confirm("确认删除?");
             if (cfm) deleteCat($(this).data("catid"));
@@ -89,7 +100,7 @@
 }
 <h3>
     分类
-    <a class="btn btn-outline-success float-right" href="javascript:initCreateCategory();">
+    <a class="btn btn-outline-success float-right btn-add" href="javascript:;">
         <img src="~/lib/bootstrap-icons-1.1.0/plus.svg" alt="New" />
         新建
     </a>
