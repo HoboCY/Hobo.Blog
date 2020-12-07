@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Blog.MVC.Models.Account;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
+using Newtonsoft.Json;
 
 namespace Blog.MVC.Controllers
 {
@@ -115,7 +116,7 @@ namespace Blog.MVC.Controllers
 
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
             var result = await _userManager.ConfirmEmailAsync(user, code);
-            TempData["StatusMessage"] = new StatusMessage(result.Succeeded ? "success" : "danger", result.Succeeded ? "感谢你确认你的电子邮件。" : "确认你的电子邮件时出错。");
+            TempData["StatusMessage"] = JsonConvert.SerializeObject(new StatusMessage(result.Succeeded ? "success" : "danger", result.Succeeded ? "邮件确认成功，感谢你确认你的电子邮件。" : "确认你的电子邮件时出错。"));
             return View();
         }
 
