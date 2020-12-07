@@ -1,23 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using Blog.MVC.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Blog.MVC.Controllers
 {
     public class ErrorController : Controller
     {
-        public IActionResult Error()
+        protected readonly ILogger<ErrorController> Logger;
+
+        private static readonly int[] HandledHttpResponseCodes = { 404 };
+
+        public ErrorController(ILogger<ErrorController> logger)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            Logger = logger;
         }
 
-        public IActionResult ComponentError(string errorMessage = null)
+        [Route("/error")]
+        [AllowAnonymous]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error(int? statusCode = null)
         {
-            return View(errorMessage);
+            var requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+
+            if (statusCode.HasValue)
+            {
+                HttpContext.Response.StatusCode = statusCode.Value;
+
+                if (HandledHttpResponseCodes.Contains(statusCode.Value))
+                {
+                    return File($"~/errorpages/{statusCode}.html", "text/html");
+                }
+
+                return StatusCode(statusCode.Value);
+            }
+
+            var exceptionFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+            if (exceptionFeature != null)
+            {
+                // Get which route the exception occurred at
+                var routeWhereExceptionOccurred = exceptionFeature.Path;
+
+                // Get the exception that occurred
+                var exceptionThatOccurred = exceptionFeature.Error;
+                Logger.LogError($"Error: {routeWhereExceptionOccurred}, " +
+                                $"client IP: {HttpContext.Connection.RemoteIpAddress}, " +
+                                $"request id: {requestId}", exceptionThatOccurred);
+            }
+            return View(new ErrorViewModel { RequestId = requestId });
         }
 
         [HttpGet]
