@@ -1,16 +1,23 @@
-﻿@model CreateOrEditModel
+﻿@using Blog.MVC.Controllers
+@using Blog.MVC.Models.Post
+@using Blog.MVC.Models.User
+@model CreateOrEditModel
+
 @{
     Layout = "_LayoutUserManage";
     ViewData["Title"] = "创建/编辑文章";
     ViewData["ActivePage"] = ManageNavPages.CreateOrEditPost;
 }
 
+@section head {
+    <link href="~/lib/highlight/styles/github.css" rel="stylesheet" />
+}
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <link href="~/lib/3rd/highlight/styles/vs.css" rel="stylesheet" />
-    <script src="~/lib/3rd/xss.js"></script>
-    <script src="~/lib/3rd/highlight/highlight.pack.js"></script>
-    <script src="~/lib/3rd/wangEditor.min.js"></script>
+    <script src="~/lib/xss/xss.js"></script>
+    <script src="~/lib/highlight/highlight.pack.js"></script>
+    <script src="~/lib/wangEditor/wangEditor.min.js"></script>
     <script asp-append-version="true">
         const E = window.wangEditor;
         const editor = new E('#editor');
@@ -83,7 +90,7 @@
 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
 <div class="row">
     <div class="col-md-12">
-        <form method="post" id="PostForm" asp-controller="Post" asp-action="CreateOrEdit" novalidate>
+        <form method="post" id="PostForm" asp-controller="Post" asp-action="@nameof(PostController.CreateOrEdit)" novalidate>
             <div id="error-list" class="text-danger" asp-validation-summary="All"></div>
             <input asp-for="PostId" />
             <div class="row">

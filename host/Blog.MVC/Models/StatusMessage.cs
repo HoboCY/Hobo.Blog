@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Blog.MVC.Models
+﻿namespace Blog.MVC.Models
 {
     public class StatusMessage
     {

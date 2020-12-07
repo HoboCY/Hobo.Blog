@@ -1,13 +1,16 @@
-﻿@{
+﻿@using Blog.MVC.Models.User
+@using Blog.MVC.Models.Post
+@using Blog.MVC.Controllers
+@model IReadOnlyList<PostListViewModel>
+
+@{
     Layout = "_LayoutUserManage";
     ViewData["Title"] = "管理文章";
     ViewData["ActivePage"] = ManageNavPages.ManagePost;
 }
 
-@model IReadOnlyList<Blog.MVC.Models.Post.PostListViewModel>
-
 @section head{
-    <link href="~/lib/3rd/DataTables/datatables.min.css" rel="stylesheet" />
+    <link href="~/lib/DataTables/datatables.min.css" rel="stylesheet" />
     <style>
         .table .table-item-w20 {
             width: 20%;
@@ -20,7 +23,7 @@
 }
 
 @section Scripts{
-    <script src="~/lib/3rd/DataTables/datatables.min.js"></script>
+    <script src="~/lib/DataTables/datatables.min.js"></script>
     <script>
         $(function () {
             $(".btn-delete").click(function () {

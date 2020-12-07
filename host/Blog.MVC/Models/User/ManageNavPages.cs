@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Blog.MVC.Views.User
+namespace Blog.MVC.Models.User
 {
     public static class ManageNavPages
     {

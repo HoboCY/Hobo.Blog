@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ using AutoMapper;
 using Blog.Data;
 using Blog.Model;
 using Blog.MVC.Models;
-using Blog.MVC.Models.Post;
 using Blog.MVC.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -22,23 +20,17 @@ namespace Blog.MVC.Controllers
 {
     public class UserController : Controller
     {
-        private readonly BlogDbContext _context;
-        private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<UserController> _logger;
         private readonly IEmailSender _emailSender;
 
         public UserController(
-            BlogDbContext context,
-            IMapper mapper,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
             ILogger<UserController> logger)
         {
-            _context = context;
-            _mapper = mapper;
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;

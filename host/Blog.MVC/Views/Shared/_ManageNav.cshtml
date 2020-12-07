@@ -1,8 +1,11 @@
-﻿<ul class="nav nav-pills flex-column">
-    <li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-controller="User" asp-action="Profile">个人信息</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-controller="User" asp-action="Email">邮箱</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-controller="User" asp-action="ChangePassword">密码</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-controller="User" asp-action="PersonalData">个人数据</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.ManagePostNavClass(ViewContext)" id="manage-post" asp-controller="Post" asp-action="Manage">管理文章</a></li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.CreatePostNavClass(ViewContext)" id="create-edit-post" asp-controller="Post" asp-action="Create">创建/编辑文章</a></li>
+﻿@using Blog.MVC.Controllers
+@using Blog.MVC.Models.User
+
+<ul class="nav nav-pills flex-column">
+    <li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-controller="User" asp-action="@nameof(UserController.Profile)">个人信息</a></li>
+    <li class="nav-item"><a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-controller="User" asp-action="@nameof(UserController.Email)">邮箱</a></li>
+    <li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-controller="User" asp-action="@nameof(UserController.ChangePassword)">密码</a></li>
+    <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-controller="User" asp-action="@nameof(UserController.PersonalData)">个人数据</a></li>
+    <li class="nav-item"><a class="nav-link @ManageNavPages.ManagePostNavClass(ViewContext)" id="manage-post" asp-controller="Post" asp-action="@nameof(PostController.Manage)">管理文章</a></li>
+    <li class="nav-item"><a class="nav-link @ManageNavPages.CreatePostNavClass(ViewContext)" id="create-edit-post" asp-controller="Post" asp-action="@nameof(PostController.Create)">创建/编辑文章</a></li>
 </ul>

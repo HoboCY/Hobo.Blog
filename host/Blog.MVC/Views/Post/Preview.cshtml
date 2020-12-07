@@ -1,4 +1,6 @@
-﻿@model PostPreviewViewModel
+﻿@using Blog.MVC.Models.Post
+@model PostPreviewViewModel
+
 @{
     Layout = "_Layout";
     ViewData["Title"] = "文章预览";
@@ -6,11 +8,11 @@
 
 @section head{
     <link href="~/css/post.css" rel="stylesheet" />
-    <link href="~/lib/3rd/highlight/styles/github.css" rel="stylesheet" />
+    <link href="~/lib/highlight/styles/github.css" rel="stylesheet" />
 }
 
 @section Scripts {
-    <script src="~/lib/3rd/highlight/highlight.pack.js"></script>
+    <script src="~/lib/highlight/highlight.pack.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
             document.querySelectorAll('pre code').forEach((block) => {
@@ -39,7 +41,7 @@
     <section class="clearfix">
         @Html.Raw(Model.Content)
     </section>
-    
+
     <hr class="d-none d-md-block" />
     <section>
         <ul class="d-flex flex-row list-unstyled mb-0">

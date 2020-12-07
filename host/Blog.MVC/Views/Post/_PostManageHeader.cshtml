@@ -1,10 +1,12 @@
-﻿@{
+﻿@using Blog.MVC.Controllers
+
+@{
     var currentAction = ViewContext.RouteData?.Values["action"]?.ToString();
 }
 
 <h3>
     文章
-    <a class="btn btn-outline-success float-right" asp-controller="Post" asp-action="Create">
+    <a class="btn btn-outline-success float-right" asp-controller="Post" asp-action="@nameof(PostController.Create)">
         <img src="~/lib/bootstrap-icons-1.1.0/plus.svg" width="25" height="25">
         新建
     </a>
