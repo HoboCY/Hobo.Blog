@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>2bb23164-8131-4d09-868b-66206e7ad117</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
@@ -1198,6 +1200,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
     <PackageReference Include="NUglify" Version="1.11.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.2.2" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
