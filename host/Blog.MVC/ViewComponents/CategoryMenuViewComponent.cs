@@ -25,7 +25,6 @@ namespace Blog.MVC.ViewComponents
                 {
                     Id = c.Id,
                     CategoryName = c.CategoryName,
-                    NormalizedCategoryName = c.NormalizedCategoryName
                 }).ToListAsync();
             return View(categories);
         }

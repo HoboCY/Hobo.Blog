@@ -68,7 +68,7 @@ namespace Blog.MVC.Controllers
                     CreatorName = p.Creator.UserName
                 }).Skip((page - 1) * pageSize).Take(pageSize).AsNoTracking().ToListAsync();
 
-            ViewBag.CategoryName = (await _context.Categories.FindAsync(categoryId)).NormalizedCategoryName;
+            ViewBag.CategoryName = (await _context.Categories.FindAsync(categoryId)).CategoryName;
 
             var count = await _context.Posts.CountAsync();
 
@@ -98,7 +98,6 @@ namespace Blog.MVC.Controllers
                 {
                     Id = c.Id,
                     CategoryName = c.CategoryName,
-                    NormalizedCategoryName = c.NormalizedCategoryName
                 }).ToArray(),
                 LastModificationTime = post.LastModificationTime
             };
@@ -201,7 +200,7 @@ namespace Blog.MVC.Controllers
                 {
                     PostId = Guid.Empty,
                     CategoryList = categories.Select(c =>
-                        new CheckBoxViewModel(c.NormalizedCategoryName, c.Id.ToString(), false)).ToList()
+                        new CheckBoxViewModel(c.CategoryName, c.Id.ToString(), false)).ToList()
                 };
                 return View("CreateOrEdit", model);
             }
@@ -228,7 +227,7 @@ namespace Blog.MVC.Controllers
                     }
                     model.CategoryList = categories.Select(c =>
                                      new CheckBoxViewModel(
-                                         c.NormalizedCategoryName,
+                                         c.CategoryName,
                                          c.Id.ToString(),
                                          post.PostCategories.Any(pc => pc.CategoryId == c.Id))).ToList();
                     return View("CreateOrEdit", model);
@@ -245,7 +244,7 @@ namespace Blog.MVC.Controllers
             if (!ModelState.IsValid)
             {
                 model.CategoryList = await _context.Categories.Select(c =>
-                                    new CheckBoxViewModel(c.NormalizedCategoryName, c.Id.ToString(), false)).ToListAsync();
+                                    new CheckBoxViewModel(c.CategoryName, c.Id.ToString(), false)).ToListAsync();
                 return View(model);
             }
             Post postEntity;

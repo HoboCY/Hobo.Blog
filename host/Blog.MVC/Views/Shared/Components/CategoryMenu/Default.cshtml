@@ -7,7 +7,7 @@
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
         @foreach (var category in Model)
         {
-            <a class="dropdown-item" asp-controller="Post" asp-action="@nameof(PostController.CategoryList)" asp-route-categoryId="@category.Id">@category.NormalizedCategoryName</a>
+            <a class="dropdown-item" asp-controller="Post" asp-action="@nameof(PostController.CategoryList)" asp-route-categoryId="@category.Id">@category.CategoryName</a>
         }
     </div>
 }

@@ -109,13 +109,13 @@
 @Html.AntiForgeryToken()
 
 <div class="card-columns">
-    @foreach (var cat in Model.Categories.OrderBy(c => c.NormalizedCategoryName))
+    @foreach (var cat in Model.Categories.OrderBy(c => c.CategoryName))
     {
         <div class="card mb-4" id="card-@cat.Id">
             <div class="card-body">
                 <h6 class="card-title">
-                    <a target="_blank">
-                        @cat.NormalizedCategoryName
+                    <a>
+                        @cat.CategoryName
                     </a>
                 </h6>
             </div>

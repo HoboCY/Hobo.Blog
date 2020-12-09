@@ -29,7 +29,6 @@ namespace Blog.MVC.Controllers
             var category = new Category
             {
                 CategoryName = model.CategoryName,
-                NormalizedCategoryName = model.CategoryName.ToUpper(),
                 CreatorId = UserId,
             };
 
@@ -47,7 +46,7 @@ namespace Blog.MVC.Controllers
             var model = new CategoryEditViewModel
             {
                 Id = category.Id,
-                CategoryName = category.NormalizedCategoryName
+                CategoryName = category.CategoryName
             };
             return Ok(model);
         }
@@ -62,7 +61,6 @@ namespace Blog.MVC.Controllers
             if (category != null)
             {
                 category.CategoryName = model.CategoryName;
-                category.NormalizedCategoryName = model.CategoryName.ToUpper();
                 category.LastModificationTime = DateTime.UtcNow;
                 category.LastModifierId = UserId;
 
