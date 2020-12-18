@@ -17,7 +17,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.10
+          dotnet-version: 3.1.404
 
       - name: Docker Build & Push to Aliyun Repository
         uses: docker/build-push-action@v1
