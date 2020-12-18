@@ -22,8 +22,6 @@ jobs:
       - name: Docker Build & Push to Aliyun Repository
         uses: docker/build-push-action@v1
         with:
-          args: --docker
-        env:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           registry: registry.cn-shanghai.aliyuncs.com/hobocy
