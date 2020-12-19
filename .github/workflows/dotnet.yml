@@ -23,8 +23,8 @@ jobs:
         uses: docker/build-push-action@v1
         with:
           registry: registry.cn-shanghai.aliyuncs.com
-          repository: username/blog
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: username/blog
           dockerfile: 'Dockerfile'
           tag_with_sha: true
