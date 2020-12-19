@@ -25,6 +25,6 @@ jobs:
           registry: registry.cn-shanghai.aliyuncs.com
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: username/blog
+          repository: ${{ secrets.DOCKER_USERNAME }}/blog
           dockerfile: 'Dockerfile'
           tag_with_sha: true
