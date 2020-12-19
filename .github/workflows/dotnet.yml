@@ -1,0 +1,30 @@
+name: .NET Core CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  build:
+    name: Build-aspnetcore
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git Checkout Code
+        uses: actions/checkout@v1
+        id: git_checkout
+        
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.404
+
+      - name: Docker Build & Push to Aliyun Repository
+        uses: docker/build-push-action@v1
+        with:
+          registry: registry.cn-shanghai.aliyuncs.com
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: ${{ secrets.DOCKER_USERNAME }}/blog
+          dockerfile: 'Dockerfile'
+          tag_with_sha: true
