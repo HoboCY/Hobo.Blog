@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Blog.Data.Entities;
 using Blog.Model;
 
 namespace Blog.MVC.Models.Admin
@@ -7,12 +8,12 @@ namespace Blog.MVC.Models.Admin
     {
         public CategoryEditViewModel CategoryEditViewModel { get; set; }
 
-        public IReadOnlyList<Category> Categories { get; set; }
+        public IReadOnlyList<CategoryViewModel> Categories { get; set; }
 
         public CategoryManageViewModel()
         {
             CategoryEditViewModel = new CategoryEditViewModel();
-            Categories = new List<Category>();
+            Categories = new List<CategoryViewModel>();
         }
     }
 }

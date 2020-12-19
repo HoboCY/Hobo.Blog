@@ -1,8 +1,8 @@
-﻿@using Blog.MVC.Models
+﻿@using Blog.Model
 @using Blog.MVC.Controllers
 @model IReadOnlyList<CategoryViewModel>
 
-@if (Model.Count > 0)
+@if (Model?.Count > 0)
 {
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
         @foreach (var category in Model)
@@ -10,4 +10,8 @@
             <a class="dropdown-item" asp-controller="Post" asp-action="@nameof(PostController.CategoryList)" asp-route-categoryId="@category.Id">@category.CategoryName</a>
         }
     </div>
+}
+else
+{
+    <div class="text-danger">没有分类</div>
 }

@@ -1,31 +1,23 @@
-﻿using Blog.Data;
-using Blog.MVC.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Blog.Service;
 
 namespace Blog.MVC.ViewComponents
 {
     public class CategoryMenuViewComponent : ViewComponent
     {
-        private readonly BlogDbContext _context;
+        private readonly ICategoryService _categoryService;
 
-        public CategoryMenuViewComponent(BlogDbContext context)
+        public CategoryMenuViewComponent(
+            ICategoryService categoryService)
         {
-            _context = context;
+            _categoryService = categoryService;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var categories = await _context.Categories
-                .Select(c => new CategoryViewModel
-                {
-                    Id = c.Id,
-                    CategoryName = c.CategoryName,
-                }).ToListAsync();
+            var categories = await _categoryService.GetAllAsync();
+
             return View(categories);
         }
     }

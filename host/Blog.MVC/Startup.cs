@@ -2,7 +2,7 @@ using System;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Blog.Data;
-using Blog.Model;
+using Blog.Data.Entities;
 using Blog.MVC.Mails;
 using Blog.MVC.Options;
 using Blog.MVC.Settings;
@@ -17,6 +17,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Tencent.COS.SDK;
+using Blog.Infrastructure;
+using Blog.Service;
 
 namespace Blog.MVC
 {
@@ -85,6 +87,23 @@ namespace Blog.MVC
             services.Configure<BlogSettings>(Configuration.GetSection("BlogSettings"));
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.Configure<TencentCloudSettings>(Configuration.GetSection("TencentCloudSettings"));
+
+            services.AddScoped(typeof(IRepository<,>), typeof(DbContextRepository<,>));
+            services.AddScoped(typeof(IRepository<>), typeof(DbContextRepository<>));
+
+            services.AddScoped<ICategoryService,CategoryService>();
+            services.AddScoped<IPostService, PostService>();
+
+            //var assembly = Assembly.GetAssembly(typeof(BlogService));
+            //if (assembly != null)
+            //{
+            //    var types = assembly.GetTypes().Where(t => t.IsClass && t.IsPublic && t.Name.EndsWith("Service"));
+
+            //    foreach (var type in types)
+            //    {
+            //        services.AddScoped(type);
+            //    }
+            //}
 
             services.AddTransient<IEmailSender, EmailSender>();
 
