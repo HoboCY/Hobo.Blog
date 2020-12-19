@@ -22,9 +22,10 @@ jobs:
       - name: Docker Build & Push to Aliyun Repository
         uses: docker/build-push-action@v1
         with:
+          registry: registry.cn-shanghai.aliyuncs.com
+          namespaces: hobocy
+          repository: blog
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          registry: registry.cn-shanghai.aliyuncs.com
-          repository: blog
           dockerfile: 'Dockerfile'
-          tag_with_ref: true
+          tagging: true
