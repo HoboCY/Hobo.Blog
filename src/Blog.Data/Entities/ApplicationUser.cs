@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
-namespace Blog.Model
+namespace Blog.Data.Entities
 {
     public class ApplicationUser : IdentityUser<Guid>
     {

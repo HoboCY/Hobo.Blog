@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
-namespace Blog.Model
+namespace Blog.Data.Entities
 {
-    public class Comment
+    public class CommentReply
     {
         public Guid Id { get; set; }
 
-        public Guid PostId { get; set; }
+        public Guid CommentId { get; set; }
 
-        public string CommentContent { get; set; }
+        public string ReplyContent { get; set; }
 
         public Guid CreatorId { get; set; }
 
@@ -26,6 +22,6 @@ namespace Blog.Model
 
         public virtual ApplicationUser Creator { get; set; }
 
-        public virtual ICollection<CommentReply> CommentReplies { get; set; }
+        public virtual Comment Comment { get; set; }
     }
 }

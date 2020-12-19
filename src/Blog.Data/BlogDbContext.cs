@@ -1,10 +1,8 @@
 ﻿using Blog.Data.EntityConfigurations;
-using Blog.Model;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using Blog.Data.Entities;
 
 namespace Blog.Data
 {

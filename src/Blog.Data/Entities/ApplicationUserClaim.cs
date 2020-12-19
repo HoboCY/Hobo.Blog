@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Blog.Model
+namespace Blog.Data.Entities
 {
     public class ApplicationUserClaim : IdentityUserClaim<Guid>
     {
