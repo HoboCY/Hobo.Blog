@@ -1,11 +1,13 @@
-﻿using Markdig;
-using NUglify;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
+using Markdig;
+using NUglify;
 
-namespace Blog.MVC.Extensions
+namespace Blog.Extensions
 {
-    public static class ContentProcessor
+   public static class ContentProcessor
     {
         public static string AddLazyLoadToImgTag(string rawHtmlContent)
         {
