@@ -9,7 +9,9 @@ FROM registry.cn-shanghai.aliyuncs.com/hobocy/dotnet:sdk-3.1-buster AS build
 WORKDIR /src
 COPY ["host/Blog.MVC/Blog.MVC.csproj", "host/Blog.MVC/"]
 COPY ["src/Blog.Data/Blog.Data.csproj", "src/Blog.Data/"]
-COPY ["src/Blog.Model/Blog.Model.csproj", "src/Blog.Model/"]
+COPY ["src/Blog.Extensions/Blog.Extensions.csproj", "src/Blog.Extensions/"]
+COPY ["src/Blog.Infrastructure/Blog.Infrastructure.csproj", "src/Blog.Infrastructure/"]
+COPY ["src/Blog.Service/Blog.Service.csproj", "src/Blog.Service/"]
 COPY ["src/Tencent.COS.SDK/Tencent.COS.SDK.csproj", "src/Tencent.COS.SDK/"]
 RUN dotnet restore "host/Blog.MVC/Blog.MVC.csproj"
 COPY . .
