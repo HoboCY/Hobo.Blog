@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 using Blog.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Dynamic.Core;
 
 namespace Blog.Infrastructure
 {
@@ -20,7 +20,16 @@ namespace Blog.Infrastructure
 
         public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate = null)
         {
-            return predicate != null ? await DbContext.Set<TEntity>().AnyAsync(predicate) : await DbContext.Set<TEntity>().AnyAsync();
+            return predicate != null
+                       ? await DbContext.Set<TEntity>().AnyAsync(predicate)
+                       : await DbContext.Set<TEntity>().AnyAsync();
+        }
+
+        public async Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate = null)
+        {
+            return predicate != null
+                       ? await DbContext.Set<TEntity>().CountAsync(predicate)
+                       : await DbContext.Set<TEntity>().CountAsync();
         }
 
         public async Task<TEntity> GetAsync(TKey key)
@@ -28,25 +37,39 @@ namespace Blog.Infrastructure
             return await DbContext.Set<TEntity>().FindAsync(key);
         }
 
-        public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate)
+        public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate, bool isIgnoreFilter = false)
         {
-            return await DbContext.Set<TEntity>().FirstOrDefaultAsync(predicate);
+            return isIgnoreFilter
+                       ? await DbContext.Set<TEntity>().IgnoreQueryFilters().FirstOrDefaultAsync(predicate)
+                       : await DbContext.Set<TEntity>().FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<TResult> SingleAsync<TResult>(Expression<Func<TEntity, bool>> predicate,Expression<Func<TEntity, TResult>> selector, bool asNoTracking = false)
+        public async Task<TResult> SingleAsync<TResult>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TResult>> selector, bool asNoTracking = false)
         {
             return asNoTracking
-                       ? await DbContext.Set<TEntity>().Where(predicate).AsNoTracking().Select(selector)
-                                        .SingleOrDefaultAsync()
-                       : await DbContext.Set<TEntity>().Where(predicate).Select(selector)
-                                        .SingleOrDefaultAsync();
+                       ? await DbContext.Set<TEntity>().Where(predicate).AsNoTracking().Select(selector).SingleOrDefaultAsync()
+                       : await DbContext.Set<TEntity>().Where(predicate).Select(selector).SingleOrDefaultAsync();
         }
 
         public async Task<List<TEntity>> GetListAsync(bool asNoTracking = false)
         {
-            if (asNoTracking)
-                return await DbContext.Set<TEntity>().AsNoTracking().ToListAsync();
-            return await DbContext.Set<TEntity>().ToListAsync();
+            return asNoTracking
+                       ? await DbContext.Set<TEntity>().AsNoTracking().ToListAsync()
+                       : await DbContext.Set<TEntity>().ToListAsync();
+        }
+
+        public async Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, TResult>> selector, bool asNoTracking = false)
+        {
+            return asNoTracking
+                       ? await DbContext.Set<TEntity>().AsNoTracking().Select(selector).ToListAsync()
+                       : await DbContext.Set<TEntity>().Select(selector).ToListAsync();
+        }
+
+        public async Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, TResult>> selector, PagedRequest page, bool asNoTracking = false)
+        {
+            return asNoTracking
+                       ? await DbContext.Set<TEntity>().AsNoTracking().OrderBy(page.Sort ?? "CreationTime Desc").Select(selector).Skip((page.PageIndex - 1) * page.PageSize).Take(page.PageSize).ToListAsync()
+                       : await DbContext.Set<TEntity>().OrderBy(page.Sort ?? "CreationTime Desc").Select(selector).Skip((page.PageIndex - 1) * page.PageSize).Take(page.PageSize).ToListAsync();
         }
 
         public async Task<List<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> predicate, bool asNoTracking = false)
@@ -56,27 +79,25 @@ namespace Blog.Infrastructure
                        : await DbContext.Set<TEntity>().Where(predicate).ToListAsync();
         }
 
-        public Task<IQueryable<TEntity>> GetQueryableAsync(bool asNoTracking = false)
+        public async Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TResult>> selector, bool isIgnoreFilter = true, bool asNoTracking = false)
         {
-            return Task.FromResult(asNoTracking ? DbContext.Set<TEntity>().AsNoTracking().AsQueryable() : DbContext.Set<TEntity>().AsQueryable());
+            var query = isIgnoreFilter ? DbContext.Set<TEntity>().IgnoreQueryFilters().Where(predicate) : DbContext.Set<TEntity>().Where(predicate);
+            return asNoTracking
+                       ? await query.AsNoTracking().Select(selector).ToListAsync()
+                       : await query.Select(selector).ToListAsync();
         }
 
-        public Task<IQueryable<TEntity>> GetQueryableAsync(Expression<Func<TEntity, bool>> predicate, bool asNoTracking = false)
+        public async Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TResult>> selector, PagedRequest page, bool asNoTracking = false)
         {
-            return Task.FromResult(asNoTracking ? DbContext.Set<TEntity>().Where(predicate).AsNoTracking().AsQueryable() : DbContext.Set<TEntity>().Where(predicate).AsQueryable());
-        }
-
-        public async Task<List<TResult>> SelectAsync<TResult>(Expression<Func<TEntity, TResult>> selector,
-                                                              bool asNoTracking = false)
-        {
-            if (asNoTracking)
-                return await DbContext.Set<TEntity>().AsNoTracking().Select(selector).ToListAsync();
-            return await DbContext.Set<TEntity>().Select(selector).ToListAsync();
+            return asNoTracking
+                       ? await DbContext.Set<TEntity>().Where(predicate).AsNoTracking().OrderBy(page.Sort ?? "CreationTime Desc").Select(selector).Skip((page.PageIndex - 1) * page.PageSize).Take(page.PageSize).ToListAsync()
+                       : await DbContext.Set<TEntity>().Where(predicate).OrderBy(page.Sort ?? "CreationTime Desc").Select(selector).Skip((page.PageIndex - 1) * page.PageSize).Take(page.PageSize).ToListAsync();
         }
 
         public async Task InsertAsync(TEntity entity)
         {
             await DbContext.Set<TEntity>().AddAsync(entity);
+            await DbContext.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(TEntity entity)
@@ -130,7 +151,16 @@ namespace Blog.Infrastructure
 
         public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate = null)
         {
-            return predicate != null ? await DbContext.Set<TEntity>().AnyAsync(predicate) : await DbContext.Set<TEntity>().AnyAsync();
+            return predicate != null
+                       ? await DbContext.Set<TEntity>().AnyAsync(predicate)
+                       : await DbContext.Set<TEntity>().AnyAsync();
+        }
+
+        public async Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate = null)
+        {
+            return predicate != null
+                       ? await DbContext.Set<TEntity>().CountAsync(predicate)
+                       : await DbContext.Set<TEntity>().CountAsync();
         }
 
         public async Task<TEntity> GetAsync(object key)
@@ -138,50 +168,61 @@ namespace Blog.Infrastructure
             return await DbContext.Set<TEntity>().FindAsync(key);
         }
 
-        public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate)
+        public async Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate, bool isIgnoreFilter = false)
         {
-            return await DbContext.Set<TEntity>().FirstOrDefaultAsync(predicate);
+            return isIgnoreFilter
+                       ? await DbContext.Set<TEntity>().IgnoreQueryFilters().FirstOrDefaultAsync(predicate)
+                       : await DbContext.Set<TEntity>().FirstOrDefaultAsync(predicate);
         }
 
         public async Task<TResult> SingleAsync<TResult>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TResult>> selector, bool asNoTracking = false)
         {
             return asNoTracking
-                       ? await DbContext.Set<TEntity>().Where(predicate).AsNoTracking().Select(selector)
-                                        .SingleOrDefaultAsync()
-                       : await DbContext.Set<TEntity>().Where(predicate).Select(selector)
-                                        .SingleOrDefaultAsync();
+                       ? await DbContext.Set<TEntity>().Where(predicate).AsNoTracking().Select(selector).SingleOrDefaultAsync()
+                       : await DbContext.Set<TEntity>().Where(predicate).Select(selector).SingleOrDefaultAsync();
         }
 
         public async Task<List<TEntity>> GetListAsync(bool asNoTracking = false)
         {
-            if (asNoTracking)
-                return await DbContext.Set<TEntity>().AsNoTracking().ToListAsync();
-            return await DbContext.Set<TEntity>().ToListAsync();
+            return asNoTracking
+                       ? await DbContext.Set<TEntity>().AsNoTracking().ToListAsync()
+                       : await DbContext.Set<TEntity>().ToListAsync();
+        }
+
+        public async Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, TResult>> selector, bool asNoTracking = false)
+        {
+            return asNoTracking
+                       ? await DbContext.Set<TEntity>().AsNoTracking().Select(selector).ToListAsync()
+                       : await DbContext.Set<TEntity>().Select(selector).ToListAsync();
+        }
+
+        public async Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, TResult>> selector, PagedRequest page, bool asNoTracking = false)
+        {
+            return asNoTracking
+                       ? await DbContext.Set<TEntity>().AsNoTracking().OrderBy(page.Sort ?? "CreationTime Desc").Select(selector).Skip((page.PageIndex - 1) * page.PageSize).Take(page.PageSize).ToListAsync()
+                       : await DbContext.Set<TEntity>().OrderBy(page.Sort ?? "CreationTime Desc").Select(selector).Skip((page.PageIndex - 1) * page.PageSize).Take(page.PageSize).ToListAsync();
         }
 
         public async Task<List<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> predicate, bool asNoTracking = false)
         {
-            if (asNoTracking)
-                return await DbContext.Set<TEntity>().Where(predicate).AsNoTracking().ToListAsync();
-            return await DbContext.Set<TEntity>().Where(predicate).ToListAsync();
+            return asNoTracking
+                       ? await DbContext.Set<TEntity>().Where(predicate).AsNoTracking().ToListAsync()
+                       : await DbContext.Set<TEntity>().Where(predicate).ToListAsync();
         }
 
-        public Task<IQueryable<TEntity>> GetQueryableAsync(bool asNoTracking = false)
+        public async Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TResult>> selector, bool isIgnoreFilter = true, bool asNoTracking = false)
         {
-            return Task.FromResult(asNoTracking ? DbContext.Set<TEntity>().AsNoTracking().AsQueryable() : DbContext.Set<TEntity>().AsQueryable());
+            var query = isIgnoreFilter ? DbContext.Set<TEntity>().IgnoreQueryFilters().Where(predicate) : DbContext.Set<TEntity>().Where(predicate);
+            return asNoTracking
+                       ? await query.AsNoTracking().Select(selector).ToListAsync()
+                       : await query.Select(selector).ToListAsync();
         }
 
-        public Task<IQueryable<TEntity>> GetQueryableAsync(Expression<Func<TEntity, bool>> predicate, bool asNoTracking = false)
+        public async Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TResult>> selector, PagedRequest page, bool asNoTracking = false)
         {
-            return Task.FromResult(asNoTracking ? DbContext.Set<TEntity>().Where(predicate).AsNoTracking().AsQueryable() : DbContext.Set<TEntity>().Where(predicate).AsQueryable());
-        }
-
-        public async Task<List<TResult>> SelectAsync<TResult>(Expression<Func<TEntity, TResult>> selector,
-                                                              bool asNoTracking = false)
-        {
-            if (asNoTracking)
-                return await DbContext.Set<TEntity>().AsNoTracking().Select(selector).ToListAsync();
-            return await DbContext.Set<TEntity>().Select(selector).ToListAsync();
+            return asNoTracking
+                       ? await DbContext.Set<TEntity>().Where(predicate).AsNoTracking().OrderBy(page.Sort ?? "CreationTime Desc").Select(selector).Skip((page.PageIndex - 1) * page.PageSize).Take(page.PageSize).ToListAsync()
+                       : await DbContext.Set<TEntity>().Where(predicate).OrderBy(page.Sort ?? "CreationTime Desc").Select(selector).Skip((page.PageIndex - 1) * page.PageSize).Take(page.PageSize).ToListAsync();
         }
 
         public async Task InsertAsync(TEntity entity)

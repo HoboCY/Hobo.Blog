@@ -1,27 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Blog.Infrastructure
 {
-    public interface IRepository<TEntity, TKey>
+    public interface IRepository<TEntity, in TKey>
     {
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate = null);
 
+        Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate = null);
+
         Task<TEntity> GetAsync(TKey key);
 
-        Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate);
+        Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate, bool isIgnoreFilter = false);
 
         Task<TResult> SingleAsync<TResult>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TResult>> selector, bool asNoTracking = false);
 
         Task<List<TEntity>> GetListAsync(bool asNoTracking = false);
 
+        Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, TResult>> selector, bool asNoTracking = false);
+
+        Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, TResult>> selector, PagedRequest page, bool asNoTracking = false);
+
         Task<List<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> predicate, bool asNoTracking = false);
 
-        Task<List<TResult>> SelectAsync<TResult>(Expression<Func<TEntity, TResult>> selector, bool asNoTracking = false);
+        Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TResult>> selector, bool isIgnoreFilter = false, bool asNoTracking = false);
+
+        Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TResult>> selector, PagedRequest page, bool asNoTracking = false);
 
         Task InsertAsync(TEntity entity);
 
@@ -40,17 +46,25 @@ namespace Blog.Infrastructure
     {
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate = null);
 
+        Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate = null);
+
         Task<TEntity> GetAsync(object key);
 
-        Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate);
+        Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate, bool isIgnoreFilter = false);
 
         Task<TResult> SingleAsync<TResult>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TResult>> selector, bool asNoTracking = false);
 
         Task<List<TEntity>> GetListAsync(bool asNoTracking = false);
 
+        Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, TResult>> selector, bool asNoTracking = false);
+
+        Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, TResult>> selector, PagedRequest page, bool asNoTracking = false);
+
         Task<List<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> predicate, bool asNoTracking = false);
 
-        Task<List<TResult>> SelectAsync<TResult>(Expression<Func<TEntity, TResult>> selector, bool asNoTracking = false);
+        Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TResult>> selector, bool isIgnoreFilter = false, bool asNoTracking = false);
+
+        Task<List<TResult>> GetListAsync<TResult>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TResult>> selector, PagedRequest page, bool asNoTracking = false);
 
         Task InsertAsync(TEntity entity);
 
