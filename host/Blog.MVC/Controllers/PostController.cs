@@ -2,14 +2,14 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Blog.Data;
+using Blog.Extensions;
 using Blog.Model;
 using Blog.MVC.Models;
 using Blog.MVC.Models.Post;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Blog.MVC.Extensions;
-using Blog.MVC.Settings;
+using Blog.Service;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using X.PagedList;
@@ -21,35 +21,32 @@ namespace Blog.MVC.Controllers
     {
         private readonly BlogDbContext _context;
         private readonly BlogSettings _blogSettings;
+        private readonly IPostService _postService;
+        private readonly ICategoryService _categoryService;
 
         public PostController(
             BlogDbContext context,
-            IOptions<BlogSettings> options)
+            IOptions<BlogSettings> options,
+            IPostService postService,
+            ICategoryService categoryService)
         {
             _context = context;
+            _postService = postService;
+            _categoryService = categoryService;
             _blogSettings = options.Value;
         }
 
+        [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Index(int page = 1)
         {
             var pageSize = _blogSettings.PostListPageSize;
-            var posts = await _context.Posts.OrderByDescending(p => p.CreationTime)
-                                            .Select(p => new PostViewModel
-                                            {
-                                                Id = p.Id,
-                                                Title = p.Title,
-                                                ContentAbstract = p.ContentAbstract,
-                                                CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local),
-                                                CreatorId = p.Creator.Id,
-                                                CreatorName = p.Creator.UserName
-                                            }).Skip((page - 1) * pageSize).Take(pageSize).AsNoTracking().ToListAsync();
+            var posts = await _postService.GetPostsAsync(page, pageSize);
 
-            var count = await _context.Posts.CountAsync();
+            var count = await _postService.CountAsync();
 
-            var list = new StaticPagedList<PostViewModel>(posts, page, pageSize, count);
-
-            return View(list);
+            var pagedList = new StaticPagedList<PostViewModel>(posts, page, pageSize, count);
+            return View(pagedList);
         }
 
         [HttpGet]
@@ -57,82 +54,40 @@ namespace Blog.MVC.Controllers
         public async Task<IActionResult> CategoryList(Guid categoryId, int page = 1)
         {
             var pageSize = _blogSettings.PostListPageSize;
-            var posts = await _context.Posts.Where(p => p.PostCategories.Any(pc => pc.CategoryId == categoryId)).OrderByDescending(p => p.CreationTime)
-                .Select(p => new PostViewModel
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    ContentAbstract = p.ContentAbstract,
-                    CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local),
-                    CreatorId = p.Creator.Id,
-                    CreatorName = p.Creator.UserName
-                }).Skip((page - 1) * pageSize).Take(pageSize).AsNoTracking().ToListAsync();
+            var posts = await _postService.GetPostsByCategoryAsync(categoryId, page, pageSize);
+            var count = await _postService.CountAsync(categoryId);
 
-            ViewBag.CategoryName = (await _context.Categories.FindAsync(categoryId)).CategoryName;
+            ViewBag.CategoryName = (await _categoryService.GetAsync(categoryId))?.CategoryName;
 
-            var count = await _context.Posts.CountAsync();
-
-            var list = new StaticPagedList<PostViewModel>(posts, page, pageSize, count);
-
-            return View(list);
+            var pagedList = new StaticPagedList<PostViewModel>(posts, page, pageSize, count);
+            return View(pagedList);
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Preview(Guid postId)
         {
-            var post = await _context.Posts.FindAsync(postId);
-            if (post == null)
-            {
-                return View("~/Views/Shared/ServerError.cshtml", "无法加载文章。");
-            }
+            var post = await _postService.GetPreviewAsync(postId);
+            if (post == null) return NotFound("无法加载文章");
 
-            var viewModel = new PostPreviewViewModel
-            {
-                Id = post.Id,
-                Title = post.Title,
-                Content = post.Content,
-                CreationTime = post.CreationTime,
-                ContentAbstract = post.ContentAbstract,
-                Categories = post.PostCategories.Select(pc => pc.Category).Select(c => new Category()
-                {
-                    Id = c.Id,
-                    CategoryName = c.CategoryName,
-                }).ToArray(),
-                LastModificationTime = post.LastModificationTime
-            };
-
-            return View(viewModel);
+            return View(post);
         }
 
         [HttpGet]
         public async Task<IActionResult> Manage()
         {
-            var postList = await _context.Posts.Where(p => p.CreatorId == UserId).OrderByDescending(p => p.CreationTime)
-                .Select(p => new PostListViewModel()
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local)
-                }).ToListAsync();
+            var postList = await _postService.GetManagePostsAsync(false);
             return View(postList);
         }
 
         [HttpGet]
         public async Task<IActionResult> RecycleBin()
         {
-            var postList = await _context.Posts.IgnoreQueryFilters().Where(p => p.IsDeleted && p.CreatorId == UserId).OrderByDescending(p => p.CreationTime)
-                .Select(p => new PostListViewModel()
-                {
-                    Id = p.Id,
-                    Title = p.Title,
-                    CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local)
-                }).ToListAsync();
+            var postList = await _postService.GetManagePostsAsync(true);
             return View(postList);
         }
 
         [HttpDelete]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Recycle(Guid id)
         {
             if (id == Guid.Empty)
@@ -140,20 +95,11 @@ namespace Blog.MVC.Controllers
                 return BadRequest("参数错误，删除失败");
             }
 
-            var post = await _context.Posts.FindAsync(id);
-
-            if (post != null)
-            {
-                post.IsDeleted = true;
-                post.DeleterId = UserId;
-                post.DeletionTime = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
-            }
+            await _postService.DeleteAsync(id, true);
             return Ok();
         }
 
         [HttpDelete]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id)
         {
             if (id == Guid.Empty)
@@ -161,18 +107,11 @@ namespace Blog.MVC.Controllers
                 return BadRequest("参数错误，删除失败");
             }
 
-            var post = await _context.Posts.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == id);
-
-            if (post != null)
-            {
-                _context.Posts.Remove(post);
-                await _context.SaveChangesAsync();
-            }
+            await _postService.DeleteAsync(id);
             return Ok();
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Restore(Guid postId)
         {
             if (postId == Guid.Empty)
@@ -180,31 +119,22 @@ namespace Blog.MVC.Controllers
                 return BadRequest("参数错误，恢复失败");
             }
 
-            var post = await _context.Posts.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == postId);
-
-            if (post != null)
-            {
-                post.IsDeleted = false;
-                await _context.SaveChangesAsync();
-            }
+            await _postService.RestoreAsync(postId);
             return Ok();
         }
 
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var categories = await _context.Categories.ToListAsync();
-            if (categories.Any())
-            {
-                var model = new CreateOrEditModel
-                {
-                    PostId = Guid.Empty,
-                    CategoryList = categories.Select(c =>
-                        new CheckBoxViewModel(c.CategoryName, c.Id.ToString(), false)).ToList()
-                };
-                return View("CreateOrEdit", model);
-            }
-            return View("~/Views/Shared/ServerError.cshtml", "没有分类数据");
+            var categories = await _categoryService.GetAllAsync();
+            if (!categories.Any()) return View("~/Views/Shared/ServerError.cshtml", "没有分类数据");
+            var model = new CreateOrEditModel
+                        {
+                            PostId = Guid.Empty,
+                            CategoryList = categories.Select(c =>
+                                                                 new CheckBoxViewModel(c.CategoryName, c.Id.ToString(), false)).ToList()
+                        };
+            return View("CreateOrEdit", model);
         }
 
         [HttpGet]
@@ -213,23 +143,21 @@ namespace Blog.MVC.Controllers
             var model = new CreateOrEditModel();
             if (id != Guid.Empty)
             {
-                var post = await _context.Posts.SingleOrDefaultAsync(p => p.Id == id && p.CreatorId == UserId);
+                var post = await _postService.GetAsync(id);
                 if (post != null)
                 {
                     model.PostId = post.Id;
                     model.Title = post.Title;
                     model.Content = post.Content;
 
-                    var categories = await _context.Categories.ToListAsync();
-                    if (!categories.Any())
-                    {
-                        return View("~/Views/Shared/ServerError.cshtml", "没有分类数据");
-                    }
+                    var categories = await _categoryService.GetAllAsync();
+                    if (!categories.Any()) return View("~/Views/Shared/ServerError.cshtml", "没有分类数据");
+                    
                     model.CategoryList = categories.Select(c =>
-                                     new CheckBoxViewModel(
-                                         c.CategoryName,
-                                         c.Id.ToString(),
-                                         post.PostCategories.Any(pc => pc.CategoryId == c.Id))).ToList();
+                                                               new CheckBoxViewModel(
+                                                                c.CategoryName,
+                                                                c.Id.ToString(),
+                                                                post.PostCategories.Any(pc => pc.CategoryId == c.Id))).ToList();
                     return View("CreateOrEdit", model);
                 }
             }
@@ -238,64 +166,39 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateOrEdit(CreateOrEditModel model)
         {
             if (!ModelState.IsValid)
             {
-                model.CategoryList = await _context.Categories.Select(c =>
-                                    new CheckBoxViewModel(c.CategoryName, c.Id.ToString(), false)).ToListAsync();
+                var categories = await _categoryService.GetAllAsync();
+
+                if (categories.Any())
+                {
+                    model.CategoryList = await categories
+                                              .Select(c => new CheckBoxViewModel(c.CategoryName, c.Id.ToString(),
+                                                       false)).ToListAsync();
+                }
+
                 return View(model);
             }
-            Post postEntity;
-            if (model.PostId == Guid.Empty)
+
+            var request = new CreateOrEditPostRequest
             {
-                postEntity = new Post
-                {
-                    Title = model.Title,
-                    Content = model.Content.Trim(),
-                    ContentAbstract = ContentProcessor.GetPostAbstract(model.Content, _blogSettings.PostAbstractWords),
-                    CreatorId = UserId
-                };
-                foreach (var id in model.SelectedCategoryIds)
-                {
-                    if (_context.Categories.Any(c => c.Id == id))
-                    {
-                        postEntity.PostCategories.Add(new PostCategory
-                        {
-                            PostId = postEntity.Id,
-                            CategoryId = id
-                        });
-                    }
-                }
-                await _context.Posts.AddAsync(postEntity);
+                Id = model.PostId,
+                Title = model.Title,
+                Content = model.Content,
+                CategoryIds = model.SelectedCategoryIds.ToList()
+            };
+
+            if (request.Id == Guid.Empty)
+            {
+                await _postService.CreateAsync(request);
             }
             else
             {
-                postEntity = await _context.Posts.SingleOrDefaultAsync(p => p.Id == model.PostId);
-                if (postEntity == null)
-                {
-                    return View("~/Views/Shared/ServerError.cshtml", "没有找到文章。");
-                }
-                postEntity.Title = model.Title;
-                postEntity.Content = model.Content;
-                postEntity.ContentAbstract = ContentProcessor.GetPostAbstract(model.Content, 400);
-                postEntity.LastModificationTime = DateTime.UtcNow;
-                postEntity.PostCategories.Clear();
-                foreach (var id in model.SelectedCategoryIds)
-                {
-                    if (_context.Categories.Any(c => c.Id == id))
-                    {
-                        postEntity.PostCategories.Add(new PostCategory
-                        {
-                            PostId = postEntity.Id,
-                            CategoryId = id
-                        });
-                    }
-                }
-                _context.Posts.Update(postEntity);
+                await _postService.EditAsync(request);
             }
-            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Manage));
         }
     }
