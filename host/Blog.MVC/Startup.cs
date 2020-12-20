@@ -5,7 +5,7 @@ using Blog.Data;
 using Blog.Data.Entities;
 using Blog.MVC.Mails;
 using Blog.MVC.Options;
-using Blog.MVC.Settings;
+using Blog.Extensions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -19,6 +19,8 @@ using Microsoft.Extensions.Logging;
 using Tencent.COS.SDK;
 using Blog.Infrastructure;
 using Blog.Service;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.MVC
 {
@@ -75,7 +77,7 @@ namespace Blog.MVC
 
             services.ConfigureApplicationCookie(options =>
             {
-                options.Cookie.Name = "996bug.icu.Cookie";
+                options.Cookie.Name = "996BUG-Cookie";
                 options.Cookie.HttpOnly = false;    //客户端脚本是否可以访问Cookie
                 options.ExpireTimeSpan = TimeSpan.FromDays(1);
                 options.LoginPath = "/Account/Login";
@@ -91,7 +93,7 @@ namespace Blog.MVC
             services.AddScoped(typeof(IRepository<,>), typeof(DbContextRepository<,>));
             services.AddScoped(typeof(IRepository<>), typeof(DbContextRepository<>));
 
-            services.AddScoped<ICategoryService,CategoryService>();
+            services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IPostService, PostService>();
 
             //var assembly = Assembly.GetAssembly(typeof(BlogService));
@@ -111,7 +113,15 @@ namespace Blog.MVC
 
             services.AddHttpContextAccessor();
 
-            services.AddControllersWithViews();
+            services.AddAntiforgery(options =>
+                                    {
+                                        options.Cookie.Name = BlogConsts.CsrfName;
+                                        options.FormFieldName = $"{BlogConsts.CsrfName}-INPUT";
+                                        options.HeaderName = "X-XSRF-TOKEN";
+                                    });
+
+            services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
+                    .AddRazorRuntimeCompilation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
