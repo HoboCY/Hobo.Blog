@@ -9,7 +9,7 @@ namespace Blog.Extensions
 {
    public static class ContentProcessor
     {
-        public static string AddLazyLoadToImgTag(string rawHtmlContent)
+        public static string AddLazyLoadToImgTag(this string rawHtmlContent)
         {
             // Replace ONLY IMG tag's src to data-src
             // Otherwise embedded videos will blow up
@@ -29,7 +29,7 @@ namespace Blog.Extensions
             return newStr;
         }
 
-        public static string GetPostAbstract(string rawContent, int wordCount, bool useMarkdown = false)
+        public static string GetPostAbstract(this string rawContent, int wordCount, bool useMarkdown = false)
         {
             var plainText = useMarkdown ?
                 MarkdownToContent(rawContent, MarkdownConvertType.Text) :
@@ -126,7 +126,7 @@ namespace Blog.Extensions
             return c == '\r' || c == '\n' || c == '\t' || c == '\f' || c == ' ';
         }
 
-        public static string MarkdownToContent(string markdown, MarkdownConvertType type, bool disableHtml = true)
+        public static string MarkdownToContent(this string markdown, MarkdownConvertType type, bool disableHtml = true)
         {
             var pipeline = new MarkdownPipelineBuilder()
                 .UsePipeTables()
