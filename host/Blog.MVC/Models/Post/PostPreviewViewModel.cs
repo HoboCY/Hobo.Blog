@@ -1,4 +1,5 @@
 ﻿using System;
+using Blog.Data.Entities;
 using Blog.Model;
 
 namespace Blog.MVC.Models.Post
