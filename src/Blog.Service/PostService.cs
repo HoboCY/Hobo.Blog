@@ -101,7 +101,7 @@ namespace Blog.Service
 
         public async Task DeleteAsync(Guid id, bool isRecycle = false)
         {
-            var post = await _postRepository.GetAsync(id);
+            var post = await _postRepository.GetAsync(p => p.Id == id, true);
             if (post == null) return;
 
             if (isRecycle)

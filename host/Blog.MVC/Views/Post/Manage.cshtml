@@ -1,7 +1,7 @@
 ﻿@using Blog.MVC.Models.User
-@using Blog.MVC.Models.Post
+@using Blog.Model
 @using Blog.MVC.Controllers
-@model IReadOnlyList<PostListViewModel>
+@model IReadOnlyList<PostManageViewModel>
 
 @{
     Layout = "_LayoutUserManage";
@@ -10,7 +10,8 @@
 }
 
 @section head{
-    <link href="~/lib/DataTables/datatables.min.css" rel="stylesheet" />
+    <link href="~/lib/DataTables/datatables.min.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/lib/toastr/toastr.min.css" rel="stylesheet" />
     <style>
         .table .table-item-w20 {
             width: 20%;
@@ -23,39 +24,25 @@
 }
 
 @section Scripts{
-    <script src="~/lib/DataTables/datatables.min.js"></script>
-    <script>
-        $(function () {
-            $(".btn-delete").click(function () {
-                var cfm = confirm("确认删除?");
-                if (cfm) {
-                    deletePost($(this).data("postid"));
-                }
-            });
-
-            $("#posts-table").DataTable({
-                "order": [[1, "desc"]],
-                "lengthMenu": [[10, 15, 20, 25, 50, -1], [10, 15, 20, 25, 50, "All"]],
-                "pageLength": 10
-            });
+    <script src="~/lib/DataTables/datatables.min.js" asp-append-version="true"></script>
+    <script src="~/lib/axios/axios.min.js"></script>
+    <script src="~/lib/toastr/toastr.min.js"></script>
+    <script src="~/js/httpService.js" asp-append-version="true"></script>
+    <script src="~/js/postManage.js" asp-append-version="true"></script>
+    <script asp-append-version="true">
+        $("#posts-table").DataTable({
+            "order": [[1, "desc"]],
+            "lengthMenu": [[10, 15, 20, 25, 50, -1], [10, 15, 20, 25, 50, "All"]],
+            "pageLength": 10
         });
 
-        function deletePost(postid) {
-            var csrfValue = $("input[name='__RequestVerificationToken']").val();
-            $.ajax({
-                type: "DELETE",
-                url: `/Post/Recycle/${postid}`,
-                data: { "__RequestVerificationToken": csrfValue },
-                contentType: "application/x-www-form-urlencoded;",
-                success: function (data, textStatus, jqXHR) {
-                    alert("删除成功");
-                    $(`#tr-${postid}`).hide();
-                },
-                error: function (data) {
-                    alert(data.responseText);
-                }
-            });
-        }
+        $(".btn-recycle").click(function () {
+            let cfm = confirm("确认删除?");
+            if (cfm) {
+                let postid = $(this).data("postid");
+                deletePost(`/Post/Recycle/${postid}`, postid);
+            }
+        });
     </script>
 }
 
@@ -90,7 +77,7 @@
                             <img src="~/lib/bootstrap-icons-1.1.0/pencil-square.svg" alt="edit" />
                             编辑
                         </a>
-                        <a class="btn btn-outline-danger btn-sm btn-delete" data-postid="@post.Id" href="javascript:;">
+                        <a class="btn btn-outline-danger btn-sm btn-recycle" data-postid="@post.Id" href="javascript:;">
                             <img src="~/lib/bootstrap-icons-1.1.0/trash.svg" alt="delete" />
                             删除
                         </a>

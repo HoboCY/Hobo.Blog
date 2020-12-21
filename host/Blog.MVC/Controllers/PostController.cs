@@ -96,7 +96,7 @@ namespace Blog.MVC.Controllers
             }
 
             await _postService.DeleteAsync(id, true);
-            return Ok();
+            return Ok("删除成功，请到回收站查看");
         }
 
         [HttpDelete]
@@ -108,7 +108,7 @@ namespace Blog.MVC.Controllers
             }
 
             await _postService.DeleteAsync(id);
-            return Ok();
+            return Ok("彻底删除成功");
         }
 
         [HttpPost]
@@ -120,7 +120,7 @@ namespace Blog.MVC.Controllers
             }
 
             await _postService.RestoreAsync(postId);
-            return Ok();
+            return Ok("文章恢复成功");
         }
 
         [HttpGet]
@@ -129,11 +129,11 @@ namespace Blog.MVC.Controllers
             var categories = await _categoryService.GetAllAsync();
             if (!categories.Any()) return View("~/Views/Shared/ServerError.cshtml", "没有分类数据");
             var model = new CreateOrEditModel
-                        {
-                            PostId = Guid.Empty,
-                            CategoryList = categories.Select(c =>
-                                                                 new CheckBoxViewModel(c.CategoryName, c.Id.ToString(), false)).ToList()
-                        };
+            {
+                PostId = Guid.Empty,
+                CategoryList = categories.Select(c =>
+                                                     new CheckBoxViewModel(c.CategoryName, c.Id.ToString(), false)).ToList()
+            };
             return View("CreateOrEdit", model);
         }
 
@@ -152,7 +152,7 @@ namespace Blog.MVC.Controllers
 
                     var categories = await _categoryService.GetAllAsync();
                     if (!categories.Any()) return View("~/Views/Shared/ServerError.cshtml", "没有分类数据");
-                    
+
                     model.CategoryList = categories.Select(c =>
                                                                new CheckBoxViewModel(
                                                                 c.CategoryName,
