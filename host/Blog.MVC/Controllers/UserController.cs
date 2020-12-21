@@ -3,9 +3,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using AutoMapper;
-using Blog.Data;
-using Blog.Model;
+using Blog.Data.Entities;
 using Blog.MVC.Models;
 using Blog.MVC.Models.User;
 using Microsoft.AspNetCore.Authorization;
@@ -89,7 +87,6 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Profile(ProfileModel input)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -128,7 +125,6 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Email(EmailModel input)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -191,7 +187,6 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePasswordModel input)
         {
             if (!ModelState.IsValid)
@@ -222,7 +217,6 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePersonalData(DeletePersonalDataModel input)
         {
             var user = await _userManager.GetUserAsync(User);

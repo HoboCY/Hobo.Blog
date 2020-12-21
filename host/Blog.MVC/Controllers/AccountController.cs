@@ -8,6 +8,7 @@ using System;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Blog.Data.Entities;
 using Blog.MVC.Models.Account;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
@@ -121,7 +122,6 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginModel input)
         {
             if (ModelState.IsValid)
@@ -170,7 +170,6 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterModel input)
         {
             if (ModelState.IsValid)
@@ -208,7 +207,6 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordModel input)
         {
             if (!ModelState.IsValid) return View();
@@ -236,7 +234,6 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(ResetPasswordModel input)
         {
             if (!ModelState.IsValid)

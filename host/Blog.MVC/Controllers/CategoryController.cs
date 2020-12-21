@@ -20,7 +20,6 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CategoryEditViewModel model)
         {
             if (!ModelState.IsValid) return BadRequest("参数错误");
@@ -45,7 +44,6 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(CategoryEditViewModel model)
         {
             if (!ModelState.IsValid) return BadRequest("参数错误");
@@ -61,7 +59,6 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpDelete]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id)
         {
             if (id == Guid.Empty)
