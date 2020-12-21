@@ -1,7 +1,6 @@
 ﻿using Blog.Model;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Blog.Data.Entities;
 using Blog.Infrastructure;
@@ -30,11 +29,11 @@ namespace Blog.Service
 
         public async Task<IReadOnlyList<CategoryViewModel>> GetAllAsync()
         {
-            return await _categoryRepository.SelectAsync(c=>new CategoryViewModel
-                                                            {
-                                                                Id = c.Id,
-                                                                CategoryName = c.CategoryName
-                                                            }, true);
+            return await _categoryRepository.GetListAsync(c => new CategoryViewModel
+            {
+                Id = c.Id,
+                CategoryName = c.CategoryName
+            }, true);
         }
 
         public async Task CreateAsync(string categoryName)
@@ -61,8 +60,8 @@ namespace Blog.Service
 
         public async Task DeleteAsync(Guid id)
         {
-            var isExist = await _categoryRepository.AnyAsync(c => c.Id == id);
-            if (!isExist) return;
+            var category = await _categoryRepository.GetAsync(id);
+            if (category == null) return;
 
             var postCategories = await _postCatRepository.GetListAsync(pc => pc.CategoryId == id);
             if (postCategories != null)
@@ -70,7 +69,10 @@ namespace Blog.Service
                 await _postCatRepository.DeleteAsync(postCategories);
             }
 
-            await _categoryRepository.DeleteAsync(id);
+            category.IsDeleted = true;
+            category.DeleterId = UserId();
+            category.DeletionTime=DateTime.UtcNow;
+            await _categoryRepository.UpdateAsync(category);
         }
     }
 }
