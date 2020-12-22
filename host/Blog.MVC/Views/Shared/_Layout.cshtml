@@ -37,14 +37,18 @@
         </nav>
     </header>
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main" class="pb-lg-5">
             @RenderBody()
         </main>
     </div>
-
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer text-muted" style="line-height: 30px;">
         <div class="container">
-            &copy; 2020 - 996bug.icu
+            <div class="row mt-2">
+                &copy; @DateTime.Now.Year - 996bug.icu
+            </div>
+            <div class="row">
+                <a class="text-dark" href="http://beian.miit.gov.cn/" target="_blank">苏ICP备2020068441号-1</a>
+            </div>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
