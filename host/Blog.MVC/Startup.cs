@@ -19,8 +19,8 @@ using Microsoft.Extensions.Logging;
 using Tencent.COS.SDK;
 using Blog.Infrastructure;
 using Blog.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.WebEncoders;
 
 namespace Blog.MVC
 {
@@ -39,7 +39,7 @@ namespace Blog.MVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.All));   //解决Html中文编码问题
+            services.Configure<WebEncoderOptions>(options => options.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All));   //解决Html中文编码问题
 
             services.AddDbContext<BlogDbContext>(options =>
             {

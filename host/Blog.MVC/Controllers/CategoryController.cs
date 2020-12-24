@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-using Blog.Data;
 using Blog.Model;
 using Blog.MVC.Models.Admin;
 using Microsoft.AspNetCore.Authorization;

@@ -61,7 +61,7 @@
                 Title: {
                     required: "请输入标题",
                     minlength: "标题至少5个字符",
-                    maxlength: "标题最多5个字符"
+                    maxlength: "标题最多50个字符"
                 },
                 Content: {
                     required: "请输入内容",
@@ -73,15 +73,14 @@
                 }
             },
             ignore: "",
-            submitHandler: function (form) {
+            submitHandler: function(form) {
                 form.submit();
             },
             errorElement: "li",
             errorClass: "text-danger",
-            errorPlacement: function (error, element) {
+            errorPlacement: function(error, element) {
                 $("#error-list").append(error);
             }
-
         });
     </script>
 }
