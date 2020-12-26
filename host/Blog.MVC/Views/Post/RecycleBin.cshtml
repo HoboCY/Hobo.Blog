@@ -1,6 +1,8 @@
 ﻿@using Blog.MVC.Models.User
 @using Blog.Model
+@using Blog.Extensions
 @model IReadOnlyList<PostManageViewModel>
+@inject IDateTimeResolver DateTimeResolver
 
 @{
     Layout = "_LayoutUserManage";
@@ -65,7 +67,7 @@
                         @post.Title
                     </td>
                     <td class="text-muted">
-                        @post.CreationTime.ToShortDateString()
+                        @DateTimeResolver.ToTimeZone(post.CreationTime).ToShortDateString()
                     </td>
                     <td class="p-2">
                         <a class="btn btn-outline-primary btn-sm btn-restore" data-postid="@post.Id">

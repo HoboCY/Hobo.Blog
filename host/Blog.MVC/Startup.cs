@@ -90,6 +90,8 @@ namespace Blog.MVC
                 options.SlidingExpiration = true;
             });
 
+            services.AddScoped<IDateTimeResolver>(d => new DateTimeResolver(TimeSpan.FromHours(8).ToString()));
+
             services.Configure<BlogSettings>(Configuration.GetSection("BlogSettings"));
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.Configure<TencentCloudSettings>(Configuration.GetSection("TencentCloudSettings"));

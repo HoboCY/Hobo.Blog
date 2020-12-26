@@ -1,7 +1,9 @@
 ﻿@using Blog.MVC.Models.User
 @using Blog.Model
 @using Blog.MVC.Controllers
+@using Blog.Extensions
 @model IReadOnlyList<PostManageViewModel>
+@inject IDateTimeResolver DateTimeResolver
 
 @{
     Layout = "_LayoutUserManage";
@@ -70,7 +72,7 @@
                         </a>
                     </td>
                     <td class="text-muted">
-                        @post.CreationTime.ToShortDateString()
+                        @DateTimeResolver.ToTimeZone(post.CreationTime).ToShortDateString()
                     </td>
                     <td class="p-2">
                         <a class="btn btn-outline-primary btn-sm" asp-controller="Post" asp-action="@nameof(PostController.Edit)" asp-route-id="@post.Id">

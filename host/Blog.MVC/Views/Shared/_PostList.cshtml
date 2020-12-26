@@ -1,6 +1,8 @@
 ﻿@using Blog.Model
 @using Blog.MVC.Controllers
+@using Blog.Extensions
 @model X.PagedList.StaticPagedList<PostViewModel>
+@inject IDateTimeResolver DateTimeResolver
 
 @foreach (var post in Model)
 {
@@ -14,7 +16,7 @@
             <p class="post-content-abstract">@(post.ContentAbstract)</p>
         </div>
         <div class="float-right">
-            <span class="d-inline-block mr-5">@TimeZoneInfo.ConvertTimeFromUtc(post.CreationTime, TimeZoneInfo.Local)</span>
+            <span class="d-inline-block mr-5">@DateTimeResolver.ToTimeZone(post.CreationTime)</span>
             <span>@post.CreatorName</span>
         </div>
     </article>
