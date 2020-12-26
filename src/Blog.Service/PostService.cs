@@ -43,7 +43,7 @@ namespace Blog.Service
                 Id = p.Id,
                 Title = p.Title,
                 ContentAbstract = p.ContentAbstract,
-                CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local),
+                CreationTime = p.CreationTime,
                 CreatorId = p.Creator.Id,
                 CreatorName = p.Creator.UserName
             }, pageRequest, true);
@@ -58,7 +58,7 @@ namespace Blog.Service
                 Id = p.Id,
                 Title = p.Title,
                 ContentAbstract = p.ContentAbstract,
-                CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local),
+                CreationTime = p.CreationTime,
                 CreatorId = p.Creator.Id,
                 CreatorName = p.Creator.UserName
             }, pageRequest, true);
@@ -70,7 +70,7 @@ namespace Blog.Service
             {
                 Id = p.Id,
                 Title = p.Title,
-                CreationTime = TimeZoneInfo.ConvertTimeFromUtc(p.CreationTime, TimeZoneInfo.Local)
+                CreationTime = p.CreationTime
             }, true, true);
         }
 

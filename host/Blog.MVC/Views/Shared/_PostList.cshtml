@@ -14,7 +14,7 @@
             <p class="post-content-abstract">@(post.ContentAbstract)</p>
         </div>
         <div class="float-right">
-            <span class="d-inline-block mr-5">@post.CreationTime</span>
+            <span class="d-inline-block mr-5">@TimeZoneInfo.ConvertTimeFromUtc(post.CreationTime, TimeZoneInfo.Local)</span>
             <span>@post.CreatorName</span>
         </div>
     </article>

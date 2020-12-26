@@ -39,7 +39,11 @@ namespace Blog.MVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<WebEncoderOptions>(options => options.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All));   //解决Html中文编码问题
+            services.Configure<WebEncoderOptions>(options =>
+                                                  {
+                                                      options.TextEncoderSettings =
+                                                          new TextEncoderSettings(UnicodeRanges.All);
+                                                  });
 
             services.AddDbContext<BlogDbContext>(options =>
             {
