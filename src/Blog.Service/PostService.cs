@@ -161,19 +161,21 @@ namespace Blog.Service
 
             post.PostCategories.Clear();
 
-            request.CategoryIds?.ForEach(async id =>
-                                         {
-                                             if (await _categoryRepository.AnyAsync(c => c.Id == id))
-                                             {
-                                                 var postCategory = new PostCategory
-                                                 {
-                                                     PostId = post.Id,
-                                                     CategoryId = id
-                                                 };
-                                                 post.PostCategories.Add(postCategory);
-                                             }
-                                         });
-
+            if (request.CategoryIds != null && request.CategoryIds.Any())
+            {
+                foreach (var id in request.CategoryIds)
+                {
+                    if (await _categoryRepository.AnyAsync(c => c.Id == id))
+                    {
+                        var postCategory = new PostCategory
+                        {
+                            PostId = post.Id,
+                            CategoryId = id
+                        };
+                        post.PostCategories.Add(postCategory);
+                    }
+                }
+            }
             await _postRepository.UpdateAsync(post);
         }
     }

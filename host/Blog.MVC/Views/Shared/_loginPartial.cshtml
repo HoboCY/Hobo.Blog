@@ -21,13 +21,16 @@
             </ul>
         </li>
     }
+
     else
     {
-        @*<li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">登录</a>
-        </li>*@
-        @*<li class="nav-item ml-lg-5">
-            <a class="btn btn-success" asp-controller="Account" asp-action="Register">注册</a>
-        </li>*@
+        <environment exclude="Product">
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">登录</a>
+            </li>
+            <li class="nav-item ml-lg-5">
+                <a class="btn btn-success" asp-controller="Account" asp-action="Register">注册</a>
+            </li>
+        </environment>
     }
 </ul>
