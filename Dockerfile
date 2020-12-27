@@ -1,11 +1,11 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM registry.cn-shanghai.aliyuncs.com/hobocy/dotnet:aspnet-3.1-buster-slim AS base
+FROM registry.cn-shanghai.aliyuncs.com/hobocy/aspnet:5.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM registry.cn-shanghai.aliyuncs.com/hobocy/dotnet:sdk-3.1-buster AS build
+FROM registry.cn-shanghai.aliyuncs.com/hobocy/sdk:5.0 AS build
 WORKDIR /src
 COPY ["host/Blog.MVC/Blog.MVC.csproj", "host/Blog.MVC/"]
 COPY ["src/Blog.Data/Blog.Data.csproj", "src/Blog.Data/"]
