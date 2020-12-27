@@ -22,6 +22,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> Upload()
         {
             var files = Request.Form.Files;
