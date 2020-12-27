@@ -21,6 +21,8 @@ using Blog.Infrastructure;
 using Blog.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.WebEncoders;
+using System.Reflection;
+using System.Linq;
 
 namespace Blog.MVC
 {
@@ -99,19 +101,17 @@ namespace Blog.MVC
             services.AddScoped(typeof(IRepository<,>), typeof(DbContextRepository<,>));
             services.AddScoped(typeof(IRepository<>), typeof(DbContextRepository<>));
 
-            services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<IPostService, PostService>();
+            var assembly = Assembly.GetAssembly(typeof(BlogService));
+            if (assembly != null)
+            {
+                var types = assembly.GetTypes().Where(t => t.IsClass && t.IsPublic && t.Name.EndsWith("Service") && t.Name != "BlogService");
 
-            //var assembly = Assembly.GetAssembly(typeof(BlogService));
-            //if (assembly != null)
-            //{
-            //    var types = assembly.GetTypes().Where(t => t.IsClass && t.IsPublic && t.Name.EndsWith("Service"));
-
-            //    foreach (var type in types)
-            //    {
-            //        services.AddScoped(type);
-            //    }
-            //}
+                foreach (var type in types)
+                {
+                    var iface = type.GetInterface("I" + type.Name);
+                    services.AddScoped(iface, type);
+                }
+            }
 
             services.AddTransient<IEmailSender, EmailSender>();
 
