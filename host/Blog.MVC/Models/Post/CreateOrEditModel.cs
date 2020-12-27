@@ -17,7 +17,7 @@ namespace Blog.MVC.Models.Post
         public Guid PostId { get; set; }
 
         [Required(ErrorMessage = "请输入{0}")]
-        [StringLength(50, ErrorMessage = "{0}必须至少{2}个字符，最多{1}个字符。", MinimumLength = 5)]
+        [StringLength(200, ErrorMessage = "{0}必须至少{2}个字符，最多{1}个字符。", MinimumLength = 10)]
         [Display(Name = "标题")]
         public string Title { get; set; }
 
