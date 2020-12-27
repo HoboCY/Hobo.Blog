@@ -126,8 +126,7 @@ namespace Blog.MVC
                                         options.HeaderName = "X-XSRF-TOKEN";
                                     });
 
-            services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
-                    .AddRazorRuntimeCompilation();
+            services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

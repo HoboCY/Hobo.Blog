@@ -118,7 +118,7 @@ namespace Blog.Extensions
 
         public static bool IsLetter(this char c)
         {
-            return 'A' <= c && c <= 'Z' || 'a' <= c && c <= 'z';
+            return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z');
         }
 
         public static bool IsSpace(this char c)
