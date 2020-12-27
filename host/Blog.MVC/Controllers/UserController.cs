@@ -150,7 +150,7 @@ namespace Blog.MVC.Controllers
                     protocol: Request.Scheme);
                 await _emailSender.SendEmailAsync(
                     input.NewEmail,
-                    "Confirm your email",
+                    "996bug.icu 确认你的邮箱",
                     $"确认你的邮箱请 <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>点击这里。</a>.");
                 TempData["StatusMessage"] = JsonConvert.SerializeObject(new StatusMessage("success", "邮箱更改的确认链接已经发送，请检查你的邮件。"));
                 return RedirectToAction(nameof(Email));

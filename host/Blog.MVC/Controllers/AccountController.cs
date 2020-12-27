@@ -185,7 +185,7 @@ namespace Blog.MVC.Controllers
                     var callbackUrl = Url.ActionLink("ConfirmEmail", "Account", new { userId = user.Id, code = code },
                         Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(input.Email, "Confirm your email",
+                    await _emailSender.SendEmailAsync(input.Email, "996bug.icu 确认你的邮箱",
                         $"确认你的账户请<a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>点击此处</a>。");
 
                     if (_userManager.Options.SignIn.RequireConfirmedEmail)
@@ -226,7 +226,7 @@ namespace Blog.MVC.Controllers
 
             await _emailSender.SendEmailAsync(
                 input.Email,
-                "Reset Password",
+                "996bug.icu 重置密码",
                 $"重置密码请 <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>点击此处</a>。");
 
             return RedirectToAction(nameof(ForgotPasswordConfirmation));
