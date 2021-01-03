@@ -22,19 +22,13 @@ namespace Blog.Service
             _postCatRepository = postCatRepository;
         }
 
-        public async Task<Category> GetAsync(Guid id)
-        {
-            return await _categoryRepository.GetAsync(id);
-        }
+        public async Task<Category> GetAsync(Guid id) => await _categoryRepository.FindAsync(id);
 
-        public async Task<IReadOnlyList<CategoryViewModel>> GetAllAsync()
+        public async Task<IReadOnlyList<CategoryViewModel>> GetAllAsync() => await _categoryRepository.GetListAsync(c => new CategoryViewModel
         {
-            return await _categoryRepository.GetListAsync(c => new CategoryViewModel
-            {
-                Id = c.Id,
-                CategoryName = c.CategoryName
-            }, true);
-        }
+            Id = c.Id,
+            CategoryName = c.CategoryName
+        });
 
         public async Task CreateAsync(string categoryName)
         {
@@ -50,7 +44,7 @@ namespace Blog.Service
 
         public async Task EditAsync(EditCategoryRequest request)
         {
-            var category = await _categoryRepository.GetAsync(request.Id);
+            var category = await _categoryRepository.FindAsync(request.Id);
             if (category == null) return;
             category.CategoryName = request.CategoryName.Trim();
             category.LastModifierId = UserId();
@@ -60,7 +54,7 @@ namespace Blog.Service
 
         public async Task DeleteAsync(Guid id)
         {
-            var category = await _categoryRepository.GetAsync(id);
+            var category = await _categoryRepository.FindAsync(id);
             if (category == null) return;
 
             var postCategories = await _postCatRepository.GetListAsync(pc => pc.CategoryId == id);

@@ -29,16 +29,13 @@ namespace Blog.Service
             _blogSettings = options.Value;
         }
 
-        public async Task<Post> GetAsync(Guid id)
-        {
-            return await _postRepository.GetAsync(p => p.Id == id && p.CreatorId == UserId());
-        }
+        public async Task<Post> GetAsync(Guid id) => await _postRepository.FindAsync(p => p.Id == id && p.CreatorId == UserId());
 
         public async Task<IReadOnlyList<PostViewModel>> GetPostsAsync(int pageIndex = 1, int pageSize = 10)
         {
             var pageRequest = new PagedRequest(pageIndex, pageSize);
 
-            return await _postRepository.GetListAsync(p => new PostViewModel
+            return await _postRepository.GetPagedListAsync(p => new PostViewModel
             {
                 Id = p.Id,
                 Title = p.Title,
@@ -46,14 +43,14 @@ namespace Blog.Service
                 CreationTime = p.CreationTime,
                 CreatorId = p.Creator.Id,
                 CreatorName = p.Creator.UserName
-            }, pageRequest, true);
+            }, pageRequest);
         }
 
         public async Task<IReadOnlyList<PostViewModel>> GetPostsByCategoryAsync(Guid categoryId, int pageIndex = 1, int pageSize = 10)
         {
             var pageRequest = new PagedRequest(pageIndex, pageSize);
 
-            return await _postRepository.GetListAsync(p => p.PostCategories.Any(pc => pc.CategoryId == categoryId), p => new PostViewModel
+            return await _postRepository.GetPagedListAsync(p => new PostViewModel
             {
                 Id = p.Id,
                 Title = p.Title,
@@ -61,18 +58,15 @@ namespace Blog.Service
                 CreationTime = p.CreationTime,
                 CreatorId = p.Creator.Id,
                 CreatorName = p.Creator.UserName
-            }, pageRequest, true);
+            }, pageRequest, p => p.PostCategories.Any(pc => pc.CategoryId == categoryId));
         }
 
-        public async Task<IReadOnlyList<PostManageViewModel>> GetManagePostsAsync(bool isDeleted = false)
+        public async Task<IReadOnlyList<PostManageViewModel>> GetManagePostsAsync(bool isDeleted = false) => await _postRepository.GetListAsync(p => new PostManageViewModel
         {
-            return await _postRepository.GetListAsync(p => p.IsDeleted == isDeleted && p.CreatorId == UserId(), p => new PostManageViewModel
-            {
-                Id = p.Id,
-                Title = p.Title,
-                CreationTime = p.CreationTime
-            }, true, true);
-        }
+            Id = p.Id,
+            Title = p.Title,
+            CreationTime = p.CreationTime
+        }, p => p.IsDeleted == isDeleted && p.CreatorId == UserId(), false);
 
         public async Task<int> CountAsync(Guid? categoryId = null)
         {
@@ -83,7 +77,7 @@ namespace Blog.Service
 
         public async Task<PostPreviewViewModel> GetPreviewAsync(Guid id)
         {
-            return await _postRepository.SingleAsync(p => p.Id == id, post => new PostPreviewViewModel
+            return await _postRepository.FindAsync(post => new PostPreviewViewModel
             {
                 Id = post.Id,
                 Title = post.Title,
@@ -96,12 +90,12 @@ namespace Blog.Service
                     CategoryName = c.CategoryName,
                 }).ToArray(),
                 LastModificationTime = post.LastModificationTime
-            });
+            }, p => p.Id == id);
         }
 
         public async Task DeleteAsync(Guid id, bool isRecycle = false)
         {
-            var post = await _postRepository.GetAsync(p => p.Id == id, true);
+            var post = await _postRepository.FindAsync(p => p.Id == id);
             if (post == null) return;
 
             if (isRecycle)
@@ -119,7 +113,7 @@ namespace Blog.Service
 
         public async Task RestoreAsync(Guid id)
         {
-            var post = await _postRepository.GetAsync(p => p.Id == id, true);
+            var post = await _postRepository.FindAsync(p => p.Id == id, false);
             if (post == null) return;
 
             post.IsDeleted = false;
@@ -151,7 +145,7 @@ namespace Blog.Service
 
         public async Task EditAsync(CreateOrEditPostRequest request)
         {
-            var post = await _postRepository.GetAsync(request.Id);
+            var post = await _postRepository.FindAsync(request.Id);
             if (post == null) throw new InvalidOperationException($"Post {request.Id} is not found.");
 
             post.Title = request.Title;
