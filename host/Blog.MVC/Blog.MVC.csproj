@@ -1181,6 +1181,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="AspNetCoreRateLimit" Version="3.2.2" />
 		<PackageReference Include="MailKit" Version="2.10.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.10" />

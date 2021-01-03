@@ -23,6 +23,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.WebEncoders;
 using System.Reflection;
 using System.Linq;
+using Microsoft.Extensions.Options;
+using AspNetCoreRateLimit;
 
 namespace Blog.MVC
 {
@@ -41,6 +43,22 @@ namespace Blog.MVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            if (services.All(s => s.ServiceType != typeof(IOptions<>)))
+            {
+                services.AddOptions();
+            }
+
+            services.AddHttpContextAccessor();
+
+            services.AddMemoryCache();
+
+            services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
+
+            services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+            services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
             services.Configure<WebEncoderOptions>(options =>
                                                   {
                                                       options.TextEncoderSettings =
@@ -117,8 +135,6 @@ namespace Blog.MVC
 
             services.AddCos();
 
-            services.AddHttpContextAccessor();
-
             services.AddAntiforgery(options =>
                                     {
                                         options.Cookie.Name = BlogConsts.CsrfName;
@@ -145,6 +161,8 @@ namespace Blog.MVC
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseIpRateLimiting();
 
             app.UseRouting();
 
