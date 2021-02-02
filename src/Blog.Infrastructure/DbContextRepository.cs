@@ -25,7 +25,6 @@ namespace Blog.Infrastructure
         public DbContextRepository(BlogDbContext dbContext)
         {
             DbContext = dbContext;
-            DbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate = null)
