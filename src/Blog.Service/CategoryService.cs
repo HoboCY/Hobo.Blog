@@ -65,7 +65,7 @@ namespace Blog.Service
 
             category.IsDeleted = true;
             category.DeleterId = UserId();
-            category.DeletionTime=DateTime.UtcNow;
+            category.DeletionTime = DateTime.UtcNow;
             await _categoryRepository.UpdateAsync(category);
         }
     }

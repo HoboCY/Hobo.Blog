@@ -17,12 +17,8 @@ namespace Blog.Service
 
         protected Guid UserId()
         {
-            var result = Guid.TryParse(_httpContextAccessor.HttpContext.User.FindFirstValue("UserId"), out Guid userId);
-            if (!result)
-            {
-                throw new ArgumentNullException("UserId Not Found");
-            }
-            return userId;
+            var result = Guid.TryParse(_httpContextAccessor.HttpContext.User.FindFirstValue("UserId"), out var userId);
+            return !result ? throw new ArgumentNullException(nameof(UserId), "UserId Not Found") : userId;
         }
     }
 }
