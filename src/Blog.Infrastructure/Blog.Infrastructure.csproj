@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.7" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.11" />
   </ItemGroup>
 
   <ItemGroup>

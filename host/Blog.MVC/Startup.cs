@@ -67,7 +67,7 @@ namespace Blog.MVC
 
             services.AddDbContext<BlogDbContext>(options =>
             {
-                options.UseMySql(connectionString: Configuration.GetConnectionString("Default"),
+                options.UseMySql(new MySqlServerVersion(new Version(8, 0, 21)),
                                  mySqlOptionsAction: x =>
                                                      {
                                                          x.MigrationsAssembly("Blog.Data");
