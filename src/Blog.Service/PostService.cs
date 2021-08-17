@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Blog.Data;
 using Blog.Data.Entities;
 using Blog.Extensions;
 using Blog.Infrastructure;
 using Blog.Model;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace Blog.Service
@@ -17,56 +19,41 @@ namespace Blog.Service
         private readonly IRepository<Post, Guid> _postRepository;
         private readonly IRepository<Category, Guid> _categoryRepository;
         private readonly BlogSettings _blogSettings;
+        private readonly DbHelper _dbHelper;
 
         public PostService(
             IHttpContextAccessor httpContextAccessor,
             IRepository<Post, Guid> postRepository,
             IRepository<Category, Guid> categoryRepository,
-            IOptions<BlogSettings> options) : base(httpContextAccessor)
+            IOptions<BlogSettings> options,
+            IConfiguration configuration) : base(httpContextAccessor)
         {
             _postRepository = postRepository;
             _categoryRepository = categoryRepository;
             _blogSettings = options.Value;
+            _dbHelper = new DbHelper(configuration.GetConnectionString("Blog"));
         }
 
-        public async Task<Post> GetAsync(Guid id) => await _postRepository.FindAsync(p => p.Id == id && p.CreatorId == UserId());
+        public async Task<Post> GetAsync(Guid id)
+        {
+            return await _dbHelper.GetAsync<Post>(SqlConstants.GetPost, new { id, CreatorId = UserId() });
+        }
 
         public async Task<IReadOnlyList<PostViewModel>> GetPostsAsync(int pageIndex = 1, int pageSize = 10)
         {
-            var pageRequest = new PagedRequest(pageIndex, pageSize);
-
-            return await _postRepository.GetPagedListAsync(p => new PostViewModel
-            {
-                Id = p.Id,
-                Title = p.Title,
-                ContentAbstract = p.ContentAbstract,
-                CreationTime = p.CreationTime,
-                CreatorId = p.Creator.Id,
-                CreatorName = p.Creator.UserName
-            }, pageRequest);
+            return (await _dbHelper.GetListAsync<PostViewModel>(SqlConstants.GetPosts, new { skipCount = (pageIndex - 1) * pageSize, pageSize })).ToList();
         }
 
         public async Task<IReadOnlyList<PostViewModel>> GetPostsByCategoryAsync(Guid categoryId, int pageIndex = 1, int pageSize = 10)
         {
-            var pageRequest = new PagedRequest(pageIndex, pageSize);
-
-            return await _postRepository.GetPagedListAsync(p => new PostViewModel
-            {
-                Id = p.Id,
-                Title = p.Title,
-                ContentAbstract = p.ContentAbstract,
-                CreationTime = p.CreationTime,
-                CreatorId = p.Creator.Id,
-                CreatorName = p.Creator.UserName
-            }, pageRequest, p => p.PostCategories.Any(pc => pc.CategoryId == categoryId));
+            return (await _dbHelper.GetListAsync<PostViewModel>(SqlConstants.GetPostsByCategory, new { categoryId, skipCount = (pageIndex - 1) * pageSize, pageSize })).ToList();
         }
 
-        public async Task<IReadOnlyList<PostManageViewModel>> GetManagePostsAsync(bool isDeleted = false) => await _postRepository.GetListAsync(p => new PostManageViewModel
+        public async Task<IReadOnlyList<PostManageViewModel>> GetManagePostsAsync(bool isDeleted = false)
         {
-            Id = p.Id,
-            Title = p.Title,
-            CreationTime = p.CreationTime
-        }, p => p.IsDeleted == isDeleted && p.CreatorId == UserId(), false);
+            return (await _dbHelper.GetListAsync<PostManageViewModel>(SqlConstants.GetManagePosts,
+                new {isDeleted, UserId = UserId()})).ToList();
+        }
 
         public async Task<int> CountAsync(Guid? categoryId = null)
         {

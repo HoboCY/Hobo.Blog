@@ -1,10 +1,13 @@
 ﻿using Blog.Model;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Blog.Data;
 using Blog.Data.Entities;
 using Blog.Infrastructure;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace Blog.Service
 {
@@ -12,26 +15,40 @@ namespace Blog.Service
     {
         private readonly IRepository<Category, Guid> _categoryRepository;
         private readonly IRepository<PostCategory> _postCatRepository;
+        private readonly DbHelper _dbHelper;
 
         public CategoryService(
             IRepository<Category, Guid> repository,
             IHttpContextAccessor httpContextAccessor,
-            IRepository<PostCategory> postCatRepository) : base(httpContextAccessor)
+            IRepository<PostCategory> postCatRepository,
+            IConfiguration configuration) : base(httpContextAccessor)
         {
             _categoryRepository = repository;
             _postCatRepository = postCatRepository;
+            _dbHelper = new DbHelper(configuration.GetConnectionString("Blog"));
         }
 
-        public async Task<Category> GetAsync(Guid id) => await _categoryRepository.FindAsync(id);
-
-        public async Task<IReadOnlyList<CategoryViewModel>> GetAllAsync() => await _categoryRepository.GetListAsync(c => new CategoryViewModel
+        public async Task<Category> GetAsync(Guid id)
         {
-            Id = c.Id,
-            CategoryName = c.CategoryName
-        });
+            return await _dbHelper.GetAsync<Category>(SqlConstants.GetCategory, new { id });
+        }
+
+        public async Task<IReadOnlyList<CategoryViewModel>> GetAllAsync()
+        {
+            return (await _dbHelper.GetListAsync<CategoryViewModel>(SqlConstants.GetCategories)).ToList();
+        }
 
         public async Task CreateAsync(string categoryName)
         {
+            //var sql = "SELECT * FROM category WHERE CategoryName = @CategoryName AND IsDeleted = 0";
+            //var category = await _dbHelper.GetAsync<Category>(sql, new { categoryName });
+            //if (category != null) return;
+
+            //var newCategory = new Category
+            //{
+
+            //}
+
             var isExist = await _categoryRepository.AnyAsync(c => c.CategoryName == categoryName);
             if (isExist) return;
             var category = new Category
