@@ -98,7 +98,7 @@ namespace Blog.Data
                         switch (paramType.Name)
                         {
                             case "Guid":
-                            property.SetValue(entity, new Guid?((Guid)rowValue));
+                            property.SetValue(entity, new Guid?(new Guid((string)rowValue)));
                             break;
                             case "DateTime":
                             property.SetValue(entity, new DateTime?((DateTime)rowValue));
