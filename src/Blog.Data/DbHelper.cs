@@ -18,6 +18,23 @@ namespace Blog.Data
             _connectionString = connectionString;
         }
 
+        public async Task<int> ExecuteAsync(string sql, object parameter = null)
+        {
+            await using var conn = new MySqlConnection(_connectionString);
+            await conn.OpenAsync();
+            var cmd = new MySqlCommand(sql, conn);
+            if (parameter != null)
+            {
+                var paramType = parameter.GetType();
+                foreach (var item in paramType.GetProperties())
+                {
+                    cmd.Parameters.AddWithValue(item.Name, item.GetValue(parameter));
+                }
+            }
+
+            return await cmd.ExecuteNonQueryAsync();
+        }
+
         public async Task<T> GetAsync<T>(string sql, object parameter = null) where T : class, new()
         {
             await using var conn = new MySqlConnection(_connectionString);
@@ -44,6 +61,22 @@ namespace Blog.Data
                 }
             }
             return (T)entity;
+        }
+
+        public async Task<T> GetScalarAsync<T>(string sql, object parameter = null)
+        {
+            await using var conn = new MySqlConnection(_connectionString);
+            await conn.OpenAsync();
+            var cmd = new MySqlCommand(sql, conn);
+            if (parameter != null)
+            {
+                var paramType = parameter.GetType();
+                foreach (var item in paramType.GetProperties())
+                {
+                    cmd.Parameters.AddWithValue(item.Name, item.GetValue(parameter));
+                }
+            }
+            return (T)await cmd.ExecuteScalarAsync();
         }
 
         public async Task<IEnumerable<T>> GetListAsync<T>(string sql, object parameter = null) where T : class, new()
