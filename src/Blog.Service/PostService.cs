@@ -37,18 +37,18 @@ namespace Blog.Service
 
         public async Task<Post> GetAsync(Guid id)
         {
-            var post = await _dbHelper.GetAsync<Post>(SqlConstants.GetPost, new { id, CreatorId = UserId() });
+            var post = await _dbHelper.GetAsync<Post>(SqlConstants.GetOwnPost, new { id, CreatorId = UserId() });
             return post ?? throw new BlogEntityNotFoundException(typeof(Post), nameof(id));
         }
 
         public async Task<IReadOnlyList<PostViewModel>> GetPostsAsync(int pageIndex = 1, int pageSize = 10)
         {
-            return (await _dbHelper.GetListAsync<PostViewModel>(SqlConstants.GetPosts, new { skipCount = (pageIndex - 1) * pageSize, pageSize })).ToList();
+            return (await _dbHelper.GetListAsync<PostViewModel>(SqlConstants.GetPostsPage, new { skipCount = (pageIndex - 1) * pageSize, pageSize })).ToList();
         }
 
         public async Task<IReadOnlyList<PostViewModel>> GetPostsByCategoryAsync(Guid categoryId, int pageIndex = 1, int pageSize = 10)
         {
-            return (await _dbHelper.GetListAsync<PostViewModel>(SqlConstants.GetPostsByCategory, new { categoryId, skipCount = (pageIndex - 1) * pageSize, pageSize })).ToList();
+            return (await _dbHelper.GetListAsync<PostViewModel>(SqlConstants.GetPostsPageByCategory, new { categoryId, skipCount = (pageIndex - 1) * pageSize, pageSize })).ToList();
         }
 
         public async Task<IReadOnlyList<PostManageViewModel>> GetManagePostsAsync(bool isDeleted = false)
@@ -66,7 +66,7 @@ namespace Blog.Service
 
         public async Task<PostPreviewViewModel> GetPreviewAsync(Guid id)
         {
-            var post = await _dbHelper.GetAsync<Post>(SqlConstants.GetPostById, new { id });
+            var post = await _dbHelper.GetAsync<Post>(SqlConstants.GetPostToDelete, new { id });
             if (post == null) throw new BlogEntityNotFoundException(typeof(Post), nameof(id));
 
             var categories = await _dbHelper.GetListAsync<CategoryViewModel>(SqlConstants.GetCategoriesByPost, new { PostId = post.Id });
@@ -87,7 +87,7 @@ namespace Blog.Service
 
         public async Task DeleteAsync(Guid id, bool isRecycle = false)
         {
-            var post = await _dbHelper.GetAsync<Post>(SqlConstants.GetPostById, new { id });
+            var post = await _dbHelper.GetAsync<Post>(SqlConstants.GetPostToDelete, new { id, CreatorId = UserId() });
             if (post == null) throw new BlogEntityNotFoundException(typeof(Post), nameof(id));
 
             var result = 0;
@@ -100,7 +100,7 @@ namespace Blog.Service
                     DeleterId = UserId(),
                     DeletionTime = DateTime.UtcNow
                 };
-                result = await _dbHelper.ExecuteAsync(SqlConstants.UpdatePost, parameter);
+                result = await _dbHelper.ExecuteAsync(SqlConstants.SoftDeletePost, parameter);
             }
             else
             {
@@ -110,7 +110,7 @@ namespace Blog.Service
 
         public async Task RestoreAsync(Guid id)
         {
-            var post = await _dbHelper.GetAsync<Post>(SqlConstants.GetPostById, new { id });
+            var post = await _dbHelper.GetAsync<Post>(SqlConstants.GetRestorePost, new { id });
             if (post == null) throw new BlogEntityNotFoundException(typeof(Post), nameof(id));
 
             await _dbHelper.ExecuteAsync(SqlConstants.RestorePost, new { id });
@@ -118,55 +118,52 @@ namespace Blog.Service
 
         public async Task CreateAsync(CreateOrEditPostRequest request)
         {
-            var post = new Post
+            var post = new
             {
-                Title = request.Title,
-                Content = request.Content,
+                Id = Guid.NewGuid(),
+                request.Title,
+                request.Content,
                 ContentAbstract = request.Content.GetPostAbstract(_blogSettings.PostAbstractWords),
-                CreatorId = UserId()
+                CreatorId = UserId(),
             };
 
-            request.CategoryIds.ForEach(id =>
-                                        {
-                                            var postCategory = new PostCategory
-                                            {
-                                                PostId = post.Id,
-                                                CategoryId = id
-                                            };
-                                            post.PostCategories.Add(postCategory);
-                                        });
+            await _dbHelper.ExecuteAsync(SqlConstants.AddPost, post);
 
-            await _postRepository.InsertAsync(post);
+            foreach (var id in request.CategoryIds)
+            {
+                await _dbHelper.ExecuteAsync(SqlConstants.AddPostCategory, new { CategoryId = id, PostId = post.Id });
+            }
         }
 
         public async Task EditAsync(CreateOrEditPostRequest request)
         {
-            var post = await _postRepository.FindAsync(request.Id);
-            if (post == null) throw new InvalidOperationException($"Post {request.Id} is not found.");
+            var post = await _dbHelper.GetAsync<Post>(SqlConstants.GetPostToEdit,
+                new { request.Id, CreatorId = UserId() });
+
+            if (post == null) throw new BlogEntityNotFoundException(typeof(Post), nameof(request.Id));
 
             post.Title = request.Title;
             post.Content = request.Content;
             post.ContentAbstract = request.Content.GetPostAbstract(_blogSettings.PostAbstractWords);
             post.LastModificationTime = DateTime.UtcNow;
 
-            post.PostCategories.Clear();
-
-            if (request.CategoryIds != null && request.CategoryIds.Any())
+            var editPost = new
             {
-                foreach (var id in request.CategoryIds)
-                {
-                    if (await _categoryRepository.AnyAsync(c => c.Id == id))
-                    {
-                        var postCategory = new PostCategory
-                        {
-                            PostId = post.Id,
-                            CategoryId = id
-                        };
-                        post.PostCategories.Add(postCategory);
-                    }
-                }
+                post.Id,
+                request.Title,
+                request.Content,
+                ContentAbstract = request.Content.GetPostAbstract(_blogSettings.PostAbstractWords),
+                LastModificationTime = DateTime.UtcNow
+            };
+
+            await _dbHelper.ExecuteAsync(SqlConstants.UpdatePost, editPost);
+
+            await _dbHelper.ExecuteAsync(SqlConstants.DeletePostCategoryByPost, new { PostId = post.Id });
+
+            foreach (var categoryId in request.CategoryIds)
+            {
+                await _dbHelper.ExecuteAsync(SqlConstants.AddPostCategory, new {categoryId, PostId = editPost.Id});
             }
-            await _postRepository.UpdateAsync(post);
         }
     }
 }

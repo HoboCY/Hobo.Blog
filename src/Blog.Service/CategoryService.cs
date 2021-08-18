@@ -75,7 +75,7 @@ namespace Blog.Service
 
             if (category != null)
             {
-                var updateResult = await _dbHelper.ExecuteAsync(SqlConstants.DeletePostCategories, new { id });
+                var updateResult = await _dbHelper.ExecuteAsync(SqlConstants.DeletePostCategoriesByCategory, new { id });
 
                 var parameter = new
                 {

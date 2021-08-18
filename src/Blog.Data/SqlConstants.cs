@@ -9,16 +9,16 @@
 
         public const string GetCategories = @"SELECT * FROM category WHERE IsDeleted = 0";
 
-        public const string GetPost = @"SELECT * FROM post WHERE Id = @Id AND CreatorId = @CreatorId AND IsDeleted = 0";
+        public const string GetOwnPost = @"SELECT * FROM post WHERE Id = @Id AND CreatorId = @CreatorId AND IsDeleted = 0";
 
-        public const string GetPostById = @"SELECT * FROM post WHERE Id = @Id AND IsDeleted = 0";
+        public const string GetPostToDelete = @"SELECT * FROM post WHERE Id = @Id AND CreatorId = @CreatorId AND IsDeleted = 0";
 
         public const string GetRestorePost = @"SELECT * FROM post WHERE Id = @Id";
 
-        public const string GetPosts =
+        public const string GetPostsPage =
             @"SELECT p.*,u.UserName AS CreatorName FROM post p LEFT JOIN application_user u ON p.CreatorId = u.Id WHERE p.IsDeleted = 0 ORDER BY p.CreationTime DESC LIMIT @skipCount,@pageSize";
 
-        public const string GetPostsByCategory =
+        public const string GetPostsPageByCategory =
             @"SELECT p.*,u.UserName AS CreatorName FROM post p LEFT JOIN post_category pc ON pc.PostId = p.Id LEFT JOIN application_user u ON p.CreatorId = u.Id WHERE pc.CategoryId = @CategoryId AND p.IsDeleted = 0 ORDER BY p.CreationTime DESC LIMIT @skipCount,@pageSize";
 
         public const string GetCategoriesByPost =
@@ -32,6 +32,8 @@
 
         public const string GetPostCount = @"SELECT COUNT(*) FROM post WHERE IsDeleted = 0";
 
+        public const string GetPostToEdit = @"SELECT * FROM post WHERE Id = @Id AND CreatorId = @CreatorId AND IsDeleted = 0";
+
         public const string AddCategory =
             @"INSERT INTO category (Id,CategoryName,CreatorId) VALUES (@Id, @CategoryName, @CreatorId)";
 
@@ -41,13 +43,22 @@
         public const string DeleteCategory =
             @"UPDATE category SET IsDeleted = @IsDeleted, DeleterId = @DeleterId, DeletionTime = @DeletionTime WHERE Id = @Id";
 
-        public const string DeletePostCategories = @"DELETE FROM post_category WHERE CategoryId = @CategoryId";
+        public const string DeletePostCategoriesByCategory = @"DELETE FROM post_category WHERE CategoryId = @CategoryId";
 
         public const string DeletePost = @"DELETE FROM post WHERE Id = @Id";
 
-        public const string UpdatePost =
+        public const string SoftDeletePost =
             @"UPDATE post SET IsDeleted = @IsDeleted, DeleterId = @DeleterId, DeletionTime = @DeletionTime WHERE Id = @Id";
 
         public const string RestorePost = "UPDATE post SET IsDeleted = 0 WHERE Id = @Id";
+
+        public const string AddPost = @"INSERT INTO post (Id,Title,Content,ContentAbstract,CreatorId) VALUES (@Id, @Title, @Content, @ContentAbstract, @CreatorId)";
+
+        public const string AddPostCategory = @"INSERT INTO post_category (CategoryId, PostId) VALUES (@CategoryId, @PostId)";
+
+        public const string UpdatePost =
+            @"UPDATE post SET Title = @Title,Content = @Content,ContentAbstract = @ContentAbstract,LastModificationTime = @LastModificationTime WHERE Id = @Id";
+
+        public const string DeletePostCategoryByPost = @"DELETE FROM post_category WHERE PostId = @PostId";
     }
 }
