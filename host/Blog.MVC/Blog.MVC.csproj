@@ -8,11 +8,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Extensions\**" />
+	  <Content Remove="Extensions\**" />
+	  <EmbeddedResource Remove="Extensions\**" />
+	  <None Remove="Extensions\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Content Remove="appsettings.Development.json" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="appsettings.Development.json" />
 		<None Include="wwwroot\lib\DataTables\DataTables-1.10.23\js\dataTables.bootstrap.js" />
 		<None Include="wwwroot\lib\DataTables\DataTables-1.10.23\js\dataTables.bootstrap.min.js" />
 		<None Include="wwwroot\lib\DataTables\DataTables-1.10.23\js\dataTables.bootstrap4.js" />
@@ -1200,10 +1206,6 @@
 		<ProjectReference Include="..\..\src\Blog.Infrastructure\Blog.Infrastructure.csproj" />
 		<ProjectReference Include="..\..\src\Blog.Service\Blog.Service.csproj" />
 		<ProjectReference Include="..\..\src\Tencent.COS.SDK\Tencent.COS.SDK.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Extensions\" />
 	</ItemGroup>
 
 </Project>

@@ -13,9 +13,9 @@ namespace Blog.Service
 
         Task<IReadOnlyList<CategoryViewModel>> GetAllAsync();
 
-        Task CreateAsync(string categoryName);
+        Task<int> CreateAsync(string categoryName);
 
-        Task EditAsync(EditCategoryRequest request);
+        Task<int> EditAsync(EditCategoryRequest request);
 
         Task DeleteAsync(Guid id);
     }

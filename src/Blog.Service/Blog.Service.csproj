@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Blog.Data\Blog.Data.csproj" />
+    <ProjectReference Include="..\Blog.Exceptions\Blog.Exceptions.csproj" />
     <ProjectReference Include="..\Blog.Extensions\Blog.Extensions.csproj" />
     <ProjectReference Include="..\Blog.Infrastructure\Blog.Infrastructure.csproj" />
     <ProjectReference Include="..\Blog.Model\Blog.Model.csproj" />

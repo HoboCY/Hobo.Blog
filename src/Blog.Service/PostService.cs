@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Blog.Data;
 using Blog.Data.Entities;
+using Blog.Exceptions;
 using Blog.Extensions;
 using Blog.Infrastructure;
 using Blog.Model;
@@ -36,7 +37,8 @@ namespace Blog.Service
 
         public async Task<Post> GetAsync(Guid id)
         {
-            return await _dbHelper.GetAsync<Post>(SqlConstants.GetPost, new { id, CreatorId = UserId() });
+            var post = await _dbHelper.GetAsync<Post>(SqlConstants.GetPost, new { id, CreatorId = UserId() });
+            return post ?? throw new BlogEntityNotFoundException(typeof(Post), nameof(id));
         }
 
         public async Task<IReadOnlyList<PostViewModel>> GetPostsAsync(int pageIndex = 1, int pageSize = 10)
@@ -52,59 +54,66 @@ namespace Blog.Service
         public async Task<IReadOnlyList<PostManageViewModel>> GetManagePostsAsync(bool isDeleted = false)
         {
             return (await _dbHelper.GetListAsync<PostManageViewModel>(SqlConstants.GetManagePosts,
-                new {isDeleted, UserId = UserId()})).ToList();
+                new { isDeleted, UserId = UserId() })).ToList();
         }
 
         public async Task<int> CountAsync(Guid? categoryId = null)
         {
             return categoryId != null
-                       ? await _postRepository.CountAsync(p => p.PostCategories.Any(pc => pc.CategoryId == categoryId))
-                       : await _postRepository.CountAsync();
+                ? await _dbHelper.GetScalarAsync<int>(SqlConstants.GetPostCountByCategory, new { categoryId })
+                : await _dbHelper.GetScalarAsync<int>(SqlConstants.GetPostCount);
         }
 
         public async Task<PostPreviewViewModel> GetPreviewAsync(Guid id)
         {
-            return await _postRepository.FindAsync(post => new PostPreviewViewModel
+            var post = await _dbHelper.GetAsync<Post>(SqlConstants.GetPostById, new { id });
+            if (post == null) throw new BlogEntityNotFoundException(typeof(Post), nameof(id));
+
+            var categories = await _dbHelper.GetListAsync<CategoryViewModel>(SqlConstants.GetCategoriesByPost, new { PostId = post.Id });
+
+            var postPreviewViewModel = new PostPreviewViewModel
             {
                 Id = post.Id,
                 Title = post.Title,
                 Content = post.Content.AddLazyLoadToImgTag(),
                 CreationTime = post.CreationTime,
                 ContentAbstract = post.ContentAbstract,
-                Categories = post.PostCategories.Select(pc => pc.Category).Select(c => new CategoryViewModel()
-                {
-                    Id = c.Id,
-                    CategoryName = c.CategoryName,
-                }).ToArray(),
+                Categories = categories.ToArray(),
                 LastModificationTime = post.LastModificationTime
-            }, p => p.Id == id);
+            };
+
+            return postPreviewViewModel;
         }
 
         public async Task DeleteAsync(Guid id, bool isRecycle = false)
         {
-            var post = await _postRepository.FindAsync(p => p.Id == id);
-            if (post == null) return;
+            var post = await _dbHelper.GetAsync<Post>(SqlConstants.GetPostById, new { id });
+            if (post == null) throw new BlogEntityNotFoundException(typeof(Post), nameof(id));
+
+            var result = 0;
 
             if (isRecycle)
             {
-                post.IsDeleted = true;
-                post.DeleterId = UserId();
-                post.DeletionTime = DateTime.UtcNow;
-                await _postRepository.UpdateAsync(post);
+                var parameter = new
+                {
+                    IsDeleted = true,
+                    DeleterId = UserId(),
+                    DeletionTime = DateTime.UtcNow
+                };
+                result = await _dbHelper.ExecuteAsync(SqlConstants.UpdatePost, parameter);
             }
             else
             {
-                await _postRepository.DeleteAsync(post);
+                result = await _dbHelper.ExecuteAsync(SqlConstants.DeletePost, new { id });
             }
         }
 
         public async Task RestoreAsync(Guid id)
         {
-            var post = await _postRepository.FindAsync(p => p.Id == id, false);
-            if (post == null) return;
+            var post = await _dbHelper.GetAsync<Post>(SqlConstants.GetPostById, new { id });
+            if (post == null) throw new BlogEntityNotFoundException(typeof(Post), nameof(id));
 
-            post.IsDeleted = false;
-            await _postRepository.UpdateAsync(post);
+            await _dbHelper.ExecuteAsync(SqlConstants.RestorePost, new { id });
         }
 
         public async Task CreateAsync(CreateOrEditPostRequest request)

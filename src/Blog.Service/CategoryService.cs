@@ -8,6 +8,7 @@ using Blog.Data.Entities;
 using Blog.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Blog.Exceptions;
 
 namespace Blog.Service
 {
@@ -30,7 +31,8 @@ namespace Blog.Service
 
         public async Task<Category> GetAsync(Guid id)
         {
-            return await _dbHelper.GetAsync<Category>(SqlConstants.GetCategory, new { id });
+            var category = await _dbHelper.GetAsync<Category>(SqlConstants.GetCategory, new { id });
+            return category ?? throw new BlogEntityNotFoundException(typeof(Category), nameof(id));
         }
 
         public async Task<IReadOnlyList<CategoryViewModel>> GetAllAsync()
@@ -38,52 +40,54 @@ namespace Blog.Service
             return (await _dbHelper.GetListAsync<CategoryViewModel>(SqlConstants.GetCategories)).ToList();
         }
 
-        public async Task CreateAsync(string categoryName)
+        public async Task<int> CreateAsync(string categoryName)
         {
-            //var sql = "SELECT * FROM category WHERE CategoryName = @CategoryName AND IsDeleted = 0";
-            //var category = await _dbHelper.GetAsync<Category>(sql, new { categoryName });
-            //if (category != null) return;
+            var category = await _dbHelper.GetAsync<Category>(SqlConstants.GetCategoryByName, new { categoryName });
+            if (category != null) throw new Exception();
 
-            //var newCategory = new Category
-            //{
-
-            //}
-
-            var isExist = await _categoryRepository.AnyAsync(c => c.CategoryName == categoryName);
-            if (isExist) return;
-            var category = new Category
+            var parameter = new
             {
+                Id = Guid.NewGuid(),
                 CategoryName = categoryName.Trim(),
                 CreatorId = UserId()
             };
-            await _categoryRepository.InsertAsync(category);
+            return await _dbHelper.ExecuteAsync(SqlConstants.AddCategory, parameter);
         }
 
-        public async Task EditAsync(EditCategoryRequest request)
+        public async Task<int> EditAsync(EditCategoryRequest request)
         {
-            var category = await _categoryRepository.FindAsync(request.Id);
-            if (category == null) return;
-            category.CategoryName = request.CategoryName.Trim();
-            category.LastModifierId = UserId();
-            category.LastModificationTime = DateTime.UtcNow;
-            await _categoryRepository.UpdateAsync(category);
+            var category = await _dbHelper.GetAsync<Category>(SqlConstants.GetCategory, new { request.Id });
+            if (category == null) throw new BlogEntityNotFoundException(typeof(Category), nameof(request.Id));
+
+            var parameter = new
+            {
+                CategoryName = request.CategoryName.Trim(),
+                LastModifierId = UserId(),
+                LastModificationTime = DateTime.UtcNow,
+                request.Id
+            };
+            return await _dbHelper.ExecuteAsync(SqlConstants.UpdateCategory, parameter);
         }
 
         public async Task DeleteAsync(Guid id)
         {
-            var category = await _categoryRepository.FindAsync(id);
-            if (category == null) return;
+            var category = await _dbHelper.GetAsync<Category>(SqlConstants.GetCategory, new { id });
 
-            var postCategories = await _postCatRepository.GetListAsync(pc => pc.CategoryId == id);
-            if (postCategories != null)
+            if (category != null)
             {
-                await _postCatRepository.DeleteAsync(postCategories);
-            }
+                var updateResult = await _dbHelper.ExecuteAsync(SqlConstants.DeletePostCategories, new { id });
 
-            category.IsDeleted = true;
-            category.DeleterId = UserId();
-            category.DeletionTime = DateTime.UtcNow;
-            await _categoryRepository.UpdateAsync(category);
+                var parameter = new
+                {
+                    IsDeleted = true,
+                    DeleterId = UserId(),
+                    DeletionTime = DateTime.UtcNow,
+                    Id = id
+                };
+                var deleteResult = await _dbHelper.ExecuteAsync(SqlConstants.DeleteCategory, parameter);
+
+                if (updateResult <= 0 || deleteResult <= 0) throw new Exception();
+            }
         }
     }
 }
