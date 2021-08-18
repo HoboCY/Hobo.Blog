@@ -45,7 +45,7 @@ namespace Blog.MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(CategoryEditViewModel model)
         {
-            if (!ModelState.IsValid) return BadRequest("参数错误");
+            if (!ModelState.IsValid) return BadRequest("Invalid parameters");
 
             var request = new EditCategoryRequest()
             {
@@ -62,7 +62,7 @@ namespace Blog.MVC.Controllers
         {
             if (id == Guid.Empty)
             {
-                return BadRequest("删除失败，参数错误");
+                return BadRequest("Delete failed，invalid parameter");
             }
 
             await _categoryService.DeleteAsync(id);
