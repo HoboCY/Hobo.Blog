@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Blog.Data.Entities
 {
-    [Table("post")]
     public class Post
     {
-        public Post()
-        {
-            PostCategories = new HashSet<PostCategory>();
-        }
+        public Guid Id { get; set; }
 
-        public Guid Id { get; set; } = Guid.NewGuid();
-
+        [MaxLength(100)]
         public string Title { get; set; }
 
         public string Content { get; set; }
@@ -24,16 +20,8 @@ namespace Blog.Data.Entities
 
         public DateTime CreationTime { get; set; } = DateTime.UtcNow;
 
-        public DateTime? LastModificationTime { get; set; }
+        public DateTime? LastModifyTime { get; set; }
 
         public bool IsDeleted { get; set; }
-
-        public Guid? DeleterId { get; set; }
-
-        public DateTime? DeletionTime { get; set; }
-
-        public virtual ICollection<PostCategory> PostCategories { get; set; }
-
-        public virtual ApplicationUser Creator { get; set; }
     }
 }
