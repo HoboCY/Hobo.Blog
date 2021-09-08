@@ -51,40 +51,6 @@ namespace Blog.MVC
                                                           new TextEncoderSettings(UnicodeRanges.All);
                                                   });
 
-            services.AddDbContext<BlogDbContext>(options =>
-            {
-                options.UseMySql(Configuration.GetConnectionString("Blog"), new MySqlServerVersion(new Version(8, 0, 21)),
-                                 mySqlOptionsAction: x =>
-                                                     {
-                                                         x.MigrationsAssembly("Blog.Data");
-                                                         x.EnableRetryOnFailure(3, TimeSpan.FromSeconds(10), null);
-                                                     });
-                options.UseLoggerFactory(EfLoggerFactory);
-                options.UseLazyLoadingProxies();
-            })
-            .AddIdentity<ApplicationUser, ApplicationRole>()
-            .AddEntityFrameworkStores<BlogDbContext>()
-            .AddDefaultUI()
-            .AddDefaultTokenProviders();
-
-            services.Configure<IdentityOptions>(options =>
-            {
-                // Lockout Settings
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.AllowedForNewUsers = true;
-
-                // User Settings
-                options.User.RequireUniqueEmail = true;
-
-                // ClaimsIdentity Settings
-                options.ClaimsIdentity.UserIdClaimType = "UserId";
-
-                // SignIn Settings
-                options.SignIn.RequireConfirmedEmail = true;
-                options.SignIn.RequireConfirmedPhoneNumber = false;
-            });
-
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.Name = "996BUG-Cookie";
