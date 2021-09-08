@@ -43,21 +43,7 @@ namespace Blog.MVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            if (services.All(s => s.ServiceType != typeof(IOptions<>)))
-            {
-                services.AddOptions();
-            }
-
             services.AddHttpContextAccessor();
-
-            services.AddMemoryCache();
-
-            services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
-
-            services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
-            services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
-
-            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
             services.Configure<WebEncoderOptions>(options =>
                                                   {
@@ -67,7 +53,7 @@ namespace Blog.MVC
 
             services.AddDbContext<BlogDbContext>(options =>
             {
-                options.UseMySql(new MySqlServerVersion(new Version(8, 0, 21)),
+                options.UseMySql(Configuration.GetConnectionString("Blog"), new MySqlServerVersion(new Version(8, 0, 21)),
                                  mySqlOptionsAction: x =>
                                                      {
                                                          x.MigrationsAssembly("Blog.Data");
@@ -161,8 +147,6 @@ namespace Blog.MVC
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
-            app.UseIpRateLimiting();
 
             app.UseRouting();
 
