@@ -7,7 +7,7 @@ namespace Blog.MVC.Models.Admin
     public class CategoryEditViewModel
     {
         [HiddenInput]
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         [Required(ErrorMessage = "请输入{0}")]
         [Display(Name = "分类名称")]
@@ -16,7 +16,6 @@ namespace Blog.MVC.Models.Admin
 
         public CategoryEditViewModel()
         {
-            Id = Guid.Empty;
         }
     }
 }

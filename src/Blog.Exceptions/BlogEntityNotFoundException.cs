@@ -8,21 +8,16 @@ namespace Blog.Exceptions
     {
         public Type EntityType { get; set; }
 
-        public string Parameter { get; set; }
-
-        public BlogEntityNotFoundException(string message) : base(message)
-        {
-
-        }
+        public object Parameter { get; set; }
 
         public BlogEntityNotFoundException(string message, Exception innerException) : base(message, innerException)
         {
 
         }
 
-        public BlogEntityNotFoundException(Type entityType, string parameter, Exception innerException)
+        public BlogEntityNotFoundException(Type entityType, object parameter, Exception innerException)
             : base(
-                string.IsNullOrWhiteSpace(parameter)
+                parameter == null
                     ? $"There is no such an entity given parameter. Entity type：{entityType.Name}"
                     : $"There is no such an entity. Entity type：{entityType.Name}，parameter：{parameter}", innerException)
         {
@@ -30,7 +25,7 @@ namespace Blog.Exceptions
             Parameter = parameter;
         }
 
-        public BlogEntityNotFoundException(Type entityType, string parameter)
+        public BlogEntityNotFoundException(Type entityType, object parameter)
             : this(entityType, parameter, null)
         {
         }

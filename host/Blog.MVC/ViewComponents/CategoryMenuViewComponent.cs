@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Blog.Service;
+using Blog.Service.Categories;
 
 namespace Blog.MVC.ViewComponents
 {

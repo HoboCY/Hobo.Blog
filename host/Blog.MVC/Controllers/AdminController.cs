@@ -6,6 +6,7 @@ using Blog.Service;
 using Microsoft.AspNetCore.Authorization;
 using X.PagedList;
 using System;
+using Blog.Service.Categories;
 
 namespace Blog.MVC.Controllers
 {

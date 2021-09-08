@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Blog.Data;
 using Blog.Data.Entities;
+using Blog.Data.Repositories;
 using Blog.Exceptions;
 using Blog.Extensions;
 using Blog.Infrastructure;
@@ -17,22 +18,19 @@ namespace Blog.Service
 {
     public class PostService : BlogService, IPostService
     {
-        private readonly IRepository<Post, Guid> _postRepository;
-        private readonly IRepository<Category, Guid> _categoryRepository;
+        private readonly IRepository<Post> _postRepository;
+        private readonly IRepository<Category> _categoryRepository;
         private readonly BlogSettings _blogSettings;
-        private readonly DbHelper _dbHelper;
 
         public PostService(
             IHttpContextAccessor httpContextAccessor,
-            IRepository<Post, Guid> postRepository,
-            IRepository<Category, Guid> categoryRepository,
-            IOptions<BlogSettings> options,
-            IConfiguration configuration) : base(httpContextAccessor)
+            IRepository<Post> postRepository,
+            IRepository<Category> categoryRepository,
+            IOptions<BlogSettings> options) : base(httpContextAccessor)
         {
             _postRepository = postRepository;
             _categoryRepository = categoryRepository;
             _blogSettings = options.Value;
-            _dbHelper = new DbHelper(configuration.GetConnectionString("Blog"));
         }
 
         public async Task<Post> GetAsync(Guid id)
@@ -60,8 +58,8 @@ namespace Blog.Service
         public async Task<int> CountAsync(Guid? categoryId = null)
         {
             return categoryId != null
-                ? await _dbHelper.GetScalarAsync<int>(SqlConstants.GetPostCountByCategory, new { categoryId })
-                : await _dbHelper.GetScalarAsync<int>(SqlConstants.GetPostCount);
+                ? await _dbHelper.GetCountAsync<int>(SqlConstants.GetPostCountByCategory, new { categoryId })
+                : await _dbHelper.GetCountAsync<int>(SqlConstants.GetPostCount);
         }
 
         public async Task<PostPreviewViewModel> GetPreviewAsync(Guid id)
@@ -78,8 +76,7 @@ namespace Blog.Service
                 Content = post.Content.AddLazyLoadToImgTag(),
                 CreationTime = post.CreationTime,
                 ContentAbstract = post.ContentAbstract,
-                Categories = categories.ToArray(),
-                LastModificationTime = post.LastModificationTime
+                Categories = categories.ToArray()
             };
 
             return postPreviewViewModel;
@@ -145,7 +142,6 @@ namespace Blog.Service
             post.Title = request.Title;
             post.Content = request.Content;
             post.ContentAbstract = request.Content.GetPostAbstract(_blogSettings.PostAbstractWords);
-            post.LastModificationTime = DateTime.UtcNow;
 
             var editPost = new
             {

@@ -6,7 +6,7 @@ namespace Blog.Model
 {
    public class EditCategoryRequest
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         public string CategoryName { get; set; }
     }

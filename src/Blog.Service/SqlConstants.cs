@@ -1,13 +1,24 @@
-﻿namespace Blog.Data
+﻿namespace Blog.Service
 {
     public static class SqlConstants
     {
-        public const string GetCategory = @"SELECT * FROM category WHERE Id = @Id AND IsDeleted = 0";
+        #region Category
+
+        public const string GetCategoryById = @"SELECT * FROM category WHERE Id = @Id";
+
+        public const string GetCategories = @"SELECT * FROM category";
+
+        public const string CreateCategory = @"INSERT INTO category (CategoryName) VALUES (@CategoryName)";
+
+        public const string UpdateCategory = @"UPDATE category SET CategoryName = @CategoryName WHERE Id = @Id";
+
+        #endregion
+
 
         public const string GetCategoryByName =
             @"SELECT * FROM category WHERE CategoryName = @CategoryName AND IsDeleted = 0";
 
-        public const string GetCategories = @"SELECT * FROM category WHERE IsDeleted = 0";
+
 
         public const string GetOwnPost = @"SELECT * FROM post WHERE Id = @Id AND CreatorId = @CreatorId AND IsDeleted = 0";
 
@@ -36,9 +47,6 @@
 
         public const string AddCategory =
             @"INSERT INTO category (Id,CategoryName,CreatorId) VALUES (@Id, @CategoryName, @CreatorId)";
-
-        public const string UpdateCategory =
-            @"UPDATE category SET CategoryName = @CategoryName, LastModifierId = @LastModifierId, LastModificationTime = @LastModificationTime WHERE Id = @Id";
 
         public const string DeleteCategory =
             @"UPDATE category SET IsDeleted = @IsDeleted, DeleterId = @DeleterId, DeletionTime = @DeletionTime WHERE Id = @Id";

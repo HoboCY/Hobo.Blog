@@ -25,6 +25,7 @@ using System.Reflection;
 using System.Linq;
 using Microsoft.Extensions.Options;
 using AspNetCoreRateLimit;
+using Blog.Data.Repositories;
 
 namespace Blog.MVC
 {
@@ -45,11 +46,11 @@ namespace Blog.MVC
         {
             services.AddHttpContextAccessor();
 
-            services.Configure<WebEncoderOptions>(options =>
-                                                  {
-                                                      options.TextEncoderSettings =
-                                                          new TextEncoderSettings(UnicodeRanges.All);
-                                                  });
+            //services.Configure<WebEncoderOptions>(options =>
+            //                                      {
+            //                                          options.TextEncoderSettings =
+            //                                              new TextEncoderSettings(UnicodeRanges.All);
+            //                                      });
 
             services.ConfigureApplicationCookie(options =>
             {
@@ -68,8 +69,7 @@ namespace Blog.MVC
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.Configure<TencentCloudSettings>(Configuration.GetSection("TencentCloudSettings"));
 
-            services.AddScoped(typeof(IRepository<,>), typeof(DbContextRepository<,>));
-            services.AddScoped(typeof(IRepository<>), typeof(DbContextRepository<>));
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
             var assembly = Assembly.GetAssembly(typeof(BlogService));
             if (assembly != null)
@@ -87,12 +87,12 @@ namespace Blog.MVC
 
             services.AddCos();
 
-            services.AddAntiforgery(options =>
-                                    {
-                                        options.Cookie.Name = BlogConsts.CsrfName;
-                                        options.FormFieldName = $"{BlogConsts.CsrfName}-INPUT";
-                                        options.HeaderName = "X-XSRF-TOKEN";
-                                    });
+            //services.AddAntiforgery(options =>
+            //                        {
+            //                            options.Cookie.Name = BlogConsts.CsrfName;
+            //                            options.FormFieldName = $"{BlogConsts.CsrfName}-INPUT";
+            //                            options.HeaderName = "X-XSRF-TOKEN";
+            //                        });
 
             services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
         }

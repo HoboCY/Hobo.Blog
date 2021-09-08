@@ -11,7 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Blog.Exceptions\Blog.Exceptions.csproj" />
     <ProjectReference Include="..\Blog.Model\Blog.Model.csproj" />
+    <ProjectReference Include="..\Blog.Shared\Blog.Shared.csproj" />
   </ItemGroup>
 
 </Project>

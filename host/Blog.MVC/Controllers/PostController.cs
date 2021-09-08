@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Blog.Service;
+using Blog.Service.Categories;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using X.PagedList;
@@ -19,18 +20,15 @@ namespace Blog.MVC.Controllers
     [Authorize]
     public class PostController : BlogController
     {
-        private readonly BlogDbContext _context;
         private readonly BlogSettings _blogSettings;
         private readonly IPostService _postService;
         private readonly ICategoryService _categoryService;
 
         public PostController(
-            BlogDbContext context,
             IOptions<BlogSettings> options,
             IPostService postService,
             ICategoryService categoryService)
         {
-            _context = context;
             _postService = postService;
             _categoryService = categoryService;
             _blogSettings = options.Value;
@@ -154,10 +152,9 @@ namespace Blog.MVC.Controllers
                     if (!categories.Any()) return View("~/Views/Shared/ServerError.cshtml", "没有分类数据");
 
                     model.CategoryList = categories.Select(c =>
-                                                               new CheckBoxViewModel(
-                                                                c.CategoryName,
-                                                                c.Id.ToString(),
-                                                                post.PostCategories.Any(pc => pc.CategoryId == c.Id))).ToList();
+                        new CheckBoxViewModel(
+                            c.CategoryName,
+                            c.Id.ToString(), true)).ToList();
                     return View("CreateOrEdit", model);
                 }
             }

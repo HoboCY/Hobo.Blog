@@ -5,16 +5,23 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Blog.Data.Extensions;
+using Blog.Exceptions;
+using Blog.Shared;
+using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 
 namespace Blog.Data
 {
-    public class DbHelper
+    public class DbHelper<TEntity> : IDbHelper<TEntity> where TEntity : class, new()
     {
         private readonly string _connectionString;
 
-        public DbHelper(string connectionString)
+        public DbHelper(IConfiguration configuration)
         {
+            var connectionString = configuration.GetConnectionString(BlogConstants.ConnectionStringName);
+            if (string.IsNullOrWhiteSpace(connectionString))
+                throw new ArgumentNullException(nameof(connectionString), "Invalid connection string");
             _connectionString = connectionString;
         }
 
@@ -22,129 +29,78 @@ namespace Blog.Data
         {
             await using var conn = new MySqlConnection(_connectionString);
             await conn.OpenAsync();
+
             var cmd = new MySqlCommand(sql, conn);
-            if (parameter != null)
-            {
-                var paramType = parameter.GetType();
-                foreach (var item in paramType.GetProperties())
-                {
-                    cmd.Parameters.AddWithValue(item.Name, item.GetValue(parameter));
-                }
-            }
+            cmd.SetParameters(parameter);
 
             return await cmd.ExecuteNonQueryAsync();
         }
 
-        public async Task<T> GetAsync<T>(string sql, object parameter = null) where T : class, new()
+        public async Task<TEntity> GetAsync(string sql, object parameter = null)
         {
             await using var conn = new MySqlConnection(_connectionString);
             await conn.OpenAsync();
+
             var cmd = new MySqlCommand(sql, conn);
-            if (parameter != null)
-            {
-                var paramType = parameter.GetType();
-                foreach (var item in paramType.GetProperties())
-                {
-                    cmd.Parameters.AddWithValue(item.Name, item.GetValue(parameter));
-                }
-            }
+            cmd.SetParameters(parameter);
+
             var reader = await cmd.ExecuteReaderAsync(CommandBehavior.CloseConnection);
 
-            var objType = typeof(T);
-            var entity = new T();
+            var objType = typeof(TEntity);
+            var entity = new TEntity();
             var properties = objType.GetProperties().Where(p => !p.GetMethod.IsVirtual).ToList();
+
+            if (!reader.HasRows) throw new BlogEntityNotFoundException(typeof(TEntity), parameter);
+
             while (reader.Read())
             {
                 foreach (var item in properties)
                 {
-                    SetValue(item, entity, reader);
+                    reader.SetValue<TEntity>(item, entity);
                 }
             }
-            return (T)entity;
+
+            return (TEntity)entity;
         }
 
-        public async Task<int> GetCountAsync<T>(string sql, object parameter = null)
+        public async Task<object> GetScalarAsync(string sql, object parameter = null)
         {
             await using var conn = new MySqlConnection(_connectionString);
             await conn.OpenAsync();
-            var cmd = new MySqlCommand(sql, conn);
-            if (parameter != null)
-            {
-                var paramType = parameter.GetType();
-                foreach (var item in paramType.GetProperties())
-                {
-                    cmd.Parameters.AddWithValue(item.Name, item.GetValue(parameter));
-                }
-            }
 
-            var count = await cmd.ExecuteScalarAsync();
-            return Convert.ToInt32(count);
+            var cmd = new MySqlCommand(sql, conn);
+            cmd.SetParameters(parameter);
+
+            return await cmd.ExecuteScalarAsync();
         }
 
-        public async Task<IEnumerable<T>> GetListAsync<T>(string sql, object parameter = null) where T : class, new()
+        public async Task<IEnumerable<TEntity>> GetListAsync(string sql, object parameter = null)
         {
             await using var conn = new MySqlConnection(_connectionString);
             await conn.OpenAsync();
+
             var cmd = new MySqlCommand(sql, conn);
-            if (parameter != null)
-            {
-                var paramType = parameter.GetType();
-                foreach (var item in paramType.GetProperties())
-                {
-                    cmd.Parameters.AddWithValue(item.Name, item.GetValue(parameter));
-                }
-            }
+            cmd.SetParameters(parameter);
+
             var reader = await cmd.ExecuteReaderAsync(CommandBehavior.CloseConnection);
 
-            var dataList = new List<T>();
+            var dataList = new List<TEntity>();
 
-            var objType = typeof(T);
+            var objType = typeof(TEntity);
 
             var properties = objType.GetProperties().Where(p => !p.GetMethod.IsVirtual).ToList();
+
             while (reader.Read())
             {
-                var entity = new T();
+                var entity = new TEntity();
                 foreach (var item in properties)
                 {
-                    SetValue(item, entity, reader);
+                    reader.SetValue<TEntity>(item, entity);
                 }
                 dataList.Add(entity);
             }
+
             return dataList;
-        }
-
-        private static void SetValue<T>(PropertyInfo property, T entity, MySqlDataReader reader)
-        {
-            switch (property.PropertyType.Name)
-            {
-                case "Guid":
-                property.SetValue(entity, new Guid((string)reader[property.Name]));
-                return;
-                case "Nullable`1":
-                    {
-                        var rowValue = reader[property.Name];
-                        if (rowValue is DBNull)
-                        {
-                            property.SetValue(entity, null);
-                            return;
-                        }
-
-                        var paramType = property.PropertyType.GetGenericArguments()[0];
-                        switch (paramType.Name)
-                        {
-                            case "Guid":
-                            property.SetValue(entity, new Guid?(new Guid((string)rowValue)));
-                            break;
-                            case "DateTime":
-                            property.SetValue(entity, new DateTime?((DateTime)rowValue));
-                            break;
-                        }
-                        return;
-                    }
-                default:
-                property.SetValue(entity, reader[property.Name]);
-                break;
-            }
         }
     }
 }
