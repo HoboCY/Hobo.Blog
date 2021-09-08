@@ -63,7 +63,7 @@ namespace Blog.Data
             return (T)entity;
         }
 
-        public async Task<T> GetScalarAsync<T>(string sql, object parameter = null)
+        public async Task<int> GetCountAsync<T>(string sql, object parameter = null)
         {
             await using var conn = new MySqlConnection(_connectionString);
             await conn.OpenAsync();
@@ -76,7 +76,9 @@ namespace Blog.Data
                     cmd.Parameters.AddWithValue(item.Name, item.GetValue(parameter));
                 }
             }
-            return (T)await cmd.ExecuteScalarAsync();
+
+            var count = await cmd.ExecuteScalarAsync();
+            return Convert.ToInt32(count);
         }
 
         public async Task<IEnumerable<T>> GetListAsync<T>(string sql, object parameter = null) where T : class, new()
