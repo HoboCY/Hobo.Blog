@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Blog.Data.Extensions;
 using Blog.Exceptions;
 using Blog.Shared;
+using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 using MySqlConnector.Logging;
 
@@ -15,17 +16,20 @@ namespace Blog.Data
 {
     public class DbHelper : IDbHelper
     {
-        private readonly MySqlConnection _connection;
+        private readonly string _connectionString;
 
-        public DbHelper(MySqlConnection connection)
+        public DbHelper(IConfiguration configuration)
         {
-            _connection = connection;
+            var connectionString = configuration.GetConnectionString(BlogConstants.ConnectionStringName);
+            if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentNullException(nameof(connectionString), "Invalid ConnectionString");
+            _connectionString = connectionString;
         }
 
         public async Task<int> ExecuteAsync(string sql, object parameter = null)
         {
-            await _connection.OpenAsync();
-            var cmd = _connection.CreateCommand();
+            await using var conn = new MySqlConnection(_connectionString);
+            await conn.OpenAsync();
+            var cmd = conn.CreateCommand();
             cmd.CommandText = sql;
             cmd.SetParameters(parameter);
 
@@ -34,19 +38,19 @@ namespace Blog.Data
 
         public async Task<int> ExecuteAsync(Dictionary<string, object> commands)
         {
-
-            await _connection.OpenAsync();
-            await using var transaction = await _connection.BeginTransactionAsync();
-            using var batch = _connection.CreateBatch();
-            batch.Transaction = transaction;
-            foreach (var (key, value) in commands)
-            {
-                var command = new MySqlBatchCommand(key);
-                command.SetParameters(value);
-                batch.BatchCommands.Add(command);
-            }
+            await using var conn = new MySqlConnection(_connectionString);
+            await conn.OpenAsync();
+            await using var transaction = await conn.BeginTransactionAsync();
             try
             {
+                using var batch = conn.CreateBatch();
+                batch.Transaction = transaction;
+                foreach (var (key, value) in commands)
+                {
+                    var command = new MySqlBatchCommand(key);
+                    command.SetParameters(value);
+                    batch.BatchCommands.Add(command);
+                }
                 var result = await batch.ExecuteNonQueryAsync();
                 await transaction.CommitAsync();
                 return result;
@@ -60,8 +64,9 @@ namespace Blog.Data
 
         public async Task<TEntity> GetAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new()
         {
-            await _connection.OpenAsync();
-            await using var cmd = _connection.CreateCommand();
+            await using var conn = new MySqlConnection(_connectionString);
+            await conn.OpenAsync();
+            await using var cmd = conn.CreateCommand();
             cmd.CommandText = sql;
             cmd.SetParameters(parameter);
 
@@ -86,9 +91,9 @@ namespace Blog.Data
 
         public async Task<object> GetScalarAsync(string sql, object parameter = null)
         {
-            await _connection.OpenAsync();
-
-            await using var cmd = _connection.CreateCommand();
+            await using var conn = new MySqlConnection(_connectionString);
+            await conn.OpenAsync();
+            await using var cmd = conn.CreateCommand();
             cmd.CommandText = sql;
             cmd.SetParameters(parameter);
 
@@ -97,9 +102,9 @@ namespace Blog.Data
 
         public async Task<IEnumerable<TEntity>> GetListAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new()
         {
-            await _connection.OpenAsync();
-
-            await using var cmd = _connection.CreateCommand();
+            await using var conn = new MySqlConnection(_connectionString);
+            await conn.OpenAsync();
+            await using var cmd = conn.CreateCommand();
             cmd.CommandText = sql;
             cmd.SetParameters(parameter);
 
@@ -118,6 +123,7 @@ namespace Blog.Data
                 {
                     reader.SetValue<TEntity>(item, entity);
                 }
+
                 dataList.Add(entity);
             }
 
