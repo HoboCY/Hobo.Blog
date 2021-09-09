@@ -8,17 +8,16 @@ using System.Threading.Tasks;
 using Blog.Data.Extensions;
 using Blog.Exceptions;
 using Blog.Shared;
-using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 using MySqlConnector.Logging;
 
 namespace Blog.Data
 {
-    public class DbHelper<TEntity> : IDbHelper<TEntity> where TEntity : class, new()
+    public class DbHelper : IDbHelper
     {
         private readonly MySqlConnection _connection;
 
-        public DbHelper(IConfiguration configuration, MySqlConnection connection)
+        public DbHelper(MySqlConnection connection)
         {
             _connection = connection;
         }
@@ -48,9 +47,9 @@ namespace Blog.Data
             }
             try
             {
-                await batch.ExecuteNonQueryAsync();
+                var result = await batch.ExecuteNonQueryAsync();
                 await transaction.CommitAsync();
-                return 1;
+                return result;
             }
             catch (Exception)
             {
@@ -59,7 +58,7 @@ namespace Blog.Data
             }
         }
 
-        public async Task<TEntity> GetAsync(string sql, object parameter = null)
+        public async Task<TEntity> GetAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new()
         {
             await _connection.OpenAsync();
             await using var cmd = _connection.CreateCommand();
@@ -96,7 +95,7 @@ namespace Blog.Data
             return await cmd.ExecuteScalarAsync();
         }
 
-        public async Task<IEnumerable<TEntity>> GetListAsync(string sql, object parameter = null)
+        public async Task<IEnumerable<TEntity>> GetListAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new()
         {
             await _connection.OpenAsync();
 

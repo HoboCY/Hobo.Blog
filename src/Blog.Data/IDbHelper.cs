@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 
 namespace Blog.Data
 {
-    public interface IDbHelper<TEntity> where TEntity : class, new()
+    public interface IDbHelper
     {
         Task<int> ExecuteAsync(string sql, object parameter = null);
 
         Task<int> ExecuteAsync(Dictionary<string, object> commands);
 
-        Task<TEntity> GetAsync(string sql, object parameter = null);
+        Task<TEntity> GetAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new();
 
         Task<object> GetScalarAsync(string sql, object parameter = null);
 
-        Task<IEnumerable<TEntity>> GetListAsync(string sql, object parameter = null);
+        Task<IEnumerable<TEntity>> GetListAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new();
     }
 }

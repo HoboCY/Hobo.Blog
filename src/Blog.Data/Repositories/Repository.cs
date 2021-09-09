@@ -6,18 +6,18 @@ using Blog.Data.Entities;
 
 namespace Blog.Data.Repositories
 {
-    public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
+    public class Repository : IRepository
     {
-        private readonly IDbHelper<TEntity> _dbHelper;
+        private readonly IDbHelper _dbHelper;
 
-        public Repository(IDbHelper<TEntity> dbHelper)
+        public Repository(IDbHelper dbHelper)
         {
             _dbHelper = dbHelper;
         }
 
-        public async Task<TEntity> FindAsync(string sql, object id)
+        public async Task<TEntity> FindAsync<TEntity>(string sql, object id) where TEntity : class, new()
         {
-            return await _dbHelper.GetAsync(sql, new { id });
+            return await _dbHelper.GetAsync<TEntity>(sql, new { id });
         }
 
         public async Task<int> CountAsync(string sql, object parameter = null)
@@ -32,14 +32,14 @@ namespace Blog.Data.Repositories
             return result == null;
         }
 
-        public async Task<TEntity> GetAsync(string sql, object parameter = null)
+        public async Task<TEntity> GetAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new()
         {
-            return await _dbHelper.GetAsync(sql, parameter);
+            return await _dbHelper.GetAsync<TEntity>(sql, parameter);
         }
 
-        public async Task<IEnumerable<TEntity>> GetListAsync(string sql, object parameter = null)
+        public async Task<IEnumerable<TEntity>> GetListAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new()
         {
-            return await _dbHelper.GetListAsync(sql, parameter);
+            return await _dbHelper.GetListAsync<TEntity>(sql, parameter);
         }
 
         public async Task<int> AddAsync(string sql, object parameter = null)
@@ -55,6 +55,11 @@ namespace Blog.Data.Repositories
         public async Task<int> DeleteAsync(string sql, object parameter = null)
         {
             return await _dbHelper.ExecuteAsync(sql, parameter);
+        }
+
+        public async Task<int> ExecuteAsync(Dictionary<string, object> commands)
+        {
+            return await _dbHelper.ExecuteAsync(commands);
         }
     }
 }
