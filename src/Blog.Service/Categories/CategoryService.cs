@@ -6,7 +6,7 @@ using Blog.Data;
 using Blog.Data.Entities;
 using Blog.Data.Repositories;
 using Blog.Exceptions;
-using Blog.Model;
+using Blog.ViewModels.Categories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 
@@ -21,9 +21,9 @@ namespace Blog.Service.Categories
             _repository = repository;
         }
 
-        public async Task<Category> GetCategoryAsync(int id)
+        public async Task<CategoryViewModel> GetCategoryAsync(int id)
         {
-            return await _repository.GetAsync<Category>(SqlConstants.GetCategoryById, id);
+            return await _repository.FindAsync<CategoryViewModel>(SqlConstants.GetCategoryById, id);
         }
 
         public async Task<IReadOnlyList<CategoryViewModel>> GetCategoriesAsync()
@@ -43,11 +43,11 @@ namespace Blog.Service.Categories
             if (result <= 0) throw new InvalidOperationException("Category update failed");
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteAsync(int id)
         {
             var commands = new Dictionary<string, object>
             {
-                {SqlConstants.DeleteCategory, new {id}}, {SqlConstants.DeletePostCategoriesByCategory, new {id}}
+                {SqlConstants.DeleteCategory, new { id }}, {SqlConstants.DeletePostCategoriesByCategory, new { id }}
             };
             var result = await _repository.ExecuteAsync(commands);
             if (result <= 0) throw new InvalidOperationException("Category deletion failed");

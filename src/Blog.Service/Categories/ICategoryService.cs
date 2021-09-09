@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blog.Data.Entities;
 using Blog.Model;
+using Blog.ViewModels.Categories;
 
 namespace Blog.Service.Categories
 {
     public interface ICategoryService
     {
-        Task<Category> GetCategoryAsync(int id);
+        Task<CategoryViewModel> GetCategoryAsync(int id);
 
         Task<IReadOnlyList<CategoryViewModel>> GetCategoriesAsync();
 
@@ -16,6 +17,6 @@ namespace Blog.Service.Categories
 
         Task UpdateAsync(int id, string categoryName);
 
-        Task DeleteAsync(Guid id);
+        Task DeleteAsync(int id);
     }
 }

@@ -12,7 +12,7 @@
     <ProjectReference Include="..\Blog.Data\Blog.Data.csproj" />
     <ProjectReference Include="..\Blog.Exceptions\Blog.Exceptions.csproj" />
     <ProjectReference Include="..\Blog.Extensions\Blog.Extensions.csproj" />
-    <ProjectReference Include="..\Blog.Model\Blog.Model.csproj" />
+    <ProjectReference Include="..\Blog.ViewModels\Blog.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>

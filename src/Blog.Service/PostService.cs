@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Blog.Data;
 using Blog.Data.Entities;
 using Blog.Data.Repositories;
-using Blog.Exceptions;
 using Blog.Extensions;
-using Blog.Infrastructure;
 using Blog.Model;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+using Blog.ViewModels;
+using Blog.ViewModels.Categories;
 using Microsoft.Extensions.Options;
 
 namespace Blog.Service
