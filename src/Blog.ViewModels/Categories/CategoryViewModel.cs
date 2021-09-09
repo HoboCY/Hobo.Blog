@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Blog.Model
+﻿namespace Blog.ViewModels.Categories
 {
     public class CategoryViewModel
     {

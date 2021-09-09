@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using Blog.ViewModels.Categories;
 
-namespace Blog.Model
+namespace Blog.ViewModels
 {
    public class PostPreviewViewModel
     {
