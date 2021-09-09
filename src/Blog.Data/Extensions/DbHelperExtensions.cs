@@ -21,6 +21,19 @@ namespace Blog.Data.Extensions
             }
         }
 
+        public static void SetParameters(this MySqlBatchCommand cmd, object parameter)
+        {
+            if (parameter == null) return;
+
+            var paramType = parameter.GetType();
+            foreach (var item in paramType.GetProperties())
+            {
+                var itemValue = item.GetValue(parameter);
+                if (itemValue == null) continue;
+                cmd.Parameters.AddWithValue(item.Name, item.GetValue(parameter));
+            }
+        }
+
         public static void SetValue<TEntity>(this MySqlDataReader reader, PropertyInfo property, TEntity entity)
         {
             switch (property.PropertyType.Name)

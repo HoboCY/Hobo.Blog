@@ -9,6 +9,8 @@ namespace Blog.Data
     {
         Task<int> ExecuteAsync(string sql, object parameter = null);
 
+        Task<int> ExecuteAsync(Dictionary<string, object> commands);
+
         Task<TEntity> GetAsync(string sql, object parameter = null);
 
         Task<object> GetScalarAsync(string sql, object parameter = null);
