@@ -1,13 +1,13 @@
 ﻿@using Blog.Model
 @using Blog.MVC.Controllers
-@model IReadOnlyList<CategoryViewModel>
+@model IReadOnlyList<Blog.ViewModels.Categories.CategoryViewModel>
 
 @if (Model?.Count > 0)
 {
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
         @foreach (var category in Model)
         {
-            <a class="dropdown-item" asp-controller="Post" asp-action="@nameof(PostController.CategoryList)" asp-route-categoryId="@category.Id">@category.CategoryName</a>
+            <a class="dropdown-item" asp-controller="Post" asp-action="@nameof(PostController.Index)" asp-route-categoryId="@category.Id">@category.CategoryName</a>
         }
     </div>
 }

@@ -1,16 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
-using Blog.Model;
-using Blog.MVC.Models.Admin;
-using Microsoft.AspNetCore.Authorization;
-using Blog.Service;
+using Blog.MVC.ViewModels.Categories;
 using Blog.Service.Categories;
 
 namespace Blog.MVC.Controllers
 {
-    [Authorize(Roles = "administrator")]
-    public class CategoryController : BlogController
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
 
@@ -19,55 +16,33 @@ namespace Blog.MVC.Controllers
             _categoryService = categoryService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(CategoryEditViewModel model)
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetAsync(int id)
         {
-            if (!ModelState.IsValid) return BadRequest("参数错误");
-
-            await _categoryService.CreateAsync(model.CategoryName);
-
-            return Ok(model);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var category = await _categoryService.GetCategoryAsync(id);
-            if (category == null) return NotFound("没有该分类");
-
-            var model = new CategoryEditViewModel
-            {
-                Id = category.Id,
-                CategoryName = category.CategoryName
-            };
-            return Ok(model);
+            return Ok(await _categoryService.GetCategoryAsync(id));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(CategoryEditViewModel model)
+        public async Task<IActionResult> CreateAsync(EditCategoryInputViewModel input)
         {
-            if (!ModelState.IsValid) return BadRequest("Invalid parameters");
-
-            var request = new EditCategoryRequest()
-            {
-                Id = model.Id,
-                CategoryName = model.CategoryName
-            };
-
-            await _categoryService.UpdateAsync(model.Id, model.CategoryName);
-            return Ok(model);
+            await _categoryService.CreateAsync(input.CategoryName);
+            return Ok();
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> Delete(Guid id)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateAsync(int id, EditCategoryInputViewModel model)
         {
-            if (id == Guid.Empty)
-            {
-                return BadRequest("Delete failed，invalid parameter");
-            }
+            await _categoryService.UpdateAsync(id, model.CategoryName);
+            return CreatedAtAction(nameof(GetAsync), new { id });
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            if (id <= 0) return BadRequest("参数错误");
 
             await _categoryService.DeleteAsync(id);
-            return Ok();
+            return NoContent();
         }
     }
 }

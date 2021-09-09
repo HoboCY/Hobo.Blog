@@ -1,36 +1,30 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using Blog.MVC.Controllers
 @using Blog.Data.Entities
-@inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
 
 <ul class="navbar-nav ml-lg-5">
-    @if (SignInManager.IsSignedIn(User))
-    {
-        <li class="nav-item">
-            <ul class="nav nav-pills">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@UserManager.GetUserName(User)</a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" asp-controller="User" asp-action="Profile">账号管理</a>
-                        <form id="logoutForm" class="form-inline" asp-controller="Account" asp-action="Logout" asp-route-returnUrl="@Url.Action(nameof(PostController.Index),"Post")">
-                            <button id="logout" type="submit" class="dropdown-item">退出</button>
-                        </form>
-                    </div>
-                </li>
-            </ul>
-        </li>
-    }
-
-    else
-    {
-        <environment exclude="Production">
+    @*@if (SignInManager.IsSignedIn(User))
+        {
             <li class="nav-item">
-                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">登录</a>
+                <ul class="nav nav-pills">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">@UserManager.GetUserName(User)</a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" asp-controller="User" asp-action="Profile">账号管理</a>
+                            <form id="logoutForm" class="form-inline" asp-controller="Account" asp-action="Logout" asp-route-returnUrl="@Url.Action(nameof(PostController.Index),"Post")">
+                                <button id="logout" type="submit" class="dropdown-item">退出</button>
+                            </form>
+                        </div>
+                    </li>
+                </ul>
             </li>
-            <li class="nav-item ml-lg-5">
-                <a class="btn btn-success" asp-controller="Account" asp-action="Register">注册</a>
-            </li>
-        </environment>
-    }
+        }*@
+    <environment exclude="Production">
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">登录</a>
+        </li>
+        <li class="nav-item ml-lg-5">
+            <a class="btn btn-success" asp-controller="Account" asp-action="Register">注册</a>
+        </li>
+    </environment>
 </ul>

@@ -1,31 +1,23 @@
 using System;
-using System.Text.Encodings.Web;
-using System.Text.Unicode;
 using Blog.Data;
-using Blog.Data.Entities;
 using Blog.MVC.Mails;
 using Blog.MVC.Options;
 using Blog.Extensions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Tencent.COS.SDK;
-using Blog.Infrastructure;
-using Blog.Service;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.WebEncoders;
 using System.Reflection;
 using System.Linq;
-using Microsoft.Extensions.Options;
-using AspNetCoreRateLimit;
 using Blog.Data.Repositories;
+using Blog.Service;
+using Blog.Service.Categories;
 using Blog.Shared;
 using MySqlConnector;
 
@@ -40,9 +32,6 @@ namespace Blog.MVC
 
         public IConfiguration Configuration { get; }
 
-        public static readonly ILoggerFactory EfLoggerFactory
-    = LoggerFactory.Create(builder => { builder.AddConsole(); });
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -53,16 +42,16 @@ namespace Blog.MVC
             //                                              new TextEncoderSettings(UnicodeRanges.All);
             //                                      });
 
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.Cookie.Name = "996BUG-Cookie";
-                options.Cookie.HttpOnly = false;    //客户端脚本是否可以访问Cookie
-                options.ExpireTimeSpan = TimeSpan.FromDays(1);
-                options.LoginPath = "/Account/Login";
-                options.AccessDeniedPath = "/Account/AccessDenied";
-                options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
-                options.SlidingExpiration = true;
-            });
+            //services.ConfigureApplicationCookie(options =>
+            //{
+            //    options.Cookie.Name = "996BUG-Cookie";
+            //    options.Cookie.HttpOnly = false;    //客户端脚本是否可以访问Cookie
+            //    options.ExpireTimeSpan = TimeSpan.FromDays(1);
+            //    options.LoginPath = "/Account/Login";
+            //    options.AccessDeniedPath = "/Account/AccessDenied";
+            //    options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
+            //    options.SlidingExpiration = true;
+            //});
 
             services.AddScoped<IDateTimeResolver>(d => new DateTimeResolver(TimeSpan.FromHours(8).ToString()));
 
@@ -70,28 +59,11 @@ namespace Blog.MVC
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.Configure<TencentCloudSettings>(Configuration.GetSection("TencentCloudSettings"));
 
-            services.AddTransient<MySqlConnection>(_ =>
-            {
-                var connectionString = Configuration.GetConnectionString(BlogConstants.ConnectionStringName);
-                return string.IsNullOrWhiteSpace(connectionString)
-                    ? throw new ArgumentNullException(nameof(connectionString), "Invalid ConnectionString")
-                    : new MySqlConnection(connectionString);
-            });
-
             services.AddTransient<IDbHelper, DbHelper>();
             services.AddTransient<IRepository, Repository>();
 
-            var assembly = Assembly.GetAssembly(typeof(Startup));
-            if (assembly != null)
-            {
-                var types = assembly.GetTypes().Where(t => t.IsClass && t.IsPublic && t.Name.EndsWith("Service") && t.Name != "BlogService");
-
-                foreach (var type in types)
-                {
-                    var iface = type.GetInterface("I" + type.Name);
-                    services.AddScoped(iface, type);
-                }
-            }
+            services.AddTransient<ICategoryService, CategoryService>();
+            services.AddTransient<IPostService, PostService>();
 
             services.AddTransient<IEmailSender, EmailSender>();
 
@@ -104,7 +76,10 @@ namespace Blog.MVC
             //                            options.HeaderName = "X-XSRF-TOKEN";
             //                        });
 
-            services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
+            services.AddControllersWithViews(options =>
+            {
+                //options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

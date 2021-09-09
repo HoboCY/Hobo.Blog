@@ -4,8 +4,7 @@ using System.Threading.Tasks;
 using Blog.Data;
 using Blog.Extensions;
 using Blog.Model;
-using Blog.MVC.Models;
-using Blog.MVC.Models.Post;
+using Blog.MVC.ViewModels.Post;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,8 +16,7 @@ using X.PagedList;
 
 namespace Blog.MVC.Controllers
 {
-    [Authorize]
-    public class PostController : BlogController
+    public class PostController : Controller
     {
         private readonly BlogSettings _blogSettings;
         private readonly IPostService _postService;
@@ -36,29 +34,23 @@ namespace Blog.MVC.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int? categoryId = null, int page = 1)
         {
+            ViewBag.CategoryName = "全部";
             var pageSize = _blogSettings.PostListPageSize;
             var posts = await _postService.GetPostsAsync(page, pageSize);
 
-            var count = await _postService.CountAsync();
 
-            var pagedList = new StaticPagedList<PostViewModel>(posts, page, pageSize, count);
-            return View(pagedList);
-        }
-
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> CategoryList(int categoryId, int page = 1)
-        {
-            var pageSize = _blogSettings.PostListPageSize;
-            var posts = await _postService.GetPostsByCategoryAsync(categoryId, page, pageSize);
             var count = await _postService.CountAsync(categoryId);
 
-            ViewBag.CategoryName = (await _categoryService.GetCategoryAsync(categoryId))?.CategoryName;
+            if (categoryId is > 0)
+            {
+                var category = await _categoryService.GetCategoryAsync(categoryId.Value);
+                ViewBag.CategoryName = category.CategoryName;
+            }
 
-            var pagedList = new StaticPagedList<PostViewModel>(posts, page, pageSize, count);
-            return View(pagedList);
+            var pagedPosts = new StaticPagedList<PostViewModel>(posts, page, pageSize, count);
+            return View(pagedPosts);
         }
 
         [HttpGet]
