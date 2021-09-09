@@ -35,24 +35,26 @@ namespace Blog.Data
 
         public async Task<int> ExecuteAsync(Dictionary<string, object> commands)
         {
+
+            await _connection.OpenAsync();
+            await using var transaction = await _connection.BeginTransactionAsync();
+            using var batch = _connection.CreateBatch();
+            batch.Transaction = transaction;
+            foreach (var (key, value) in commands)
+            {
+                var command = new MySqlBatchCommand(key);
+                command.SetParameters(value);
+                batch.BatchCommands.Add(command);
+            }
             try
             {
-                await _connection.OpenAsync();
-                await using var transaction = await _connection.BeginTransactionAsync();
-                using var batch = _connection.CreateBatch();
-                batch.Transaction = transaction;
-                foreach (var (key, value) in commands)
-                {
-                    var command = new MySqlBatchCommand(key);
-                    command.SetParameters(value);
-                    batch.BatchCommands.Add(command);
-                }
                 await batch.ExecuteNonQueryAsync();
                 await transaction.CommitAsync();
                 return 1;
             }
             catch (Exception)
             {
+                await transaction.RollbackAsync();
                 return 0;
             }
         }
