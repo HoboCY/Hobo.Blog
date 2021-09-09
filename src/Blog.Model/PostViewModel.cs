@@ -16,6 +16,6 @@ namespace Blog.Model
 
         public Guid CreatorId { get; set; }
 
-        public string CreatorName { get; set; }
+        public string UserName { get; set; }
     }
 }

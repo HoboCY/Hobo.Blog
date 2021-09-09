@@ -30,9 +30,9 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(Guid id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var category = await _categoryService.GetAsync(id);
+            var category = await _categoryService.GetCategoryAsync(id);
             if (category == null) return NotFound("没有该分类");
 
             var model = new CategoryEditViewModel
@@ -54,7 +54,7 @@ namespace Blog.MVC.Controllers
                 CategoryName = model.CategoryName
             };
 
-            await _categoryService.EditAsync(request);
+            await _categoryService.UpdateAsync(model.Id, model.CategoryName);
             return Ok(model);
         }
 

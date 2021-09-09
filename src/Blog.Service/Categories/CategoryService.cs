@@ -12,66 +12,45 @@ using Microsoft.Extensions.Configuration;
 
 namespace Blog.Service.Categories
 {
-    public class CategoryService : BlogService, ICategoryService
+    public class CategoryService : ICategoryService
     {
-        private readonly IRepository<Category> _categoryRepository;
-        private readonly IRepository<PostCategory> _postCatRepository;
+        private readonly IRepository _repository;
 
-        public CategoryService(
-            IRepository<Category> repository,
-            IHttpContextAccessor httpContextAccessor,
-            IRepository<PostCategory> postCatRepository) : base(httpContextAccessor)
+        public CategoryService(IRepository repository)
         {
-            _categoryRepository = repository;
-            _postCatRepository = postCatRepository;
+            _repository = repository;
         }
 
         public async Task<Category> GetCategoryAsync(int id)
         {
-            return await _categoryRepository.GetAsync(SqlConstants.GetCategoryById, id);
+            return await _repository.GetAsync<Category>(SqlConstants.GetCategoryById, id);
         }
 
         public async Task<IReadOnlyList<CategoryViewModel>> GetCategoriesAsync()
         {
-            var categories = await _categoryRepository.GetListAsync(SqlConstants.GetCategories);
-            return categories.Select(c => new CategoryViewModel
-            {
-                Id = c.Id,
-                CategoryName = c.CategoryName
-            }).ToList();
+            return (await _repository.GetListAsync<CategoryViewModel>(SqlConstants.GetCategories)).ToList();
         }
 
         public async Task CreateAsync(string categoryName)
         {
-            var result = await _categoryRepository.AddAsync(SqlConstants.CreateCategory, new { categoryName });
+            var result = await _repository.AddAsync(SqlConstants.CreateCategory, new { categoryName });
             if (result <= 0) throw new InvalidOperationException("Category creation failed");
         }
 
-        public async Task EditAsync(int id, string categoryName)
+        public async Task UpdateAsync(int id, string categoryName)
         {
-            var result = await _categoryRepository.UpdateAsync(SqlConstants.UpdateCategory, new { id, categoryName });
-            if(result <= 0) throw new InvalidOperationException("Category update failed");
+            var result = await _repository.UpdateAsync(SqlConstants.UpdateCategory, new { id, categoryName });
+            if (result <= 0) throw new InvalidOperationException("Category update failed");
         }
 
         public async Task DeleteAsync(Guid id)
         {
-            var category = await _dbHelper.GetAsync<Category>(SqlConstants.GetCategory, new { id });
-
-            if (category != null)
+            var commands = new Dictionary<string, object>
             {
-                var updateResult = await _dbHelper.ExecuteAsync(SqlConstants.DeletePostCategoriesByCategory, new { id });
-
-                var parameter = new
-                {
-                    IsDeleted = true,
-                    DeleterId = UserId(),
-                    DeletionTime = DateTime.UtcNow,
-                    Id = id
-                };
-                var deleteResult = await _dbHelper.ExecuteAsync(SqlConstants.DeleteCategory, parameter);
-
-                if (updateResult <= 0 || deleteResult <= 0) throw new Exception();
-            }
+                {SqlConstants.DeleteCategory, new {id}}, {SqlConstants.DeletePostCategoriesByCategory, new {id}}
+            };
+            var result = await _repository.ExecuteAsync(commands);
+            if (result <= 0) throw new InvalidOperationException("Category deletion failed");
         }
     }
 }

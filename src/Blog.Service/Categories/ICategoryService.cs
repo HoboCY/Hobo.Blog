@@ -14,7 +14,7 @@ namespace Blog.Service.Categories
 
         Task CreateAsync(string categoryName);
 
-        Task UpdateAsync(EditCategoryRequest request);
+        Task UpdateAsync(int id, string categoryName);
 
         Task DeleteAsync(Guid id);
     }

@@ -17,7 +17,7 @@ namespace Blog.MVC.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var categories = await _categoryService.GetAllAsync();
+            var categories = await _categoryService.GetCategoriesAsync();
 
             return View(categories);
         }

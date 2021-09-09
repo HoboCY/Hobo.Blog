@@ -30,6 +30,6 @@ namespace Blog.MVC.Models.Post
         public string Content { get; set; }
 
         [Required(ErrorMessage = "请选择至少一个分类")]
-        public Guid[] SelectedCategoryIds { get; set; }
+        public int[] SelectedCategoryIds { get; set; }
     }
 }

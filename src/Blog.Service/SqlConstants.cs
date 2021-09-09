@@ -4,13 +4,24 @@
     {
         #region Category
 
-        public const string GetCategoryById = @"SELECT * FROM category WHERE Id = @Id";
+        public const string GetCategoryById = @"SELECT id AS Id,category_Name AS CategoryName FROM category WHERE id = @id";
 
-        public const string GetCategories = @"SELECT * FROM category";
+        public const string GetCategories = @"SELECT id AS Id,category_Name AS CategoryName FROM category";
 
-        public const string CreateCategory = @"INSERT INTO category (CategoryName) VALUES (@CategoryName)";
+        public const string CreateCategory = @"INSERT INTO category (category_name) VALUES (@CategoryName)";
 
-        public const string UpdateCategory = @"UPDATE category SET CategoryName = @CategoryName WHERE Id = @Id";
+        public const string UpdateCategory = @"UPDATE category SET category_name = @CategoryName WHERE id = @id";
+
+        public const string DeleteCategory = @"DELETE FROM category WHERE id = @id";
+
+        public const string GetCategoriesByPost =
+            @"SELECT c.id AS Id,c.category_name AS CategoryName FROM post_category pc LEFT JOIN category c ON pc.category_id = c.Id WHERE pc.post_id = @PostId";
+
+        #endregion
+
+        #region PostCategory
+        public const string DeletePostCategoriesByCategory = @"DELETE FROM post_category WHERE category_id = @id";
+
 
         #endregion
 
@@ -19,50 +30,41 @@
             @"SELECT * FROM category WHERE CategoryName = @CategoryName AND IsDeleted = 0";
 
 
+        #region Post
 
-        public const string GetOwnPost = @"SELECT * FROM post WHERE Id = @Id AND CreatorId = @CreatorId AND IsDeleted = 0";
-
-        public const string GetPostToDelete = @"SELECT * FROM post WHERE Id = @Id AND CreatorId = @CreatorId AND IsDeleted = 0";
-
-        public const string GetRestorePost = @"SELECT * FROM post WHERE Id = @Id";
+        public const string GetOwnPost =
+            @"SELECT BIN_TO_UUID(id) AS Id,title AS Title,content_abstract AS ContentAbstract,content AS Content,creation_time AS CreationTime FROM post WHERE id = UUID_TO_BIN(@id) AND creator_id = @UserId";
 
         public const string GetPostsPage =
-            @"SELECT p.*,u.UserName AS CreatorName FROM post p LEFT JOIN application_user u ON p.CreatorId = u.Id WHERE p.IsDeleted = 0 ORDER BY p.CreationTime DESC LIMIT @skipCount,@pageSize";
+            @"SELECT BIN_TO_UUID(p.id) AS Id,p.title AS Title,p.content_abstract AS ContentAbstract,u.username AS UserName,BIN_TO_UUID(p.creator_id) AS CreatorId,p.creation_time AS CreationTime FROM post p LEFT JOIN app_user u ON p.creator_id = u.id WHERE p.isdeleted = 0 ORDER BY p.creation_time DESC LIMIT @skipCount,@pageSize";
 
         public const string GetPostsPageByCategory =
-            @"SELECT p.*,u.UserName AS CreatorName FROM post p LEFT JOIN post_category pc ON pc.PostId = p.Id LEFT JOIN application_user u ON p.CreatorId = u.Id WHERE pc.CategoryId = @CategoryId AND p.IsDeleted = 0 ORDER BY p.CreationTime DESC LIMIT @skipCount,@pageSize";
-
-        public const string GetCategoriesByPost =
-            @"SELECT c.* FROM post_category pc LEFT JOIN category c ON pc.CategoryId = c.Id WHERE pc.PostId = @PostId";
-
-        public const string GetManagePosts =
-            @"SELECT * FROM post WHERE IsDeleted = @IsDeleted AND CreatorId = @UserId ORDER BY p.CreationTime DESC";
+            @"SELECT BIN_TO_UUID(p.id) AS Id,p.title AS Title,p.content_abstract AS ContentAbstract,u.username AS UserName,BIN_TO_UUID(p.creator_id) AS CreatorId,p.creation_time AS CreationTime FROM post p LEFT JOIN post_category pc ON pc.post_id = p.id LEFT JOIN app_user u ON p.creator_id = u.id WHERE pc.category_id = @CategoryId AND p.isdeleted = 0 ORDER BY p.creation_time DESC LIMIT @skipCount,@pageSize";
 
         public const string GetPostCountByCategory =
-            @"SELECT COUNT(*) FROM `post_category` pc LEFT JOIN `post` p ON pc.PostId =  p.Id WHERE p.IsDeleted = 0 AND pc.CategoryId = @CategoryId";
+            @"SELECT COUNT(*) FROM `post_category` pc LEFT JOIN `post` p ON pc.post_id =  p.id WHERE p.isdeleted = 0 AND pc.category_id = @CategoryId";
 
-        public const string GetPostCount = @"SELECT COUNT(*) FROM post WHERE IsDeleted = 0";
+        public const string GetPostCount = @"SELECT COUNT(*) FROM post WHERE isdeleted = 0";
+
+        public const string GetPreviewPost =
+            @"SELECT BIN_TO_UUID(p.id) AS Id,p.title AS Title,p.content_abstract AS ContentAbstract,p.Content AS Content,p.creation_time AS CreationTime FROM post WHERE id = @Id AND creator_id = @UserId AND isdeleted = 0";
+
+        public const string AddPost =
+            @"INSERT INTO post (UUID_TO_BIN(UUID(),TRUE),title,content,content_abstract,creator_id) VALUES (@Id, @Title, @Content, @ContentAbstract, @CreatorId)";
+
+        public const string AddPostCategory = @"INSERT INTO post_category (category_id, post_id) VALUES (@CategoryId, UUID_TO_BIN(@PostId,TRUE))";
+        #endregion
+
+
+
+
+
 
         public const string GetPostToEdit = @"SELECT * FROM post WHERE Id = @Id AND CreatorId = @CreatorId AND IsDeleted = 0";
 
-        public const string AddCategory =
-            @"INSERT INTO category (Id,CategoryName,CreatorId) VALUES (@Id, @CategoryName, @CreatorId)";
+        
 
-        public const string DeleteCategory =
-            @"UPDATE category SET IsDeleted = @IsDeleted, DeleterId = @DeleterId, DeletionTime = @DeletionTime WHERE Id = @Id";
-
-        public const string DeletePostCategoriesByCategory = @"DELETE FROM post_category WHERE CategoryId = @CategoryId";
-
-        public const string DeletePost = @"DELETE FROM post WHERE Id = @Id";
-
-        public const string SoftDeletePost =
-            @"UPDATE post SET IsDeleted = @IsDeleted, DeleterId = @DeleterId, DeletionTime = @DeletionTime WHERE Id = @Id";
-
-        public const string RestorePost = "UPDATE post SET IsDeleted = 0 WHERE Id = @Id";
-
-        public const string AddPost = @"INSERT INTO post (Id,Title,Content,ContentAbstract,CreatorId) VALUES (@Id, @Title, @Content, @ContentAbstract, @CreatorId)";
-
-        public const string AddPostCategory = @"INSERT INTO post_category (CategoryId, PostId) VALUES (@CategoryId, @PostId)";
+        
 
         public const string UpdatePost =
             @"UPDATE post SET Title = @Title,Content = @Content,ContentAbstract = @ContentAbstract,LastModificationTime = @LastModificationTime WHERE Id = @Id";

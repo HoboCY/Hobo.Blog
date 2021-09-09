@@ -26,6 +26,8 @@ using System.Linq;
 using Microsoft.Extensions.Options;
 using AspNetCoreRateLimit;
 using Blog.Data.Repositories;
+using Blog.Shared;
+using MySqlConnector;
 
 namespace Blog.MVC
 {
@@ -44,7 +46,6 @@ namespace Blog.MVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHttpContextAccessor();
 
             //services.Configure<WebEncoderOptions>(options =>
             //                                      {
@@ -69,9 +70,18 @@ namespace Blog.MVC
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.Configure<TencentCloudSettings>(Configuration.GetSection("TencentCloudSettings"));
 
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddTransient<MySqlConnection>(_ =>
+            {
+                var connectionString = Configuration.GetConnectionString(BlogConstants.ConnectionStringName);
+                return string.IsNullOrWhiteSpace(connectionString)
+                    ? throw new ArgumentNullException(nameof(connectionString), "Invalid ConnectionString")
+                    : new MySqlConnection(connectionString);
+            });
 
-            var assembly = Assembly.GetAssembly(typeof(BlogService));
+            services.AddTransient<IDbHelper, DbHelper>();
+            services.AddTransient<IRepository, Repository>();
+
+            var assembly = Assembly.GetAssembly(typeof(Startup));
             if (assembly != null)
             {
                 var types = assembly.GetTypes().Where(t => t.IsClass && t.IsPublic && t.Name.EndsWith("Service") && t.Name != "BlogService");
