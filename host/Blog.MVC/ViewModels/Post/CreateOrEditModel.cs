@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 
-namespace Blog.MVC.Models.Post
+namespace Blog.MVC.ViewModels.Post
 {
     public class CreateOrEditModel
     {

@@ -1,8 +1,7 @@
 ﻿using System;
 using Blog.Data.Entities;
-using Blog.Model;
 
-namespace Blog.MVC.Models.Post
+namespace Blog.MVC.ViewModels.Post
 {
     public class PostPreviewViewModel
     {

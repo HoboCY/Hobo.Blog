@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Blog.MVC.Models
+namespace Blog.MVC.ViewModels
 {
     public class ImageUploadResult
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Blog.MVC.Models.Post
+namespace Blog.MVC.ViewModels.Post
 {
     public class PostListViewModel
     {

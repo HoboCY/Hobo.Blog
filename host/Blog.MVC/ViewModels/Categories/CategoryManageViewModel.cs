@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using Blog.Data.Entities;
-using Blog.Model;
+using Blog.ViewModels.Categories;
 
-namespace Blog.MVC.Models.Admin
+namespace Blog.MVC.ViewModels.Categories
 {
     public class CategoryManageViewModel
     {
