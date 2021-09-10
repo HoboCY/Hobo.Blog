@@ -1,25 +1,18 @@
 using System;
 using Blog.Data;
-using Blog.MVC.Mails;
-using Blog.MVC.Options;
 using Blog.Extensions;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Tencent.COS.SDK;
-using Microsoft.AspNetCore.Mvc;
-using System.Reflection;
-using System.Linq;
 using Blog.Data.Repositories;
 using Blog.Service;
 using Blog.Service.Categories;
+using Blog.Service.Mails;
 using Blog.Shared;
-using MySqlConnector;
+using MailKit;
 
 namespace Blog.MVC
 {
@@ -64,8 +57,7 @@ namespace Blog.MVC
 
             services.AddTransient<ICategoryService, CategoryService>();
             services.AddTransient<IPostService, PostService>();
-
-            services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IEmailService, EmailService>();
 
             services.AddCos();
 
@@ -78,6 +70,7 @@ namespace Blog.MVC
 
             services.AddControllersWithViews(options =>
             {
+                options.SuppressAsyncSuffixInActionNames = false;
                 //options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
         }

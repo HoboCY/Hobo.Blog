@@ -7,11 +7,11 @@ namespace Blog.MVC.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
 
-        public CategoryController(ICategoryService categoryService)
+        public CategoriesController(ICategoryService categoryService)
         {
             _categoryService = categoryService;
         }
@@ -33,7 +33,7 @@ namespace Blog.MVC.Controllers
         public async Task<IActionResult> UpdateAsync(int id, EditCategoryInputViewModel model)
         {
             await _categoryService.UpdateAsync(id, model.CategoryName);
-            return CreatedAtAction(nameof(GetAsync), new { id });
+            return CreatedAtAction(nameof(GetAsync), new { id }, null);
         }
 
         [HttpDelete("{id:int}")]
