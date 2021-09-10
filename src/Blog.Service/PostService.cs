@@ -66,14 +66,20 @@ namespace Blog.Service
             return postPreviewViewModel;
         }
 
-        public async Task CreateAsync(CreateOrEditPostRequest request,Guid userId)
+        public async Task CreateAsync(CreatePostInputViewModel input, Guid userId)
         {
+            var count = await _repository.ScalarAsync(SqlConstants.CategoriesCountByIds, parameters: input.CategoryIds);
+            if (Convert.ToInt32(count) < input.CategoryIds.Count)
+                throw new ArgumentNullException(nameof(input.CategoryIds));
+
+            var id = await _repository.ScalarAsync(SqlConstants.GenerateId);
+
             var post = new
             {
-                Id = Guid.NewGuid(),
-                request.Title,
-                request.Content,
-                ContentAbstract = request.Content.GetPostAbstract(_blogSettings.PostAbstractWords),
+                id,
+                input.Title,
+                input.Content,
+                ContentAbstract = input.Content.GetPostAbstract(_blogSettings.PostAbstractWords),
                 CreatorId = userId,
             };
 
@@ -84,9 +90,9 @@ namespace Blog.Service
                 {SqlConstants.AddPost, post}
             };
 
-            foreach (var categoryId in request.CategoryIds)
+            foreach (var categoryId in input.CategoryIds)
             {
-                commands.Add(SqlConstants.AddPostCategory, new { categoryId, PostId = post.Id });
+                commands.Add(SqlConstants.AddPostCategory, new { categoryId, PostId = post.id });
             }
 
             var result = await _repository.ExecuteAsync(commands);

@@ -2,6 +2,8 @@
 {
     public static class SqlConstants
     {
+        public const string GenerateId = "SELECT UUID() AS Id;";
+
         #region Category
 
         public const string GetCategoryById = @"SELECT id AS Id,category_Name AS CategoryName FROM category WHERE id = @id";
@@ -22,13 +24,10 @@
         #region PostCategory
         public const string DeletePostCategoriesByCategory = @"DELETE FROM post_category WHERE category_id = @id";
 
+        public const string AddPostCategory = @"INSERT INTO post_category (category_id, post_id) VALUES (@CategoryId, UUID_TO_BIN(@PostId,TRUE))";
 
+        public const string CategoriesCountByIds = @"SELECT COUNT(*) FROM category WHERE id IN ({0})";
         #endregion
-
-
-        public const string GetCategoryByName =
-            @"SELECT * FROM category WHERE CategoryName = @CategoryName AND IsDeleted = 0";
-
 
         #region Post
 
@@ -50,9 +49,7 @@
             @"SELECT BIN_TO_UUID(p.id) AS Id,p.title AS Title,p.content_abstract AS ContentAbstract,p.Content AS Content,p.creation_time AS CreationTime FROM post WHERE id = @Id AND creator_id = @UserId AND isdeleted = 0";
 
         public const string AddPost =
-            @"INSERT INTO post (UUID_TO_BIN(UUID(),TRUE),title,content,content_abstract,creator_id) VALUES (@Id, @Title, @Content, @ContentAbstract, @CreatorId)";
-
-        public const string AddPostCategory = @"INSERT INTO post_category (category_id, post_id) VALUES (@CategoryId, UUID_TO_BIN(@PostId,TRUE))";
+            @"INSERT INTO post (id,title,content,content_abstract,creator_id) VALUES (UUID_TO_BIN(@Id,TRUE), @Title, @Content, @ContentAbstract, UUID_TO_BIN(@CreatorId))";
         #endregion
 
 

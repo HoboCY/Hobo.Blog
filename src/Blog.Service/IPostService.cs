@@ -19,6 +19,6 @@ namespace Blog.Service
 
         Task<PostPreviewViewModel> GetPreviewAsync(Guid id);
 
-        Task CreateAsync(CreateOrEditPostRequest request, Guid userId);
+        Task CreateAsync(CreatePostInputViewModel input, Guid userId);
     }
 }
