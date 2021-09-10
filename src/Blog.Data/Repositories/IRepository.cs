@@ -11,6 +11,10 @@ namespace Blog.Data.Repositories
 
         Task<int> CountAsync(string sql, object parameter = null);
 
+        Task<object> ScalarAsync(string sql, object parameter = null);
+
+        Task<object> ScalarAsync<T>(string sql, List<T> parameters);
+
         Task<bool> AnyAsync(string sql, object parameter = null);
 
         Task<TEntity> GetAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new();

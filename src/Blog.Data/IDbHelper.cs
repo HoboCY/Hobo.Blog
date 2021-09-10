@@ -15,6 +15,8 @@ namespace Blog.Data
 
         Task<object> GetScalarAsync(string sql, object parameter = null);
 
+        Task<object> GetScalarAsync<T>(string sql, List<T> parameters);
+
         Task<IEnumerable<TEntity>> GetListAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new();
     }
 }

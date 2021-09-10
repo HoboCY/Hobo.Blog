@@ -26,6 +26,16 @@ namespace Blog.Data.Repositories
             return Convert.ToInt32(result);
         }
 
+        public async Task<object> ScalarAsync(string sql, object parameter = null)
+        {
+            return await _dbHelper.GetScalarAsync(sql, parameter);
+        }
+
+        public async Task<object> ScalarAsync<T>(string sql, List<T> parameters)
+        {
+            return await _dbHelper.GetScalarAsync(sql, parameters: parameters);
+        }
+
         public async Task<bool> AnyAsync(string sql, object parameter = null)
         {
             var result = await _dbHelper.GetScalarAsync(sql, parameter);

@@ -100,6 +100,23 @@ namespace Blog.Data
             return await cmd.ExecuteScalarAsync();
         }
 
+        public async Task<object> GetScalarAsync<T>(string sql, List<T> parameters)
+        {
+            await using var conn = new MySqlConnection(_connectionString);
+            await conn.OpenAsync();
+            await using var cmd = conn.CreateCommand();
+
+            var paramName = new StringBuilder();
+            for (int i = 0; i < parameters.Count; i++)
+            {
+                paramName.Append($"@p{i}");
+                if (i < parameters.Count - 1) paramName.Append(",");
+                cmd.Parameters.AddWithValue($"p{i}", parameters[i]);
+            }
+            cmd.CommandText = string.Format(sql, paramName);
+            return await cmd.ExecuteScalarAsync();
+        }
+
         public async Task<IEnumerable<TEntity>> GetListAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new()
         {
             await using var conn = new MySqlConnection(_connectionString);
