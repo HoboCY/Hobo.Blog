@@ -11,9 +11,7 @@ namespace Blog.Data.Repositories
 
         Task<int> CountAsync(string sql, object parameter = null);
 
-        Task<object> ScalarAsync(string sql, object parameter = null);
-
-        Task<object> ScalarAsync<T>(string sql, List<T> parameters);
+        Task<string> GenerateIdAsync();
 
         Task<bool> AnyAsync(string sql, object parameter = null);
 
@@ -21,12 +19,18 @@ namespace Blog.Data.Repositories
 
         Task<IEnumerable<TEntity>> GetListAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new();
 
-        Task<int> AddAsync(string sql, object parameter = null);
+        Task InsertAsync(string sql, object parameter = null);
 
-        Task<int> UpdateAsync(string sql, object parameter = null);
+        Task InsertManyAsync(string sql, object parameters = null);
 
-        Task<int> DeleteAsync(string sql, object parameter = null);
+        Task UpdateAsync(string sql, object parameter = null);
 
-        Task<int> ExecuteAsync(Dictionary<string, object> commands);
+        Task UpdateManyAsync(string sql, object parameters = null);
+
+        Task DeleteAsync(string sql, object parameter = null);
+
+        Task DeleteManyAsync(string sql, object parameters = null);
+
+        Task ExecuteAsync(Dictionary<string, object> commands);
     }
 }
