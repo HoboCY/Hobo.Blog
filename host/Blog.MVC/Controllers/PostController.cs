@@ -1,18 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Blog.Data;
+﻿using System.Threading.Tasks;
 using Blog.Extensions;
-using Blog.Model;
-using Blog.MVC.ViewModels.Post;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Blog.Service;
 using Blog.Service.Categories;
+using Blog.Service.Posts;
 using Blog.ViewModels;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using X.PagedList;
 
 namespace Blog.MVC.Controllers
@@ -37,13 +30,13 @@ namespace Blog.MVC.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index(int? categoryId = null, int page = 1)
         {
-            ViewBag.CategoryName = "全部";
             var pageSize = _blogSettings.PostListPageSize;
-            var posts = await _postService.GetPostsAsync(page, pageSize);
 
+            var posts = await _postService.GetPostsAsync(categoryId, page, pageSize);
 
             var count = await _postService.CountAsync(categoryId);
 
+            ViewBag.CategoryName = "全部";
             if (categoryId is > 0)
             {
                 var category = await _categoryService.GetCategoryAsync(categoryId.Value);
@@ -56,7 +49,7 @@ namespace Blog.MVC.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> Preview(Guid postId)
+        public async Task<IActionResult> Preview(string postId)
         {
             var post = await _postService.GetPreviewAsync(postId);
             if (post == null) return NotFound("无法加载文章");

@@ -1,5 +1,5 @@
 using System;
-using Blog.Data;
+using System.Collections.Generic;
 using Blog.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,11 +8,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Tencent.COS.SDK;
 using Blog.Data.Repositories;
+using Blog.Data.TypeHandlers;
 using Blog.Service;
 using Blog.Service.Categories;
 using Blog.Service.Mails;
+using Blog.Service.Posts;
 using Blog.Shared;
-using MailKit;
+using Dapper;
 
 namespace Blog.MVC
 {
@@ -28,7 +30,6 @@ namespace Blog.MVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             //services.Configure<WebEncoderOptions>(options =>
             //                                      {
             //                                          options.TextEncoderSettings =
@@ -46,13 +47,13 @@ namespace Blog.MVC
             //    options.SlidingExpiration = true;
             //});
 
+            SqlMapper.AddTypeHandler(typeof(List<int>), new JsonTypeHandler());
             services.AddScoped<IDateTimeResolver>(d => new DateTimeResolver(TimeSpan.FromHours(8).ToString()));
 
             services.Configure<BlogSettings>(Configuration.GetSection("BlogSettings"));
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.Configure<TencentCloudSettings>(Configuration.GetSection("TencentCloudSettings"));
 
-            services.AddTransient<IDbHelper, DbHelper>();
             services.AddTransient<IRepository, Repository>();
 
             services.AddTransient<ICategoryService, CategoryService>();
