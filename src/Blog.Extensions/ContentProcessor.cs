@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 using Markdig;
 using NUglify;
+using NUglify.Html;
 
 namespace Blog.Extensions
 {
@@ -29,7 +28,7 @@ namespace Blog.Extensions
             return newStr;
         }
 
-        public static string GetPostAbstract(this string rawContent, int wordCount, bool useMarkdown = false)
+        public static string GetPostAbstract(this string rawContent, int wordCount, bool useMarkdown = true)
         {
             var plainText = useMarkdown ?
                 MarkdownToContent(rawContent, MarkdownConvertType.Text) :
@@ -45,7 +44,7 @@ namespace Blog.Extensions
             {
                 return string.Empty;
             }
-            var result = Uglify.HtmlToText(html);
+            var result = Uglify.HtmlToText(html,HtmlToTextOptions.KeepStructure);
 
             return !result.HasErrors && !string.IsNullOrWhiteSpace(result.Code)
                 ? result.Code.Trim()

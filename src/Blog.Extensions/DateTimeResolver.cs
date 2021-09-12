@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TimeZoneConverter;
 
 namespace Blog.Extensions
@@ -42,6 +41,12 @@ namespace Blog.Extensions
             // Reference: https://devblogs.microsoft.com/dotnet/cross-platform-time-zones-with-net-core/
             var tz = TZConvert.GetTimeZoneInfo(timeZoneId);
             return tz.BaseUtcOffset;
+        }
+
+        public DateTime ToLocalTime(DateTime dateTime)
+        {
+            var tz = TimeZoneInfo.Local;
+            return TimeZoneInfo.ConvertTime(dateTime, tz);
         }
 
         private DateTime UtcToZoneTime(DateTime utcTime, string timeSpan)
