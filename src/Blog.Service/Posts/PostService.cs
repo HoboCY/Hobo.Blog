@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using Blog.Data.Entities;
 using Blog.Data.Repositories;
 using Blog.Extensions;
-using Blog.Model;
+using Blog.Shared;
 using Blog.ViewModels;
 using Blog.ViewModels.Categories;
 using Microsoft.Extensions.Options;
 
-namespace Blog.Service
+namespace Blog.Service.Posts
 {
     public class PostService : IPostService
     {
@@ -30,14 +30,27 @@ namespace Blog.Service
             return await _repository.GetAsync<Post>(SqlConstants.GetOwnPost, new { id, CreatorId = userId });
         }
 
-        public async Task<IReadOnlyList<PostViewModel>> GetPostsAsync(int pageIndex = 1, int pageSize = 10)
+        public async Task<List<PostViewModel>> GetPostsAsync(int pageIndex = 1, int pageSize = 10)
         {
             return (await _repository.GetListAsync<PostViewModel>(SqlConstants.GetPostsPage, new { skipCount = (pageIndex - 1) * pageSize, pageSize })).ToList();
         }
 
-        public async Task<IReadOnlyList<PostViewModel>> GetPostsByCategoryAsync(int categoryId, int pageIndex = 1, int pageSize = 10)
+        public async Task<List<PostViewModel>> GetPostsAsync(int? categoryId = null, int pageIndex = 1, int pageSize = 10)
         {
-            return (await _repository.GetListAsync<PostViewModel>(SqlConstants.GetPostsPageByCategory, new { categoryId, skipCount = (pageIndex - 1) * pageSize, pageSize })).ToList();
+            List<PostViewModel> posts;
+
+            if (categoryId > 0)
+            {
+                posts = (await _repository.GetListAsync<PostViewModel>(SqlConstants.GetPostsPageByCategory,
+                     new { categoryId, skipCount = (pageIndex - 1) * pageSize, pageSize })).ToList();
+            }
+            else
+            {
+                posts = (await _repository.GetListAsync<PostViewModel>(SqlConstants.GetPostsPage,
+                     new { skipCount = (pageIndex - 1) * pageSize, pageSize })).ToList();
+            }
+
+            return posts;
         }
 
         public async Task<int> CountAsync(int? categoryId = null)
@@ -47,11 +60,12 @@ namespace Blog.Service
                 : await _repository.CountAsync(SqlConstants.GetPostCount);
         }
 
-        public async Task<PostPreviewViewModel> GetPreviewAsync(Guid userId)
+        public async Task<PostPreviewViewModel> GetPreviewAsync(string id)
         {
-            var post = await _repository.GetAsync<Post>(SqlConstants.GetPreviewPost, new { userId });
+            var post = await _repository.FindAsync<Post>(SqlConstants.GetPreviewPost, id);
 
-            var categories = await _repository.GetListAsync<CategoryViewModel>(SqlConstants.GetCategoriesByPost, new { PostId = post.Id });
+            var categories =
+                await _repository.GetListAsync<CategoryViewModel>(SqlConstants.GetCategoriesByPost, new { ids = post.CategoryIds.ToArray() });
 
             var postPreviewViewModel = new PostPreviewViewModel
             {
@@ -60,7 +74,7 @@ namespace Blog.Service
                 Content = post.Content.AddLazyLoadToImgTag(),
                 CreationTime = post.CreationTime,
                 ContentAbstract = post.ContentAbstract,
-                Categories = categories.ToArray()
+                Categories = categories.ToList()
             };
 
             return postPreviewViewModel;
@@ -68,11 +82,11 @@ namespace Blog.Service
 
         public async Task CreateAsync(CreatePostInputViewModel input, Guid userId)
         {
-            var count = await _repository.ScalarAsync(SqlConstants.CategoriesCountByIds, parameters: input.CategoryIds);
-            if (Convert.ToInt32(count) < input.CategoryIds.Count)
+            var count = await _repository.CountAsync(SqlConstants.CategoriesCountByIds, new { ids = input.CategoryIds.ToArray() });
+            if (count < input.CategoryIds.Count)
                 throw new ArgumentNullException(nameof(input.CategoryIds));
 
-            var id = await _repository.ScalarAsync(SqlConstants.GenerateId);
+            var id = await _repository.GenerateIdAsync();
 
             var post = new
             {
@@ -80,23 +94,11 @@ namespace Blog.Service
                 input.Title,
                 input.Content,
                 ContentAbstract = input.Content.GetPostAbstract(_blogSettings.PostAbstractWords),
-                CreatorId = userId,
+                CategoryIds = input.CategoryIds,
+                CreatorId = userId
             };
 
-            await _repository.AddAsync(SqlConstants.AddPost, post);
-
-            var commands = new Dictionary<string, object>
-            {
-                {SqlConstants.AddPost, post}
-            };
-
-            foreach (var categoryId in input.CategoryIds)
-            {
-                commands.Add(SqlConstants.AddPostCategory, new { categoryId, PostId = post.id });
-            }
-
-            var result = await _repository.ExecuteAsync(commands);
-            if (result <= 0) throw new InvalidOperationException("Post creation failed");
+            await _repository.InsertAsync(SqlConstants.AddPost, post);
         }
     }
 }

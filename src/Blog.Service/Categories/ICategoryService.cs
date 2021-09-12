@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blog.Data.Entities;
-using Blog.Model;
 using Blog.ViewModels.Categories;
 
 namespace Blog.Service.Categories

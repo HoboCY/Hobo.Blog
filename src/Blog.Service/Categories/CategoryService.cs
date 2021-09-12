@@ -6,6 +6,7 @@ using Blog.Data;
 using Blog.Data.Entities;
 using Blog.Data.Repositories;
 using Blog.Exceptions;
+using Blog.Shared;
 using Blog.ViewModels.Categories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -33,24 +34,17 @@ namespace Blog.Service.Categories
 
         public async Task CreateAsync(string categoryName)
         {
-            var result = await _repository.AddAsync(SqlConstants.CreateCategory, new { categoryName });
-            if (result <= 0) throw new InvalidOperationException("Category creation failed");
+            await _repository.InsertAsync(SqlConstants.CreateCategory, new { categoryName });
         }
 
         public async Task UpdateAsync(int id, string categoryName)
         {
-            var result = await _repository.UpdateAsync(SqlConstants.UpdateCategory, new { id, categoryName });
-            if (result <= 0) throw new InvalidOperationException("Category update failed");
+            await _repository.UpdateAsync(SqlConstants.UpdateCategory, new { id, categoryName });
         }
 
         public async Task DeleteAsync(int id)
         {
-            var commands = new Dictionary<string, object>
-            {
-                {SqlConstants.DeleteCategory, new { id }}, {SqlConstants.DeletePostCategoriesByCategory, new { id }}
-            };
-            var result = await _repository.ExecuteAsync(commands);
-            if (result <= 0) throw new InvalidOperationException("Category deletion failed");
+            await _repository.DeleteAsync(SqlConstants.DeleteCategory, new { id });
         }
     }
 }
