@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Blog.Data.Entities
 {
     public class Post
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
-        [MaxLength(100)]
         public string Title { get; set; }
 
         public string Content { get; set; }
 
         public string ContentAbstract { get; set; }
 
-        public Guid CreatorId { get; set; }
+        public List<int> CategoryIds { get; set; }
+
+        public string CreatorId { get; set; }
 
         public DateTime CreationTime { get; set; } = DateTime.UtcNow;
 
