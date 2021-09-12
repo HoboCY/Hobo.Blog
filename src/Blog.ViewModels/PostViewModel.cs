@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Blog.Model
+namespace Blog.ViewModels
 {
     public class PostViewModel
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
         public string Title { get; set; }
 
@@ -14,7 +12,7 @@ namespace Blog.Model
 
         public DateTime CreationTime { get; set; }
 
-        public Guid CreatorId { get; set; }
+        public string CreatorId { get; set; }
 
         public string UserName { get; set; }
     }
