@@ -1,12 +1,11 @@
-﻿@using Blog.Model
-@using Blog.MVC.Controllers
+﻿@using Blog.MVC.Controllers
 @using Blog.Extensions
-@model X.PagedList.StaticPagedList<PostViewModel>
-@inject IDateTimeResolver DateTimeResolver
+@model X.PagedList.StaticPagedList<Blog.ViewModels.PostViewModel>
+@inject IDateTimeResolver _dateTimeResolver
 
 @foreach (var post in Model)
 {
-    <article class="clearfix">
+    <article class="mt-2">
         <div class="d-block">
             <h4 class="post-title mb-3">
                 <a asp-action="@nameof(PostController.Preview)" asp-route-postId="@post.Id">
@@ -15,11 +14,12 @@
             </h4>
             <p class="post-content-abstract">@(post.ContentAbstract)</p>
         </div>
-        <div class="float-right">
-            <span class="d-inline-block mr-5">@DateTimeResolver.ToTimeZone(post.CreationTime)</span>
-            <span>@post.UserName</span>
+        <div class="clearfix">
+            <div class="float-right">
+                <span class="d-inline-block mr-5">@_dateTimeResolver.ToLocalTime(post.CreationTime).ToString("yyyy.MM.dd HH:mm")</span>
+                <span>@post.UserName</span>
+            </div>
         </div>
     </article>
-    <div class="mb-4 d-none d-md-block"></div>
     <hr class="d-none d-md-block" />
 }

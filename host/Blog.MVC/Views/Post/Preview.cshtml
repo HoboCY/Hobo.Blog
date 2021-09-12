@@ -1,7 +1,6 @@
-﻿@using Blog.Model
-@using Blog.Extensions
+﻿@using Blog.Extensions
 @model Blog.ViewModels.PostPreviewViewModel
-@inject IDateTimeResolver DateTimeResolver
+@inject IDateTimeResolver _dateTimeResolver
 
 @{
     Layout = "_Layout";
@@ -31,10 +30,10 @@
         </h1>
 
         <div class="d-none d-md-block post-time mb-2">
-            <time datetime="@Model.CreationTime.ToString("u")" title="GMT @DateTimeResolver.ToTimeZone(Model.CreationTime)">@DateTimeResolver.ToTimeZone(Model.CreationTime).ToString("MM/dd/yyyy")</time>
+            <time datetime="@Model.CreationTime.ToString("u")" title="GMT @_dateTimeResolver.ToLocalTime(Model.CreationTime)">@_dateTimeResolver.ToLocalTime(Model.CreationTime).ToString("MM/dd/yyyy")</time>
             @if (Model.LastModificationTime.HasValue)
             {
-                <span>(编辑于 @DateTimeResolver.ToTimeZone(Model.LastModificationTime.Value).ToString("MM/dd/yyyy HH:mm"))</span>
+                <span>(编辑于 @_dateTimeResolver.ToLocalTime(Model.LastModificationTime.Value).ToString("MM/dd/yyyy HH:mm"))</span>
             }
         </div>
 
