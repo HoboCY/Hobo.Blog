@@ -1,6 +1,6 @@
 ﻿@using Blog.MVC.Controllers
 @using Microsoft.Extensions.Configuration
-@inject IConfiguration Configuration
+@inject IConfiguration _configuration
 
 <!DOCTYPE html>
 <html lang="en">
@@ -49,7 +49,7 @@
                 &copy; @DateTime.Now.Year - 996bug.icu
             </div>
             <div class="row">
-                <a class="text-dark" href="http://beian.miit.gov.cn/" target="_blank">@Configuration["SiteSettings:996bug"]</a>
+                <a class="text-dark" href="http://beian.miit.gov.cn/" target="_blank">@_configuration["SiteSettings:996bug"]</a>
             </div>
         </div>
     </footer>
