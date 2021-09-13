@@ -44,6 +44,9 @@
 
         public const string AddPost =
             @"INSERT INTO post (id,title,content,content_abstract,category_ids,creator_id) VALUES (UUID_TO_BIN(@Id,TRUE), @Title, @Content, @ContentAbstract,@CategoryIds, UUID_TO_BIN(@CreatorId))";
+
+        public const string UpdatePost =
+            @"UPDATE post SET title = @Title,content = @Content,content_abstract = @ContentAbstract,category_ids = @CategoryIds WHERE id = UUID_TO_BIN(@id) AND creator_id = UUID_TO_BIN(@CreatorId)";
         #endregion
     }
 }
