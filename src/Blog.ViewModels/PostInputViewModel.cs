@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Blog.ViewModels
 {
-    public class CreatePostInputViewModel
+    public class PostInputViewModel
     {
         public string Title { get; set; }
 
@@ -11,6 +11,6 @@ namespace Blog.ViewModels
 
         public List<int> CategoryIds { get; set; }
 
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
     }
 }

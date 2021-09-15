@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Blog.Service.Posts;
 using Blog.ViewModels;
@@ -17,11 +18,20 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreatePostInputViewModel input)
+        public async Task<IActionResult> CreateAsync(PostInputViewModel input)
         {
             //var userId = UserId();
             var userId = input.UserId;
             await _postService.CreateAsync(input, userId);
+            return Ok();
+        }
+
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> UpdateAsync(Guid id, PostInputViewModel input)
+        {
+            //var userId = UserId();
+            var userId = input.UserId;
+            await _postService.UpdateAsync(id.ToString(), input, userId);
             return Ok();
         }
     }

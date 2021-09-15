@@ -25,7 +25,7 @@ namespace Blog.Service.Posts
             _blogSettings = options.Value;
         }
 
-        public async Task<Post> GetPostAsync(Guid id, Guid userId)
+        public async Task<Post> GetPostAsync(string id, string userId)
         {
             return await _repository.GetAsync<Post>(SqlConstants.GetOwnPost, new { id, CreatorId = userId });
         }
@@ -80,7 +80,7 @@ namespace Blog.Service.Posts
             return postPreviewViewModel;
         }
 
-        public async Task CreateAsync(CreatePostInputViewModel input, Guid userId)
+        public async Task CreateAsync(PostInputViewModel input, string userId)
         {
             var count = await _repository.CountAsync(SqlConstants.CategoriesCountByIds, new { ids = input.CategoryIds.ToArray() });
             if (count < input.CategoryIds.Count)
@@ -99,6 +99,25 @@ namespace Blog.Service.Posts
             };
 
             await _repository.InsertAsync(SqlConstants.AddPost, post);
+        }
+
+        public async Task UpdateAsync(string id, PostInputViewModel input, string userId)
+        {
+            var count = await _repository.CountAsync(SqlConstants.CategoriesCountByIds, new { ids = input.CategoryIds.ToArray() });
+            if (count < input.CategoryIds.Count)
+                throw new ArgumentNullException(nameof(input.CategoryIds));
+
+            var post = new
+            {
+                id,
+                input.Title,
+                input.Content,
+                ContentAbstract = input.Content.GetPostAbstract(_blogSettings.PostAbstractWords),
+                input.CategoryIds,
+                CreatorId = userId
+            };
+
+            await _repository.UpdateAsync(SqlConstants.UpdatePost, post);
         }
     }
 }
