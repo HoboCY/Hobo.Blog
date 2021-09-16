@@ -6,16 +6,8 @@
     ViewData["Title"] = "首页";
 }
 
-@section head{
-    <link href="~/css/post.css" rel="stylesheet" />
-}
-
-<h3>
-    <a class="float-right d-none d-md-block" title="Subscribe Recent 10 Posts">
-    </a>
-    <span>
-        @ViewBag.CategoryName
-    </span>
+<h3 class="fs-4">
+    @ViewBag.CategoryName
 </h3>
 <hr />
 
@@ -26,7 +18,7 @@
     {
         LiElementClasses = new[] { "page-item" },
         PageClasses = new[] { "page-link" },
-        UlElementClasses = new[] { "pagination justify-content-end" },
+        UlElementClasses = new[] { "pagination pagination-sm justify-content-end" },
         MaximumPageNumbersToDisplay = 5,
         DisplayEllipsesWhenNotShowingAllPageNumbers = false
     })
