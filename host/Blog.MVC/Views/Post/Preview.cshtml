@@ -2,11 +2,12 @@
 @model Blog.ViewModels.PostPreviewViewModel
 @inject IDateTimeResolver _dateTimeResolver
 
-@{ Layout = "_Layout";
-    ViewData["Title"] = "文章预览"; }
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "文章预览";
+}
 
-@section head{
-    <link href="~/css/post.css" rel="stylesheet" />
+@section Head{
     <link href="~/lib/highlight/styles/github-gist.css" rel="stylesheet" />
 }
 
@@ -28,9 +29,9 @@
         </h1>
         <div>
             <time class="post-time" datetime="@Model.CreationTime.ToString("u")" title="GMT @_dateTimeResolver.ToLocalTime(Model.CreationTime)">@_dateTimeResolver.ToLocalTime(Model.CreationTime).ToString("MM/dd/yyyy")</time>
-            @if (Model.LastModificationTime.HasValue)
+            @if (Model.LastModifyTime.HasValue)
             {
-<span>(编辑于 @_dateTimeResolver.ToLocalTime(Model.LastModificationTime.Value).ToString("MM/dd/yyyy HH:mm"))</span>}
+                <span class="post-time">(编辑于 <time>@_dateTimeResolver.ToLocalTime(Model.LastModifyTime.Value).ToString("MM/dd/yyyy HH:mm")</time>)</span>}
         </div>
         <hr />
     </header>
@@ -38,16 +39,17 @@
         @Html.Raw(Model.Content)
     </section>
 
-    <hr class="d-none d-md-block" />
+    <hr />
     <section>
         <ul class="d-flex flex-row list-unstyled mb-0">
             @foreach (var item in Model.Categories)
             {
-<li>
-    <a class="btn btn-sm btn-success m-1" role="button">
-        @item.CategoryName
-    </a>
-</li>}
+                <li>
+                    <a class="btn btn-sm btn-success m-1" role="button">
+                        @item.CategoryName
+                    </a>
+                </li>
+            }
         </ul>
     </section>
 </article>
