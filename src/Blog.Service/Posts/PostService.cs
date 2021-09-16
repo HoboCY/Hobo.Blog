@@ -74,7 +74,8 @@ namespace Blog.Service.Posts
                 Content = post.Content.AddLazyLoadToImgTag(),
                 CreationTime = post.CreationTime,
                 ContentAbstract = post.ContentAbstract,
-                Categories = categories.ToList()
+                Categories = categories.ToList(),
+                LastModifyTime = post.LastModifyTime
             };
 
             return postPreviewViewModel;

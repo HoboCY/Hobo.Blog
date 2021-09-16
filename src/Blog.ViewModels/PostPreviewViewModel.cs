@@ -12,6 +12,6 @@ namespace Blog.ViewModels
         public DateTime CreationTime { get; set; }
         public string ContentAbstract { get; set; }
         public List<CategoryViewModel> Categories { get; set; }
-        public DateTime? LastModificationTime { get; set; }
+        public DateTime? LastModifyTime { get; set; }
     }
 }

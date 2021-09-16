@@ -40,7 +40,7 @@
         public const string GetPostCount = @"SELECT COUNT(*) FROM post WHERE isdeleted = 0";
 
         public const string GetPreviewPost =
-            @"SELECT BIN_TO_UUID(id) AS Id,title AS Title,content_abstract AS ContentAbstract,content AS Content,category_ids AS CategoryIds,creation_time AS CreationTime FROM post WHERE id = UUID_TO_BIN(@Id) AND isdeleted = 0";
+            @"SELECT BIN_TO_UUID(id) AS Id,title AS Title,content_abstract AS ContentAbstract,content AS Content,category_ids AS CategoryIds,creation_time AS CreationTime,last_modify_time AS LastModifyTime FROM post WHERE id = UUID_TO_BIN(@Id) AND isdeleted = 0";
 
         public const string AddPost =
             @"INSERT INTO post (id,title,content,content_abstract,category_ids,creator_id) VALUES (UUID_TO_BIN(@Id,TRUE), @Title, @Content, @ContentAbstract,@CategoryIds, UUID_TO_BIN(@CreatorId))";
