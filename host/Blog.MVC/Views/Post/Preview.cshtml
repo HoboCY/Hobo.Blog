@@ -2,10 +2,8 @@
 @model Blog.ViewModels.PostPreviewViewModel
 @inject IDateTimeResolver _dateTimeResolver
 
-@{
-    Layout = "_Layout";
-    ViewData["Title"] = "文章预览";
-}
+@{ Layout = "_Layout";
+    ViewData["Title"] = "文章预览"; }
 
 @section head{
     <link href="~/css/post.css" rel="stylesheet" />
@@ -25,21 +23,18 @@
 
 <article class="border p-4" data-postid="@Model.Id">
     <header>
-        <h1 class="post-title">
+        <h1 class="fs-4 text-success">
             @Model.Title
         </h1>
-
-        <div class="d-none d-md-block post-time mb-2">
-            <time datetime="@Model.CreationTime.ToString("u")" title="GMT @_dateTimeResolver.ToLocalTime(Model.CreationTime)">@_dateTimeResolver.ToLocalTime(Model.CreationTime).ToString("MM/dd/yyyy")</time>
+        <div>
+            <time class="post-time" datetime="@Model.CreationTime.ToString("u")" title="GMT @_dateTimeResolver.ToLocalTime(Model.CreationTime)">@_dateTimeResolver.ToLocalTime(Model.CreationTime).ToString("MM/dd/yyyy")</time>
             @if (Model.LastModificationTime.HasValue)
             {
-                <span>(编辑于 @_dateTimeResolver.ToLocalTime(Model.LastModificationTime.Value).ToString("MM/dd/yyyy HH:mm"))</span>
-            }
+<span>(编辑于 @_dateTimeResolver.ToLocalTime(Model.LastModificationTime.Value).ToString("MM/dd/yyyy HH:mm"))</span>}
         </div>
-
-        <hr class="d-none d-md-block" />
+        <hr />
     </header>
-    <section class="clearfix">
+    <section>
         @Html.Raw(Model.Content)
     </section>
 
@@ -48,13 +43,11 @@
         <ul class="d-flex flex-row list-unstyled mb-0">
             @foreach (var item in Model.Categories)
             {
-                <li>
-                    <a class="btn btn-sm btn-outline-success ml-2">
-                        <img src="~/lib/bootstrap-icons-1.1.0/folder.svg" alt="@item.CategoryName" />
-                        @item.CategoryName
-                    </a>
-                </li>
-            }
+<li>
+    <a class="btn btn-sm btn-success m-1" role="button">
+        @item.CategoryName
+    </a>
+</li>}
         </ul>
     </section>
 </article>
