@@ -3,23 +3,21 @@
 @model X.PagedList.StaticPagedList<Blog.ViewModels.PostViewModel>
 @inject IDateTimeResolver _dateTimeResolver
 
-@foreach (var post in Model)
-{
-    <article class="mt-2">
-        <div class="d-block">
-            <h4 class="post-title mb-3">
-                <a asp-action="@nameof(PostController.Preview)" asp-route-postId="@post.Id">
-                    @post.Title
-                </a>
-            </h4>
-            <p class="post-content-abstract">@(post.ContentAbstract)</p>
-        </div>
-        <div class="clearfix">
-            <div class="float-right">
-                <span class="d-inline-block mr-5">@_dateTimeResolver.ToLocalTime(post.CreationTime).ToString("yyyy.MM.dd HH:mm")</span>
-                <span>@post.UserName</span>
-            </div>
+<ul class="list-group list-group-flush">
+    @foreach (var post in Model)
+    {
+<li class="list-group-item">
+    <article>
+        <h4 class="fs-5">
+            <a class="link-success text-decoration-none" asp-action="@nameof(PostController.Preview)" asp-route-postId="@post.Id">
+                @post.Title
+            </a>
+        </h4>
+        <p class="post-content-abstract">@(post.ContentAbstract)</p>
+        <div>
+            <span class="d-inline-block mr-5">@_dateTimeResolver.ToLocalTime(post.CreationTime).ToString("yyyy.MM.dd HH:mm")</span>
         </div>
     </article>
-    <hr class="d-none d-md-block" />
-}
+</li>}
+</ul>
+<hr />
