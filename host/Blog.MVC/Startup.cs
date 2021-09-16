@@ -73,7 +73,7 @@ namespace Blog.MVC
             {
                 options.SuppressAsyncSuffixInActionNames = false;
                 //options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
-            });
+            }).AddRazorRuntimeCompilation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
