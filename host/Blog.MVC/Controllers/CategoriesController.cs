@@ -16,6 +16,12 @@ namespace Blog.MVC.Controllers
             _categoryService = categoryService;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAsync()
+        {
+            return Ok(await _categoryService.GetCategoriesAsync());
+        }
+
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetAsync(int id)
         {
