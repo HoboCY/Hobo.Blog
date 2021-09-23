@@ -60,6 +60,17 @@ namespace Blog.MVC
             services.AddTransient<IPostService, PostService>();
             services.AddTransient<IEmailService, EmailService>();
 
+            services.AddCors(opt =>
+            {
+                opt.AddPolicy("default", builder =>
+                {
+                    builder.WithOrigins(Configuration["Cors:Origin"].Split(";"))
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
+
             services.AddCos();
 
             //services.AddAntiforgery(options =>
@@ -95,6 +106,7 @@ namespace Blog.MVC
 
             app.UseRouting();
 
+            app.UseCors("default");
             app.UseAuthentication();
             app.UseAuthorization();
 
