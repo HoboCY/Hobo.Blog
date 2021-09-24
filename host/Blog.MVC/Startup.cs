@@ -15,6 +15,7 @@ using Blog.Service.Mails;
 using Blog.Service.Posts;
 using Blog.Shared;
 using Dapper;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Blog.MVC
 {
@@ -30,6 +31,12 @@ namespace Blog.MVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+                {
+                    options.ExpireTimeSpan = TimeSpan.FromHours(3);
+                });
+
             //services.Configure<WebEncoderOptions>(options =>
             //                                      {
             //                                          options.TextEncoderSettings =
