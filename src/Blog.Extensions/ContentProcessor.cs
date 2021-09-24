@@ -6,7 +6,7 @@ using NUglify.Html;
 
 namespace Blog.Extensions
 {
-   public static class ContentProcessor
+    public static class ContentProcessor
     {
         public static string AddLazyLoadToImgTag(this string rawHtmlContent)
         {
@@ -28,7 +28,7 @@ namespace Blog.Extensions
             return newStr;
         }
 
-        public static string GetPostAbstract(this string rawContent, int wordCount, bool useMarkdown = true)
+        public static string GetPostAbstract(this string rawContent, int wordCount, bool useMarkdown = false)
         {
             var plainText = useMarkdown ?
                 MarkdownToContent(rawContent, MarkdownConvertType.Text) :
@@ -44,7 +44,12 @@ namespace Blog.Extensions
             {
                 return string.Empty;
             }
-            var result = Uglify.HtmlToText(html,HtmlToTextOptions.KeepStructure);
+
+            if (!html.StartsWith("<body>")) html = "<body>" + html;
+
+            if (!html.EndsWith("</body>")) html += "</body>";
+
+            var result = Uglify.HtmlToText(html);
 
             return !result.HasErrors && !string.IsNullOrWhiteSpace(result.Code)
                 ? result.Code.Trim()
@@ -62,11 +67,11 @@ namespace Blog.Extensions
                 switch (current)
                 {
                     case '<':
-                        inside = true;
-                        continue;
+                    inside = true;
+                    continue;
                     case '>':
-                        inside = false;
-                        continue;
+                    inside = false;
+                    continue;
                 }
 
                 if (!inside)
