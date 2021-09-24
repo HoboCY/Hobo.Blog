@@ -49,7 +49,7 @@ namespace Blog.Extensions
 
             if (!html.EndsWith("</body>")) html += "</body>";
 
-            var result = Uglify.HtmlToText(html);
+            var result = Uglify.HtmlToText(html,HtmlToTextOptions.KeepStructure);
 
             return !result.HasErrors && !string.IsNullOrWhiteSpace(result.Code)
                 ? result.Code.Trim()
