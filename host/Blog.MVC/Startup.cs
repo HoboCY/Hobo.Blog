@@ -13,9 +13,12 @@ using Blog.Service;
 using Blog.Service.Categories;
 using Blog.Service.Mails;
 using Blog.Service.Posts;
+using Blog.Service.Users;
 using Blog.Shared;
 using Dapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Blog.MVC
 {
@@ -32,9 +35,10 @@ namespace Blog.MVC
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
-                    options.ExpireTimeSpan = TimeSpan.FromHours(3);
+                    options.SaveToken = true;
+                    options.RequireHttpsMetadata = true;
                 });
 
             //services.Configure<WebEncoderOptions>(options =>
@@ -63,6 +67,7 @@ namespace Blog.MVC
 
             services.AddTransient<IRepository, Repository>();
 
+            services.AddTransient<IUserService, UserService>();
             services.AddTransient<ICategoryService, CategoryService>();
             services.AddTransient<IPostService, PostService>();
             services.AddTransient<IEmailService, EmailService>();
