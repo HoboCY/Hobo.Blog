@@ -10,7 +10,5 @@ namespace Blog.ViewModels
         public string Content { get; set; }
 
         public List<int> CategoryIds { get; set; }
-
-        public string UserId { get; set; }
     }
 }
