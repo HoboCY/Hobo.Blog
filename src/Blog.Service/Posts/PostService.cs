@@ -53,6 +53,18 @@ namespace Blog.Service.Posts
             return posts;
         }
 
+        public async Task<List<PostViewModel>> GetOwnPostsAsync(string userId, bool isDeleted = false, int pageIndex = 1, int pageSize = 10)
+        {
+            return (await _repository.GetListAsync<PostViewModel>(SqlConstants.GetOwnPostsPage,
+                new
+                {
+                    userId,
+                    isDeleted,
+                    skipCount = (pageIndex - 1) * pageSize,
+                    pageSize
+                })).ToList();
+        }
+
         public async Task<int> CountAsync(int? categoryId = null)
         {
             return categoryId != null

@@ -12,6 +12,8 @@ namespace Blog.Service.Posts
 
         Task<List<PostViewModel>> GetPostsAsync(int? categoryId = null, int pageIndex = 1, int pageSize = 10);
 
+        Task<List<PostViewModel>> GetOwnPostsAsync(string userId, bool isDeleted = false, int pageIndex = 1, int pageSize = 10);
+
         Task<int> CountAsync(int? categoryId = null);
 
         Task<PostPreviewViewModel> GetPreviewAsync(string id);
