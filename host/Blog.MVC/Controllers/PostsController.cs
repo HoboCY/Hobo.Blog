@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Blog.Service.Posts;
 using Blog.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Blog.MVC.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PostsController : BlogController
     {
         private readonly IPostService _postService;

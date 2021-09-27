@@ -11,6 +11,7 @@ using Blog.ViewModels.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Blog.MVC.Controllers
@@ -20,10 +21,14 @@ namespace Blog.MVC.Controllers
     public class UsersController : BlogController
     {
         private readonly IUserService _userService;
+        private readonly IConfiguration _configuration;
 
-        public UsersController(IUserService userService)
+        public UsersController(
+            IUserService userService, 
+            IConfiguration configuration)
         {
             _userService = userService;
+            _configuration = configuration;
         }
 
         [HttpPost("login")]
@@ -36,18 +41,16 @@ namespace Blog.MVC.Controllers
                 new Claim(ClaimTypes.Email,user.Email)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("123456"));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtOptions:Key"]));
+            var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var token = new JwtSecurityToken(claims: claims, signingCredentials: creds);
+            var token = new JwtSecurityToken(issuer: _configuration["JwtOptions:Issuer"],
+                audience: _configuration["JwtOptions:Audience"],
+                expires: DateTime.Now.AddHours(2),
+                claims: claims,
+                signingCredentials: credential);
 
             return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
-        }
-
-        [HttpPost("logout")]
-        public async Task LogoutAsync()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         }
     }
 }

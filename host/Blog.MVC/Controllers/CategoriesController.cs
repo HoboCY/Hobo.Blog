@@ -2,11 +2,13 @@
 using System.Threading.Tasks;
 using Blog.MVC.ViewModels.Categories;
 using Blog.Service.Categories;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Blog.MVC.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -17,6 +19,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAsync()
         {
             return Ok(await _categoryService.GetCategoriesAsync());
