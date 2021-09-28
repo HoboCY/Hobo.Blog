@@ -67,6 +67,7 @@ namespace Blog.MVC
             //});
 
             SqlMapper.AddTypeHandler(typeof(List<int>), new JsonTypeHandler());
+            SqlMapper.AddTypeHandler(typeof(List<string>), new JsonTypeHandler());
             services.AddScoped<IDateTimeResolver>(d => new DateTimeResolver(TimeSpan.FromHours(8).ToString()));
 
             services.Configure<BlogSettings>(Configuration.GetSection("BlogSettings"));
