@@ -132,5 +132,20 @@ namespace Blog.Service.Posts
 
             await _repository.UpdateAsync(SqlConstants.UpdatePost, post);
         }
+
+        public async Task RecycleAsync(string id, string userId)
+        {
+            await _repository.UpdateAsync(SqlConstants.RecycleOrRestorePost, new { isdeleted = 1, id, userId });
+        }
+
+        public async Task RestoreAsync(string id, string userId)
+        {
+            await _repository.UpdateAsync(SqlConstants.RecycleOrRestorePost, new { isdeleted = 0, id, userId });
+        }
+
+        public async Task DeleteAsync(string id, string userId)
+        {
+            await _repository.DeleteAsync(SqlConstants.DeletePost, new { id, userId });
+        }
     }
 }

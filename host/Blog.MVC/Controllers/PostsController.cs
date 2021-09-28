@@ -41,5 +41,29 @@ namespace Blog.MVC.Controllers
             await _postService.UpdateAsync(id.ToString(), input, userId);
             return Ok();
         }
+
+        [HttpPut("Recycle/{id:guid}")]
+        public async Task<IActionResult> RecycleAsync(Guid id)
+        {
+            var userId = UserId();
+            await _postService.RecycleAsync(id.ToString(), userId);
+            return Ok();
+        }
+
+        [HttpPut("Restore/{id:guid}")]
+        public async Task<IActionResult> RestoreAsync(Guid id)
+        {
+            var userId = UserId();
+            await _postService.RestoreAsync(id.ToString(), userId);
+            return Ok();
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> DeleteAsync(Guid id)
+        {
+            var userId = UserId();
+            await _postService.DeleteAsync(id.ToString(), userId);
+            return Ok();
+        }
     }
 }

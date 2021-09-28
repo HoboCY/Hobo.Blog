@@ -32,7 +32,7 @@
             @"SELECT BIN_TO_UUID(p.id) AS Id,p.title AS Title,p.content_abstract AS ContentAbstract,u.username AS UserName,BIN_TO_UUID(p.creator_id) AS CreatorId,p.creation_time AS CreationTime FROM post p LEFT JOIN app_user u ON p.creator_id = u.id WHERE p.isdeleted = 0 ORDER BY p.creation_time DESC LIMIT @skipCount,@pageSize";
 
         public const string GetOwnPostsPage =
-            @"SELECT BIN_TO_UUID(p.id) AS Id,p.title AS Title,p.content_abstract AS ContentAbstract,u.username AS UserName,BIN_TO_UUID(p.creator_id) AS CreatorId,p.creation_time AS CreationTime FROM post p LEFT JOIN app_user u ON p.creator_id = u.id WHERE p.isdeleted = @IsDeleted AND p.creator_id = UUID_TO_BIN(@UserId) ORDER BY p.creation_time DESC LIMIT @skipCount,@pageSize";
+            @"SELECT BIN_TO_UUID(p.id) AS Id,p.title AS Title,p.content_abstract AS ContentAbstract,u.username AS UserName,BIN_TO_UUID(p.creator_id) AS CreatorId,p.creation_time AS CreationTime,p.last_modify_time AS LastModifyTime,JSON_ARRAYAGG(c.category_name) AS CategoryNames FROM post p LEFT JOIN app_user u ON p.creator_id = u.id JOIN JSON_TABLE(p.category_ids,'$[*]' COLUMNS (CategoryId INT PATH '$')) AS categories JOIN category c ON categories.CategoryId = c.id WHERE p.isdeleted = @IsDeleted AND p.creator_id = UUID_TO_BIN(@UserId) GROUP BY p.id ORDER BY p.creation_time DESC LIMIT @skipCount,@pageSize";
 
         public const string GetPostsPageByCategory =
             @"SELECT BIN_TO_UUID(p.id) AS Id,p.title AS Title,p.content_abstract AS ContentAbstract,u.username AS UserName,BIN_TO_UUID(p.creator_id) AS CreatorId,p.creation_time AS CreationTime FROM post p LEFT JOIN app_user u ON p.creator_id = u.id WHERE @CategoryId MEMBER OF (category_ids->'$') AND p.isdeleted = 0 ORDER BY p.creation_time DESC LIMIT @skipCount,@pageSize";
@@ -50,6 +50,11 @@
 
         public const string UpdatePost =
             @"UPDATE post SET title = @Title,content = @Content,content_abstract = @ContentAbstract,category_ids = @CategoryIds WHERE id = UUID_TO_BIN(@id) AND creator_id = UUID_TO_BIN(@CreatorId)";
+
+        public const string RecycleOrRestorePost = "UPDATE post SET isdeleted = @IsDeleted WHERE id = UUID_TO_BIN(@Id) AND creator_id = UUID_TO_BIN(@UserId)";
+
+        public const string DeletePost = "DELETE FROM post WHERE id = UUID_TO_BIN(@Id) AND creator_id = UUID_TO_BIN(@UserId)";
+
         #endregion
     }
 }

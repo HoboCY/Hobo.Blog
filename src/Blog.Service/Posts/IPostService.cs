@@ -21,5 +21,11 @@ namespace Blog.Service.Posts
         Task CreateAsync(PostInputViewModel input, string userId);
 
         Task UpdateAsync(string id, PostInputViewModel input, string userId);
+
+        Task RecycleAsync(string id, string userId);
+
+        Task RestoreAsync(string id, string userId);
+
+        Task DeleteAsync(string id, string userId);
     }
 }
