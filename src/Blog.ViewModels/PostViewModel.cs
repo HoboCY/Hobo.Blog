@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Blog.ViewModels
 {
@@ -12,8 +13,12 @@ namespace Blog.ViewModels
 
         public DateTime CreationTime { get; set; }
 
+        public DateTime LastModifyTime { get; set; }
+
         public string CreatorId { get; set; }
 
         public string UserName { get; set; }
+
+        public List<string> CategoryNames { get; set; }
     }
 }
