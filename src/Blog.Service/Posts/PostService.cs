@@ -8,6 +8,7 @@ using Blog.Extensions;
 using Blog.Shared;
 using Blog.ViewModels;
 using Blog.ViewModels.Categories;
+using Blog.ViewModels.Posts;
 using Microsoft.Extensions.Options;
 
 namespace Blog.Service.Posts
@@ -25,44 +26,53 @@ namespace Blog.Service.Posts
             _blogSettings = options.Value;
         }
 
-        public async Task<Post> GetPostAsync(string id, string userId)
+        public async Task<EditPostViewModel> GetPostAsync(string id, string userId)
         {
-            return await _repository.GetAsync<Post>(SqlConstants.GetOwnPost, new { id, CreatorId = userId });
+            return await _repository.GetAsync<EditPostViewModel>(SqlConstants.GetOwnPost, new { id, userId });
         }
 
-        public async Task<List<PostViewModel>> GetPostsAsync(int pageIndex = 1, int pageSize = 10)
+        public async Task<List<PostListItemViewModel>> GetPostsAsync(int pageIndex = 1, int pageSize = 10)
         {
-            return (await _repository.GetListAsync<PostViewModel>(SqlConstants.GetPostsPage, new { skipCount = (pageIndex - 1) * pageSize, pageSize })).ToList();
+            return (await _repository.GetListAsync<PostListItemViewModel>(SqlConstants.GetPostsPage, new { skipCount = (pageIndex - 1) * pageSize, pageSize })).ToList();
         }
 
-        public async Task<List<PostViewModel>> GetPostsAsync(int? categoryId = null, int pageIndex = 1, int pageSize = 10)
+        public async Task<List<PostListItemViewModel>> GetPostsAsync(int? categoryId = null, int pageIndex = 1, int pageSize = 10)
         {
-            List<PostViewModel> posts;
+            List<PostListItemViewModel> posts;
 
             if (categoryId > 0)
             {
-                posts = (await _repository.GetListAsync<PostViewModel>(SqlConstants.GetPostsPageByCategory,
+                posts = (await _repository.GetListAsync<PostListItemViewModel>(SqlConstants.GetPostsPageByCategory,
                      new { categoryId, skipCount = (pageIndex - 1) * pageSize, pageSize })).ToList();
             }
             else
             {
-                posts = (await _repository.GetListAsync<PostViewModel>(SqlConstants.GetPostsPage,
+                posts = (await _repository.GetListAsync<PostListItemViewModel>(SqlConstants.GetPostsPage,
                      new { skipCount = (pageIndex - 1) * pageSize, pageSize })).ToList();
             }
 
             return posts;
         }
 
-        public async Task<List<PostViewModel>> GetOwnPostsAsync(string userId, bool isDeleted = false, int pageIndex = 1, int pageSize = 10)
+        public async Task<PagedResultDto<PostListItemViewModel>> GetOwnPostsAsync(string userId, bool isDeleted = false, int pageIndex = 1, int pageSize = 10)
         {
-            return (await _repository.GetListAsync<PostViewModel>(SqlConstants.GetOwnPostsPage,
-                new
-                {
-                    userId,
-                    isDeleted,
-                    skipCount = (pageIndex - 1) * pageSize,
-                    pageSize
-                })).ToList();
+            var posts = await _repository.GetListAsync<PostListItemViewModel>(SqlConstants.GetOwnPostsPage,
+                 new
+                 {
+                     userId,
+                     isDeleted,
+                     skipCount = (pageIndex - 1) * pageSize,
+                     pageSize
+                 });
+            var total = await _repository.CountAsync(SqlConstants.GetOwnPostsTotalCount, new {isDeleted, userId});
+
+            if (total <= 0) return new PagedResultDto<PostListItemViewModel>();
+
+            return new PagedResultDto<PostListItemViewModel>
+            {
+                Total = total,
+                Items = posts.ToList()
+            };
         }
 
         public async Task<int> CountAsync(int? categoryId = null)

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Blog.Service.Posts;
 using Blog.ViewModels;
+using Blog.ViewModels.Posts;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Blog.MVC.Controllers
@@ -17,6 +18,13 @@ namespace Blog.MVC.Controllers
         public PostsController(IPostService postService)
         {
             _postService = postService;
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetAsync(Guid id)
+        {
+            var userId = UserId();
+            return Ok(await _postService.GetPostAsync(id.ToString(), userId));
         }
 
         [HttpGet]

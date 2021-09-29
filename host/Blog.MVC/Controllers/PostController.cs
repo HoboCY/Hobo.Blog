@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Blog.Service.Categories;
 using Blog.Service.Posts;
 using Blog.ViewModels;
+using Blog.ViewModels.Posts;
 using Microsoft.Extensions.Options;
 using X.PagedList;
 
@@ -43,7 +44,7 @@ namespace Blog.MVC.Controllers
                 ViewBag.CategoryName = category.CategoryName;
             }
 
-            var pagedPosts = new StaticPagedList<PostViewModel>(posts, page, pageSize, count);
+            var pagedPosts = new StaticPagedList<PostListItemViewModel>(posts, page, pageSize, count);
             return View(pagedPosts);
         }
 
