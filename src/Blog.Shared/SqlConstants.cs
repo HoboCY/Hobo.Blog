@@ -26,13 +26,16 @@
         #region Post
 
         public const string GetOwnPost =
-            @"SELECT BIN_TO_UUID(id) AS Id,title AS Title,content_abstract AS ContentAbstract,content AS Content,creation_time AS CreationTime FROM post WHERE id = UUID_TO_BIN(@id) AND creator_id = @UserId";
+            @"SELECT BIN_TO_UUID(id) AS Id,title AS Title,content AS Content,category_ids AS CategoryIds FROM post WHERE id = UUID_TO_BIN(@id) AND creator_id = UUID_TO_BIN(@UserId) AND IsDeleted = 0";
 
         public const string GetPostsPage =
             @"SELECT BIN_TO_UUID(p.id) AS Id,p.title AS Title,p.content_abstract AS ContentAbstract,u.username AS UserName,BIN_TO_UUID(p.creator_id) AS CreatorId,p.creation_time AS CreationTime FROM post p LEFT JOIN app_user u ON p.creator_id = u.id WHERE p.isdeleted = 0 ORDER BY p.creation_time DESC LIMIT @skipCount,@pageSize";
 
         public const string GetOwnPostsPage =
-            @"SELECT BIN_TO_UUID(p.id) AS Id,p.title AS Title,p.content_abstract AS ContentAbstract,u.username AS UserName,BIN_TO_UUID(p.creator_id) AS CreatorId,p.creation_time AS CreationTime,p.last_modify_time AS LastModifyTime,JSON_ARRAYAGG(c.category_name) AS CategoryNames FROM post p LEFT JOIN app_user u ON p.creator_id = u.id JOIN JSON_TABLE(p.category_ids,'$[*]' COLUMNS (CategoryId INT PATH '$')) AS categories JOIN category c ON categories.CategoryId = c.id WHERE p.isdeleted = @IsDeleted AND p.creator_id = UUID_TO_BIN(@UserId) GROUP BY p.id ORDER BY p.creation_time DESC LIMIT @skipCount,@pageSize";
+            @"SELECT BIN_TO_UUID(p.id) AS Id,p.title AS Title,p.content_abstract AS ContentAbstract,p.creation_time AS CreationTime,p.last_modify_time AS LastModifyTime,JSON_ARRAYAGG(c.category_name) AS CategoryNames FROM post p JOIN JSON_TABLE(p.category_ids,'$[*]' COLUMNS (CategoryId INT PATH '$')) AS categories JOIN category c ON categories.CategoryId = c.id WHERE p.isdeleted = @IsDeleted AND p.creator_id = UUID_TO_BIN(@UserId) GROUP BY p.id ORDER BY p.creation_time DESC LIMIT @skipCount,@pageSize";
+
+        public const string GetOwnPostsTotalCount =
+            @"SELECT COUNT(id) FROM post WHERE isdeleted = @IsDeleted AND creator_id = UUID_TO_BIN(@UserId)";
 
         public const string GetPostsPageByCategory =
             @"SELECT BIN_TO_UUID(p.id) AS Id,p.title AS Title,p.content_abstract AS ContentAbstract,u.username AS UserName,BIN_TO_UUID(p.creator_id) AS CreatorId,p.creation_time AS CreationTime FROM post p LEFT JOIN app_user u ON p.creator_id = u.id WHERE @CategoryId MEMBER OF (category_ids->'$') AND p.isdeleted = 0 ORDER BY p.creation_time DESC LIMIT @skipCount,@pageSize";
@@ -54,6 +57,21 @@
         public const string RecycleOrRestorePost = "UPDATE post SET isdeleted = @IsDeleted WHERE id = UUID_TO_BIN(@Id) AND creator_id = UUID_TO_BIN(@UserId)";
 
         public const string DeletePost = "DELETE FROM post WHERE id = UUID_TO_BIN(@Id) AND creator_id = UUID_TO_BIN(@UserId)";
+
+        #endregion
+
+        #region User
+
+        public const string Login =
+            "SELECT BIN_TO_UUID(id) AS Id,email AS Email,email_confirmed AS EmailConfirmed,password AS Password FROM `app_user` WHERE email = @Email";
+
+        public const string GetUsersPage = "SELECT BIN_TO_UUID(id) AS Id,username AS Username,email AS Email,email_confirmed AS EmailConfirmed,creation_time AS CreationTime,last_modify_time AS LastModifyTime FROM `app_user` WHERE id != UUID_TO_BIN(@UserId) ORDER BY creation_time DESC LIMIT @skipCount,@pageSize";
+
+        public const string GetUsersTotalCount =
+            "SELECT COUNT(id) FROM `app_user` WHERE id != UUID_TO_BIN(@UserId)";
+
+        public const string ConfirmUser =
+            "UPDATE `app_user` SET email_confirmed = @Confirmed WHERE id = UUID_TO_BIN(@Id)";
 
         #endregion
     }
