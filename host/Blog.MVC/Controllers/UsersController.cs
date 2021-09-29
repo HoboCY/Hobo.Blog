@@ -52,5 +52,25 @@ namespace Blog.MVC.Controllers
 
             return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
+
+        [HttpGet("check")]
+        public IActionResult CheckAuthentication()
+        {
+            return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAsync(int pageIndex = 1, int pageSize = 10)
+        {
+            var userId = UserId();
+            return Ok(await _userService.GetUsersAsync(userId));
+        }
+
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> ConfirmAsync(Guid id,bool confirmed)
+        {
+            await _userService.ConfirmAsync(id.ToString(), confirmed);
+            return Ok();
+        }
     }
 }
