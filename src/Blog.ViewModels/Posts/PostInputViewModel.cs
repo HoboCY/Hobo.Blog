@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Blog.ViewModels
+namespace Blog.ViewModels.Posts
 {
     public class PostInputViewModel
     {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Blog.ViewModels
+namespace Blog.ViewModels.Posts
 {
-    public class PostViewModel
+    public class PostListItemViewModel
     {
         public string Id { get; set; }
 

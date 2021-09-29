@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Blog.ViewModels.Categories;
 
-namespace Blog.ViewModels
+namespace Blog.ViewModels.Posts
 {
    public class PostPreviewViewModel
     {
