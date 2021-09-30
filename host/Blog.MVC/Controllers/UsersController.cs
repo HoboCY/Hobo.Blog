@@ -24,7 +24,7 @@ namespace Blog.MVC.Controllers
         private readonly IConfiguration _configuration;
 
         public UsersController(
-            IUserService userService, 
+            IUserService userService,
             IConfiguration configuration)
         {
             _userService = userService;
@@ -63,11 +63,11 @@ namespace Blog.MVC.Controllers
         public async Task<IActionResult> GetAsync(int pageIndex = 1, int pageSize = 10)
         {
             var userId = UserId();
-            return Ok(await _userService.GetUsersAsync(userId));
+            return Ok(await _userService.GetUsersAsync(userId, pageIndex, pageSize));
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> ConfirmAsync(Guid id,bool confirmed)
+        public async Task<IActionResult> ConfirmAsync(Guid id, bool confirmed)
         {
             await _userService.ConfirmAsync(id.ToString(), confirmed);
             return Ok();
