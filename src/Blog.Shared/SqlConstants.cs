@@ -25,8 +25,10 @@
 
         #region Post
 
+        public const string GetPost = @"SELECT BIN_TO_UUID(id) AS Id,title AS Title,content AS Content,category_ids AS CategoryIds,BIN_TO_UUID(creator_id) AS CreatorId FROM post WHERE id = UUID_TO_BIN(@id) AND IsDeleted = 0";
+
         public const string GetOwnPost =
-            @"SELECT BIN_TO_UUID(id) AS Id,title AS Title,content AS Content,category_ids AS CategoryIds FROM post WHERE id = UUID_TO_BIN(@id) AND creator_id = UUID_TO_BIN(@UserId) AND IsDeleted = 0";
+            @"SELECT BIN_TO_UUID(id) AS Id,title AS Title,content AS Content,category_ids AS CategoryIds,BIN_TO_UUID(creator_id) AS CreatorId FROM post WHERE id = UUID_TO_BIN(@id) AND IsDeleted = 0";
 
         public const string GetPostsPage =
             @"SELECT BIN_TO_UUID(p.id) AS Id,p.title AS Title,p.content_abstract AS ContentAbstract,u.username AS UserName,BIN_TO_UUID(p.creator_id) AS CreatorId,p.creation_time AS CreationTime FROM post p LEFT JOIN app_user u ON p.creator_id = u.id WHERE p.isdeleted = 0 ORDER BY p.creation_time DESC LIMIT @skipCount,@pageSize";
@@ -52,11 +54,11 @@
             @"INSERT INTO post (id,title,content,content_abstract,category_ids,creator_id) VALUES (UUID_TO_BIN(@Id,TRUE), @Title, @Content, @ContentAbstract,@CategoryIds, UUID_TO_BIN(@CreatorId))";
 
         public const string UpdatePost =
-            @"UPDATE post SET title = @Title,content = @Content,content_abstract = @ContentAbstract,category_ids = @CategoryIds WHERE id = UUID_TO_BIN(@id) AND creator_id = UUID_TO_BIN(@CreatorId)";
+            @"UPDATE post SET title = @Title,content = @Content,content_abstract = @ContentAbstract,category_ids = @CategoryIds WHERE id = UUID_TO_BIN(@id)";
 
-        public const string RecycleOrRestorePost = "UPDATE post SET isdeleted = @IsDeleted WHERE id = UUID_TO_BIN(@Id) AND creator_id = UUID_TO_BIN(@UserId)";
+        public const string RecycleOrRestorePost = "UPDATE post SET isdeleted = @IsDeleted WHERE id = UUID_TO_BIN(@Id)";
 
-        public const string DeletePost = "DELETE FROM post WHERE id = UUID_TO_BIN(@Id) AND creator_id = UUID_TO_BIN(@UserId)";
+        public const string DeletePost = "DELETE FROM post WHERE id = UUID_TO_BIN(@Id)";
 
         #endregion
 

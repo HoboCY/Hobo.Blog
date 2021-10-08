@@ -15,7 +15,8 @@ namespace Blog.MVC.Controllers
     {
         private readonly IPostService _postService;
 
-        public PostsController(IPostService postService)
+        public PostsController(
+            IPostService postService)
         {
             _postService = postService;
         }
@@ -24,7 +25,7 @@ namespace Blog.MVC.Controllers
         public async Task<IActionResult> GetAsync(Guid id)
         {
             var userId = UserId();
-            return Ok(await _postService.GetPostAsync(id.ToString(), userId));
+            return Ok(await _postService.GetPostAsync(id.ToString(), HttpContext.User));
         }
 
         [HttpGet]
@@ -46,15 +47,14 @@ namespace Blog.MVC.Controllers
         public async Task<IActionResult> UpdateAsync(Guid id, PostInputViewModel input)
         {
             var userId = UserId();
-            await _postService.UpdateAsync(id.ToString(), input, userId);
+            await _postService.UpdateAsync(id.ToString(), input, HttpContext.User);
             return Ok();
         }
 
         [HttpPut("Recycle/{id:guid}")]
         public async Task<IActionResult> RecycleAsync(Guid id)
         {
-            var userId = UserId();
-            await _postService.RecycleAsync(id.ToString(), userId);
+            await _postService.RecycleAsync(id.ToString(), HttpContext.User);
             return Ok();
         }
 
@@ -62,7 +62,7 @@ namespace Blog.MVC.Controllers
         public async Task<IActionResult> RestoreAsync(Guid id)
         {
             var userId = UserId();
-            await _postService.RestoreAsync(id.ToString(), userId);
+            await _postService.RestoreAsync(id.ToString(), HttpContext.User);
             return Ok();
         }
 
@@ -70,7 +70,7 @@ namespace Blog.MVC.Controllers
         public async Task<IActionResult> DeleteAsync(Guid id)
         {
             var userId = UserId();
-            await _postService.DeleteAsync(id.ToString(), userId);
+            await _postService.DeleteAsync(id.ToString(), HttpContext.User);
             return Ok();
         }
     }
