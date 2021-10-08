@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Blog.Data.Entities
 {
-    public class Post
+    public class Post : ICreator<string>
     {
         public string Id { get; set; }
 
