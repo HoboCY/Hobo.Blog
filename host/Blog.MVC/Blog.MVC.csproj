@@ -1223,6 +1223,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Blog.Data\Blog.Data.csproj" />
+		<ProjectReference Include="..\..\src\Blog.Permissions\Blog.Permissions.csproj" />
 		<ProjectReference Include="..\..\src\Blog.Service\Blog.Service.csproj" />
 		<ProjectReference Include="..\..\src\Tencent.COS.SDK\Tencent.COS.SDK.csproj" />
 	</ItemGroup>

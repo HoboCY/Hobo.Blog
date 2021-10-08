@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Blog.Data.Entities;
 using Blog.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -19,7 +20,9 @@ using Blog.Shared;
 using Dapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using Blog.Permissions.AuthorizationHandlers;
 
 namespace Blog.MVC
 {
@@ -65,6 +68,8 @@ namespace Blog.MVC
             //    options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
             //    options.SlidingExpiration = true;
             //});
+
+            services.AddSingleton<IAuthorizationHandler, CreatorAuthorizationHandler<Post>>();
 
             SqlMapper.AddTypeHandler(typeof(List<int>), new JsonTypeHandler());
             SqlMapper.AddTypeHandler(typeof(List<string>), new JsonTypeHandler());
