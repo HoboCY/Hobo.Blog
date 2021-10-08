@@ -1,0 +1,34 @@
+CREATE TABLE app_user(
+id BINARY(16) NOT NULL,
+username VARCHAR(50) NOT NULL,
+email VARCHAR(100) NOT NULL,
+email_confirmed TINYINT(1) NOT NULL DEFAULT(0),
+password VARCHAR(500) NOT NULL,
+creation_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+last_modify_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+uuid CHAR(36) AS (BIN_TO_UUID(id)),
+PRIMARY KEY(id)
+);
+
+CREATE TABLE category(
+id INT NOT NULL AUTO_INCREMENT,
+category_name VARCHAR(100) NOT NULL,
+creation_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+PRIMARY KEY(id)
+);
+
+CREATE TABLE post(
+id BINARY(16) NOT NULL,
+title VARCHAR(100) NOT NULL,
+content TEXT(20000) NOT NULL,
+content_abstract VARCHAR(300) NOT NULL,
+category_ids JSON NOT NULL,
+creator_id BINARY(16) NOT NULL,
+creation_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+last_modify_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
+isdeleted TINYINT(1) NOT NULL DEFAULT(0),
+PRIMARY KEY(id)
+);
+
+ALTER TABLE post
+ADD INDEX idx_post_categoryIds ((cast((category_ids->"$") as unsigned array)));
