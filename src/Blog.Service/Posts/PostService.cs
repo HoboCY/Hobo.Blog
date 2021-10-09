@@ -135,9 +135,6 @@ namespace Blog.Service.Posts
             if (count < input.CategoryIds.Count)
                 throw new BlogException(StatusCodes.Status400BadRequest, $"参数错误：{nameof(input.CategoryIds)}");
 
-            var post = await _repository.FindAsync<Post, string>(SqlConstants.GetPost, id);
-            if (post == null) throw new BlogException(StatusCodes.Status404NotFound, "没有找到相应文章");
-
             var parameters = new
             {
                 id,
@@ -152,25 +149,16 @@ namespace Blog.Service.Posts
 
         public async Task RecycleAsync(string id)
         {
-            var post = await _repository.FindAsync<Post, string>(SqlConstants.GetPost, id);
-            if (post == null) throw new BlogException(StatusCodes.Status404NotFound, "没有找到相应文章");
-
             await _repository.UpdateAsync(SqlConstants.RecycleOrRestorePost, new { isdeleted = 1, id });
         }
 
         public async Task RestoreAsync(string id)
         {
-            var post = await _repository.FindAsync<Post, string>(SqlConstants.GetPost, id);
-            if (post == null) throw new BlogException(StatusCodes.Status404NotFound, "没有找到相应文章");
-
             await _repository.UpdateAsync(SqlConstants.RecycleOrRestorePost, new { isdeleted = 0, id });
         }
 
         public async Task DeleteAsync(string id)
         {
-            var post = _repository.FindAsync<Post, string>(SqlConstants.GetPost, id);
-            if (post == null) return;
-
             await _repository.DeleteAsync(SqlConstants.DeletePost, new { id });
         }
     }
