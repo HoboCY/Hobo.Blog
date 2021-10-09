@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Blog.Data.Entities;
-using Blog.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,18 +9,19 @@ using Microsoft.Extensions.Hosting;
 using Tencent.COS.SDK;
 using Blog.Data.Repositories;
 using Blog.Data.TypeHandlers;
-using Blog.Service;
+using Blog.Extensions;
+using Blog.Permissions;
 using Blog.Service.Categories;
 using Blog.Service.Mails;
 using Blog.Service.Posts;
 using Blog.Service.Users;
 using Blog.Shared;
 using Dapper;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Blog.Permissions.AuthorizationHandlers;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace Blog.MVC
 {
@@ -58,18 +57,16 @@ namespace Blog.MVC
             //                                              new TextEncoderSettings(UnicodeRanges.All);
             //                                      });
 
-            //services.ConfigureApplicationCookie(options =>
-            //{
-            //    options.Cookie.Name = "996BUG-Cookie";
-            //    options.Cookie.HttpOnly = false;    //客户端脚本是否可以访问Cookie
-            //    options.ExpireTimeSpan = TimeSpan.FromDays(1);
-            //    options.LoginPath = "/Account/Login";
-            //    options.AccessDeniedPath = "/Account/AccessDenied";
-            //    options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
-            //    options.SlidingExpiration = true;
-            //});
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(BlogPermissions.Posts.Create, policy => policy.AddRequirements(new OperationAuthorizationRequirement { Name = BlogPermissions.Posts.Create }));
+                options.AddPolicy(BlogPermissions.Posts.Update, policy => policy.AddRequirements(new OperationAuthorizationRequirement { Name = BlogPermissions.Posts.Update }));
+                options.AddPolicy(BlogPermissions.Posts.Delete, policy => policy.AddRequirements(new OperationAuthorizationRequirement { Name = BlogPermissions.Posts.Delete }));
+                options.AddPolicy(BlogPermissions.Posts.Recycle, policy => policy.AddRequirements(new OperationAuthorizationRequirement { Name = BlogPermissions.Posts.Recycle }));
+                options.AddPolicy(BlogPermissions.Posts.Restore, policy => policy.AddRequirements(new OperationAuthorizationRequirement { Name = BlogPermissions.Posts.Restore }));
+            });
 
-            services.AddSingleton<IAuthorizationHandler, CreatorAuthorizationHandler<Post>>();
+            services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
             SqlMapper.AddTypeHandler(typeof(List<int>), new JsonTypeHandler());
             SqlMapper.AddTypeHandler(typeof(List<string>), new JsonTypeHandler());
@@ -99,17 +96,9 @@ namespace Blog.MVC
 
             services.AddCos();
 
-            //services.AddAntiforgery(options =>
-            //                        {
-            //                            options.Cookie.Name = BlogConsts.CsrfName;
-            //                            options.FormFieldName = $"{BlogConsts.CsrfName}-INPUT";
-            //                            options.HeaderName = "X-XSRF-TOKEN";
-            //                        });
-
             services.AddControllersWithViews(options =>
             {
                 options.SuppressAsyncSuffixInActionNames = false;
-                //options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             }).AddRazorRuntimeCompilation();
         }
 
@@ -122,11 +111,10 @@ namespace Blog.MVC
             }
             else
             {
-                app.UseExceptionHandler("/error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseExceptionHandler(async context => await MiddlewareExtensions.HandleExceptionAsync(context));
                 app.UseHsts();
-                app.UseStatusCodePagesWithReExecute("/error", "?statuscode={0}");
             }
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
