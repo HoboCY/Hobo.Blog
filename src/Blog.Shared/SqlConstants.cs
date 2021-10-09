@@ -27,9 +27,6 @@
 
         public const string GetPost = @"SELECT BIN_TO_UUID(id) AS Id,title AS Title,content AS Content,category_ids AS CategoryIds,BIN_TO_UUID(creator_id) AS CreatorId FROM post WHERE id = UUID_TO_BIN(@id) AND IsDeleted = 0";
 
-        public const string GetOwnPost =
-            @"SELECT BIN_TO_UUID(id) AS Id,title AS Title,content AS Content,category_ids AS CategoryIds,BIN_TO_UUID(creator_id) AS CreatorId FROM post WHERE id = UUID_TO_BIN(@id) AND IsDeleted = 0";
-
         public const string GetPostsPage =
             @"SELECT BIN_TO_UUID(p.id) AS Id,p.title AS Title,p.content_abstract AS ContentAbstract,u.username AS UserName,BIN_TO_UUID(p.creator_id) AS CreatorId,p.creation_time AS CreationTime FROM post p LEFT JOIN app_user u ON p.creator_id = u.id WHERE p.isdeleted = 0 ORDER BY p.creation_time DESC LIMIT @skipCount,@pageSize";
 
@@ -56,24 +53,32 @@
         public const string UpdatePost =
             @"UPDATE post SET title = @Title,content = @Content,content_abstract = @ContentAbstract,category_ids = @CategoryIds WHERE id = UUID_TO_BIN(@id)";
 
-        public const string RecycleOrRestorePost = "UPDATE post SET isdeleted = @IsDeleted WHERE id = UUID_TO_BIN(@Id)";
+        public const string RecycleOrRestorePost = @"UPDATE post SET isdeleted = @IsDeleted WHERE id = UUID_TO_BIN(@Id)";
 
-        public const string DeletePost = "DELETE FROM post WHERE id = UUID_TO_BIN(@Id)";
+        public const string DeletePost = @"DELETE FROM post WHERE id = UUID_TO_BIN(@Id)";
 
         #endregion
 
         #region User
 
         public const string Login =
-            "SELECT BIN_TO_UUID(id) AS Id,email AS Email,email_confirmed AS EmailConfirmed,password AS Password FROM `app_user` WHERE email = @Email";
+            @"SELECT BIN_TO_UUID(id) AS Id,email AS Email,email_confirmed AS EmailConfirmed,password AS Password FROM `app_user` WHERE email = @Email";
 
         public const string GetUsersPage = "SELECT BIN_TO_UUID(id) AS Id,username AS Username,email AS Email,email_confirmed AS EmailConfirmed,creation_time AS CreationTime,last_modify_time AS LastModifyTime FROM `app_user` WHERE id != UUID_TO_BIN(@UserId) ORDER BY creation_time DESC LIMIT @skipCount,@pageSize";
 
         public const string GetUsersTotalCount =
-            "SELECT COUNT(id) FROM `app_user` WHERE id != UUID_TO_BIN(@UserId)";
+            @"SELECT COUNT(id) FROM `app_user` WHERE id != UUID_TO_BIN(@UserId)";
 
         public const string ConfirmUser =
-            "UPDATE `app_user` SET email_confirmed = @Confirmed WHERE id = UUID_TO_BIN(@Id)";
+            @"UPDATE `app_user` SET email_confirmed = @Confirmed WHERE id = UUID_TO_BIN(@Id)";
+
+        public const string GetRoleIds = @"SELECT role_id AS RoleId FROM user_role WHERE user_id = UUID_TO_BIN(@id)";
+
+        public const string GetRoleNames = @"SELECT role_name AS RoleName FROM role WHERE id IN @RoleIds";
+
+        public const string GetRoleIdsByNames = @"SELECT id AS Id FROM role WHERE role_name IN @Roles";
+
+        public const string CheckRolePermission = @"SELECT 1 FROM role_permission WHERE role_id IN @RoleIds AND permission_name = @Permission LIMIT 1";
 
         #endregion
     }
