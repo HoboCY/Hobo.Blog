@@ -74,13 +74,9 @@
         public const string ConfirmUser =
             @"UPDATE `app_user` SET email_confirmed = @Confirmed WHERE id = UUID_TO_BIN(@Id)";
 
-        public const string GetRoleIds = @"SELECT role_id AS RoleId FROM user_role WHERE user_id = UUID_TO_BIN(@id)";
+        public const string GetUserRoles = @"SELECT r.role_name AS RoleName FROM user_role ur LEFT JOIN role r ON r.id = ur.role_id WHERE ur.user_id = UUID_TO_BIN(@UserId)";
 
-        public const string GetRoleNames = @"SELECT role_name AS RoleName FROM role WHERE id IN @RoleIds";
-
-        public const string GetRoleIdsByNames = @"SELECT id AS Id FROM role WHERE role_name IN @Roles";
-
-        public const string CheckRolePermission = @"SELECT 1 FROM role_permission WHERE role_id IN @RoleIds AND permission_name = @Permission LIMIT 1";
+        public const string CheckRolePermission = @"SELECT 1 FROM role_permission p LEFT JOIN role r ON p.role_id = r.id WHERE r.role_name IN @Roles AND permission_name = @PermissionName LIMIT 1";
 
         #endregion
     }

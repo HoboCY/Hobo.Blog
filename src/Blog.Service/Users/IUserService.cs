@@ -16,8 +16,6 @@ namespace Blog.Service.Users
 
         Task ConfirmAsync(string id, bool confirmed);
 
-        Task<List<string>> GetRolesAsync(string id);
-
         Task<bool> CheckAsync(string permissionName, List<string> roles);
     }
 }

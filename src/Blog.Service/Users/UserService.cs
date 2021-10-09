@@ -61,18 +61,14 @@ namespace Blog.Service.Users
             await _repository.UpdateAsync(SqlConstants.ConfirmUser, new { id, confirmed });
         }
 
-        public async Task<List<string>> GetRolesAsync(string id)
-        {
-            var roleIds = (await _repository.GetListAsync<UserRole>(SqlConstants.GetRoleIds, new { id })).Select(u => u.RoleId).ToList();
-            var roles = await _repository.GetListAsync<Role>(SqlConstants.GetRoleNames, new { RoleIds = roleIds.ToArray() });
-            return roles.Select(r => r.RoleName).ToList();
-        }
-
         public async Task<bool> CheckAsync(string permissionName, List<string> roles)
         {
-            var roleIds = (await _repository.GetListAsync<Role>(SqlConstants.GetRoleIdsByNames, new { Roles = roles.ToArray() })).Select(r => r.Id).ToList();
             var isGranted = await _repository.AnyAsync(SqlConstants.CheckRolePermission,
-                new { RoleIds = roleIds.ToArray(), Permission = permissionName });
+                new
+                {
+                    permissionName,
+                    Roles = roles.ToArray()
+                });
             return isGranted;
         }
     }

@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Blog.Permissions;
+using Blog.Service.Roles;
 using Blog.Service.Users;
 using Blog.ViewModels.Users;
 using Microsoft.AspNetCore.Authentication;
@@ -23,14 +24,17 @@ namespace Blog.MVC.Controllers
     public class UsersController : BlogController
     {
         private readonly IUserService _userService;
+        private readonly IRoleService _roleService;
         private readonly IConfiguration _configuration;
 
         public UsersController(
             IUserService userService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IRoleService roleService)
         {
             _userService = userService;
             _configuration = configuration;
+            _roleService = roleService;
         }
 
         [HttpPost("login")]
@@ -43,7 +47,7 @@ namespace Blog.MVC.Controllers
                 new Claim(ClaimTypes.Email,user.Email)
             };
 
-            var roles = await _userService.GetRolesAsync(user.Id);
+            var roles = await _roleService.GetRolesAsync(user.Id);
 
             foreach (var role in roles)
             {
@@ -60,12 +64,6 @@ namespace Blog.MVC.Controllers
                 signingCredentials: credential);
 
             return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
-        }
-
-        [HttpGet("check")]
-        public IActionResult CheckAuthentication()
-        {
-            return Ok();
         }
 
         [HttpGet]
