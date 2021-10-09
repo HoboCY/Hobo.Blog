@@ -53,8 +53,7 @@ namespace Blog.Data.Repositories
         public async Task<TEntity> GetAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new()
         {
             await using var conn = new MySqlConnection(_connectionString);
-            var entity = await conn.QueryFirstOrDefaultAsync<TEntity>(sql, parameter);
-            return entity ?? throw new BlogEntityNotFoundException(typeof(TEntity), parameter);
+            return await conn.QueryFirstOrDefaultAsync<TEntity>(sql, parameter);
         }
 
         public async Task<IEnumerable<TEntity>> GetListAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new()
@@ -68,7 +67,7 @@ namespace Blog.Data.Repositories
         {
             await using var conn = new MySqlConnection(_connectionString);
             var result = await conn.ExecuteAsync(sql, parameter);
-            if (result <= 0) throw new BlogOperationException(BlogConstants.CreationError);
+            if (result <= 0) throw new BlogException(500, BlogConstants.CreationError);
         }
 
         public async Task InsertManyAsync(string sql, object parameters = null)
@@ -79,12 +78,12 @@ namespace Blog.Data.Repositories
             try
             {
                 var result = await transaction.ExecuteAsync(sql, parameters);
-                if (result <= 0) throw new BlogOperationException(BlogConstants.CreationError);
+                if (result <= 0) throw new BlogException(500, BlogConstants.CreationError);
             }
             catch (Exception e)
             {
                 await transaction.RollbackAsync();
-                throw new BlogOperationException(BlogConstants.CreationError, e);
+                throw new BlogException(500, BlogConstants.CreationError, e);
             }
         }
 
@@ -92,7 +91,7 @@ namespace Blog.Data.Repositories
         {
             await using var conn = new MySqlConnection(_connectionString);
             var result = await conn.ExecuteAsync(sql, parameter);
-            if (result <= 0) throw new BlogOperationException(BlogConstants.UpdateError);
+            if (result <= 0) throw new BlogException(500, BlogConstants.UpdateError);
         }
 
         public async Task UpdateManyAsync(string sql, object parameters = null)
@@ -103,12 +102,12 @@ namespace Blog.Data.Repositories
             try
             {
                 var result = await transaction.ExecuteAsync(sql, parameters);
-                if (result <= 0) throw new BlogOperationException(BlogConstants.UpdateError);
+                if (result <= 0) throw new BlogException(500, BlogConstants.UpdateError);
             }
             catch (Exception e)
             {
                 await transaction.RollbackAsync();
-                throw new BlogOperationException(BlogConstants.UpdateError, e);
+                throw new BlogException(500, BlogConstants.UpdateError, e);
             }
         }
 
@@ -116,7 +115,7 @@ namespace Blog.Data.Repositories
         {
             await using var conn = new MySqlConnection(_connectionString);
             var result = await conn.ExecuteAsync(sql, parameter);
-            if (result <= 0) throw new BlogOperationException(BlogConstants.DeletionError);
+            if (result <= 0) throw new BlogException(500, BlogConstants.DeletionError);
         }
 
         public async Task DeleteManyAsync(string sql, object parameters = null)
@@ -127,12 +126,12 @@ namespace Blog.Data.Repositories
             try
             {
                 var result = await transaction.ExecuteAsync(sql, parameters);
-                if (result <= 0) throw new BlogOperationException(BlogConstants.DeletionError);
+                if (result <= 0) throw new BlogException(500, BlogConstants.DeletionError);
             }
             catch (Exception e)
             {
                 await transaction.RollbackAsync();
-                throw new BlogOperationException(BlogConstants.DeletionError, e);
+                throw new BlogException(500, BlogConstants.DeletionError, e);
             }
         }
 
@@ -153,7 +152,7 @@ namespace Blog.Data.Repositories
             catch (Exception e)
             {
                 await transaction.RollbackAsync();
-                throw new BlogOperationException("操作执行失败", e);
+                throw new BlogException(500, "操作执行失败", e);
             }
         }
     }
