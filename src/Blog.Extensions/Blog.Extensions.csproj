@@ -1,13 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Markdig" Version="0.26.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+		<PackageReference Include="NUglify" Version="1.16.0" />
+		<PackageReference Include="TimeZoneConverter" Version="3.5.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Markdig" Version="0.26.0" />
-    <PackageReference Include="NUglify" Version="1.16.0" />
-    <PackageReference Include="TimeZoneConverter" Version="3.5.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Blog.Exceptions\Blog.Exceptions.csproj" />
+		<ProjectReference Include="..\Blog.Shared\Blog.Shared.csproj" />
+	</ItemGroup>
 
 </Project>
