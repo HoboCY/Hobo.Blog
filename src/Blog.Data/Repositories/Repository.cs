@@ -21,15 +21,14 @@ namespace Blog.Data.Repositories
         {
             var connectionString = configuration.GetConnectionString(BlogConstants.ConnectionStringName);
             if (string.IsNullOrWhiteSpace(connectionString))
-                throw new ArgumentNullException(nameof(connectionString), "Invalid ConnectionString");
+                throw new ArgumentNullException(nameof(connectionString), BlogConstants.InvalidConnectionString);
             _connectionString = connectionString;
         }
 
-        public async Task<TEntity> FindAsync<TEntity>(string sql, object id) where TEntity : class, new()
+        public async Task<TEntity> FindAsync<TEntity, TKey>(string sql, TKey id) where TEntity : class, new()
         {
             await using var conn = new MySqlConnection(_connectionString);
-            var entity = await conn.QuerySingleOrDefaultAsync<TEntity>(sql, new { id });
-            return entity ?? throw new BlogEntityNotFoundException(typeof(TEntity), id);
+            return await conn.QuerySingleOrDefaultAsync<TEntity>(sql, new { id });
         }
 
         public async Task<int> CountAsync(string sql, object parameter = null)
@@ -69,7 +68,7 @@ namespace Blog.Data.Repositories
         {
             await using var conn = new MySqlConnection(_connectionString);
             var result = await conn.ExecuteAsync(sql, parameter);
-            if (result <= 0) throw new InvalidOperationException("Entity creation failed");
+            if (result <= 0) throw new BlogOperationException(BlogConstants.CreationError);
         }
 
         public async Task InsertManyAsync(string sql, object parameters = null)
@@ -80,12 +79,12 @@ namespace Blog.Data.Repositories
             try
             {
                 var result = await transaction.ExecuteAsync(sql, parameters);
-                if (result <= 0) throw new InvalidOperationException("Entities creation failed");
+                if (result <= 0) throw new BlogOperationException(BlogConstants.CreationError);
             }
             catch (Exception e)
             {
                 await transaction.RollbackAsync();
-                throw new InvalidOperationException("Entities creation failed", e);
+                throw new BlogOperationException(BlogConstants.CreationError, e);
             }
         }
 
@@ -93,7 +92,7 @@ namespace Blog.Data.Repositories
         {
             await using var conn = new MySqlConnection(_connectionString);
             var result = await conn.ExecuteAsync(sql, parameter);
-            if (result <= 0) throw new InvalidOperationException("Entity update failed");
+            if (result <= 0) throw new BlogOperationException(BlogConstants.UpdateError);
         }
 
         public async Task UpdateManyAsync(string sql, object parameters = null)
@@ -104,12 +103,12 @@ namespace Blog.Data.Repositories
             try
             {
                 var result = await transaction.ExecuteAsync(sql, parameters);
-                if (result <= 0) throw new InvalidOperationException("Entities update failed");
+                if (result <= 0) throw new BlogOperationException(BlogConstants.UpdateError);
             }
             catch (Exception e)
             {
                 await transaction.RollbackAsync();
-                throw new InvalidOperationException("Entities update failed", e);
+                throw new BlogOperationException(BlogConstants.UpdateError, e);
             }
         }
 
@@ -117,7 +116,7 @@ namespace Blog.Data.Repositories
         {
             await using var conn = new MySqlConnection(_connectionString);
             var result = await conn.ExecuteAsync(sql, parameter);
-            if (result <= 0) throw new InvalidOperationException("Entity deletion failed");
+            if (result <= 0) throw new BlogOperationException(BlogConstants.DeletionError);
         }
 
         public async Task DeleteManyAsync(string sql, object parameters = null)
@@ -128,12 +127,12 @@ namespace Blog.Data.Repositories
             try
             {
                 var result = await transaction.ExecuteAsync(sql, parameters);
-                if (result <= 0) throw new InvalidOperationException("Entities deletion failed");
+                if (result <= 0) throw new BlogOperationException(BlogConstants.DeletionError);
             }
             catch (Exception e)
             {
                 await transaction.RollbackAsync();
-                throw new InvalidOperationException("Entities deletion failed", e);
+                throw new BlogOperationException(BlogConstants.DeletionError, e);
             }
         }
 
@@ -154,7 +153,7 @@ namespace Blog.Data.Repositories
             catch (Exception e)
             {
                 await transaction.RollbackAsync();
-                throw new InvalidOperationException("Execute failed", e);
+                throw new BlogOperationException("操作执行失败", e);
             }
         }
     }

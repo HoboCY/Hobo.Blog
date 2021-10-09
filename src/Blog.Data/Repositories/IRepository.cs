@@ -7,7 +7,7 @@ namespace Blog.Data.Repositories
 {
     public interface IRepository
     {
-        Task<TEntity> FindAsync<TEntity>(string sql, object id) where TEntity : class, new();
+        Task<TEntity> FindAsync<TEntity,TKey>(string sql, TKey id) where TEntity : class, new();
 
         Task<int> CountAsync(string sql, object parameter = null);
 
