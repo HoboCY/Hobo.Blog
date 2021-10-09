@@ -61,3 +61,6 @@ PRIMARY KEY(id),
 CONSTRAINT fk_role_permission_id
 FOREIGN KEY(role_id) REFERENCES role(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+ALTER TABLE role_permission
+ADD INDEX idx_role_permission_permissions ((cast((permissions->"$") as unsigned array)));
