@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Blog.MVC.ViewModels.Categories;
 using Blog.Permissions;
 using Blog.Service.Categories;
+using Blog.ViewModels.Categories;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Blog.MVC.Controllers
