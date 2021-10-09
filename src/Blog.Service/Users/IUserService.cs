@@ -15,5 +15,9 @@ namespace Blog.Service.Users
         Task<PagedResultDto<UserListItemViewModel>> GetUsersAsync(string userId, int pageIndex = 1, int pageSize = 10);
 
         Task ConfirmAsync(string id, bool confirmed);
+
+        Task<List<string>> GetRolesAsync(string id);
+
+        Task<bool> CheckAsync(string permissionName, List<string> roles);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Blog.MVC.ViewModels.Categories;
+using Blog.Permissions;
 using Blog.Service.Categories;
 using Microsoft.AspNetCore.Authorization;
 
@@ -32,6 +33,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
+        [Authorize(BlogPermissions.Categories.Create)]
         public async Task<IActionResult> CreateAsync(EditCategoryInputViewModel input)
         {
             await _categoryService.CreateAsync(input.CategoryName);
@@ -39,6 +41,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(BlogPermissions.Categories.Update)]
         public async Task<IActionResult> UpdateAsync(int id, EditCategoryInputViewModel model)
         {
             await _categoryService.UpdateAsync(id, model.CategoryName);
@@ -46,6 +49,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(BlogPermissions.Categories.Delete)]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             if (id <= 0) return BadRequest("参数错误");

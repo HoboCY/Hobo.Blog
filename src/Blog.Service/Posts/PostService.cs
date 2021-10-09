@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Blog.Data.Entities;
 using Blog.Data.Repositories;
@@ -11,8 +10,7 @@ using Blog.Shared;
 using Blog.ViewModels;
 using Blog.ViewModels.Categories;
 using Blog.ViewModels.Posts;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace Blog.Service.Posts
@@ -21,32 +19,19 @@ namespace Blog.Service.Posts
     {
         private readonly IRepository _repository;
         private readonly BlogSettings _blogSettings;
-        private readonly IAuthorizationService _authorizationService;
 
         public PostService(
             IRepository repository,
-            IOptions<BlogSettings> options,
-            IAuthorizationService authorizationService)
+            IOptions<BlogSettings> options)
         {
             _repository = repository;
-            _authorizationService = authorizationService;
             _blogSettings = options.Value;
         }
 
-        public async Task<EditPostViewModel> GetPostAsync(string id, ClaimsPrincipal user)
+        public async Task<Post> GetPostAsync(string id)
         {
-            var post = await _repository.GetAsync<Post>(SqlConstants.GetOwnPost, new { id });
-
-            var authorizationResult = await _authorizationService.AuthorizeAsync(user, post, new OperationAuthorizationRequirement { Name = "Update" });
-            if (!authorizationResult.Succeeded) throw new AuthorizationException("操作失败，当前用户没有该博客的操作权限");
-
-            return new EditPostViewModel
-            {
-                Id = post.Id,
-                Title = post.Title,
-                CategoryIds = post.CategoryIds,
-                Content = post.Content
-            };
+            var post = await _repository.FindAsync<Post, string>(SqlConstants.GetPost, id);
+            return post ?? throw new BlogException(StatusCodes.Status404NotFound, "没有找到相应文章");
         }
 
         public async Task<List<PostListItemViewModel>> GetPostsAsync(int pageIndex = 1, int pageSize = 10)
@@ -102,7 +87,9 @@ namespace Blog.Service.Posts
 
         public async Task<PostPreviewViewModel> GetPreviewAsync(string id)
         {
-            var post = await _repository.FindAsync<Post>(SqlConstants.GetPreviewPost, id);
+            var post = await _repository.FindAsync<Post, string>(SqlConstants.GetPreviewPost, id);
+
+            if (post == null) throw new BlogException(StatusCodes.Status404NotFound, "没有找到相应文章");
 
             var categories =
                 await _repository.GetListAsync<CategoryViewModel>(SqlConstants.GetCategoriesByPost, new { ids = post.CategoryIds.ToArray() });
@@ -125,7 +112,7 @@ namespace Blog.Service.Posts
         {
             var count = await _repository.CountAsync(SqlConstants.CategoriesCountByIds, new { ids = input.CategoryIds.ToArray() });
             if (count < input.CategoryIds.Count)
-                throw new ArgumentNullException(nameof(input.CategoryIds));
+                throw new BlogException(StatusCodes.Status400BadRequest, $"参数错误：{nameof(input.CategoryIds)}");
 
             var id = await _repository.GenerateIdAsync();
 
@@ -142,16 +129,14 @@ namespace Blog.Service.Posts
             await _repository.InsertAsync(SqlConstants.AddPost, post);
         }
 
-        public async Task UpdateAsync(string id, PostInputViewModel input, ClaimsPrincipal user)
+        public async Task UpdateAsync(string id, PostInputViewModel input)
         {
             var count = await _repository.CountAsync(SqlConstants.CategoriesCountByIds, new { ids = input.CategoryIds.ToArray() });
             if (count < input.CategoryIds.Count)
-                throw new ArgumentNullException(nameof(input.CategoryIds));
+                throw new BlogException(StatusCodes.Status400BadRequest, $"参数错误：{nameof(input.CategoryIds)}");
 
-            var post = await _repository.FindAsync<Post>(SqlConstants.GetPost, id);
-
-            var authorizationResult = await _authorizationService.AuthorizeAsync(user, post, new OperationAuthorizationRequirement { Name = "Update" });
-            if (!authorizationResult.Succeeded) throw new AuthorizationException("更新失败，当前用户没有该博客的操作权限");
+            var post = await _repository.FindAsync<Post, string>(SqlConstants.GetPost, id);
+            if (post == null) throw new BlogException(StatusCodes.Status404NotFound, "没有找到相应文章");
 
             var parameters = new
             {
@@ -165,32 +150,26 @@ namespace Blog.Service.Posts
             await _repository.UpdateAsync(SqlConstants.UpdatePost, parameters);
         }
 
-        public async Task RecycleAsync(string id, ClaimsPrincipal user)
+        public async Task RecycleAsync(string id)
         {
-            var post = await _repository.FindAsync<Post>(SqlConstants.GetPost, id);
-
-            var authorizationResult = await _authorizationService.AuthorizeAsync(user, post, new OperationAuthorizationRequirement { Name = "Recycle" });
-            if (!authorizationResult.Succeeded) throw new AuthorizationException("操作失败，当前用户没有该博客的操作权限");
+            var post = await _repository.FindAsync<Post, string>(SqlConstants.GetPost, id);
+            if (post == null) throw new BlogException(StatusCodes.Status404NotFound, "没有找到相应文章");
 
             await _repository.UpdateAsync(SqlConstants.RecycleOrRestorePost, new { isdeleted = 1, id });
         }
 
-        public async Task RestoreAsync(string id, ClaimsPrincipal user)
+        public async Task RestoreAsync(string id)
         {
-            var post = await _repository.FindAsync<Post>(SqlConstants.GetPost, id);
-
-            var authorizationResult = await _authorizationService.AuthorizeAsync(user, post, new OperationAuthorizationRequirement { Name = "Restore" });
-            if (!authorizationResult.Succeeded) throw new AuthorizationException("恢复失败，当前用户没有该博客的操作权限");
+            var post = await _repository.FindAsync<Post, string>(SqlConstants.GetPost, id);
+            if (post == null) throw new BlogException(StatusCodes.Status404NotFound, "没有找到相应文章");
 
             await _repository.UpdateAsync(SqlConstants.RecycleOrRestorePost, new { isdeleted = 0, id });
         }
 
-        public async Task DeleteAsync(string id, ClaimsPrincipal user)
+        public async Task DeleteAsync(string id)
         {
-            var post = await _repository.FindAsync<Post>(SqlConstants.GetPost, id);
-
-            var authorizationResult = await _authorizationService.AuthorizeAsync(user, post, new OperationAuthorizationRequirement { Name = "Delete" });
-            if (!authorizationResult.Succeeded) throw new AuthorizationException("删除失败，当前用户没有该博客的操作权限");
+            var post = _repository.FindAsync<Post, string>(SqlConstants.GetPost, id);
+            if (post == null) return;
 
             await _repository.DeleteAsync(SqlConstants.DeletePost, new { id });
         }

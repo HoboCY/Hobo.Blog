@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blog.Data.Entities;
 using Blog.ViewModels;
@@ -10,7 +8,7 @@ namespace Blog.Service.Posts
 {
     public interface IPostService
     {
-        Task<EditPostViewModel> GetPostAsync(string id, ClaimsPrincipal user);
+        Task<Post> GetPostAsync(string id);
 
         Task<List<PostListItemViewModel>> GetPostsAsync(int? categoryId = null, int pageIndex = 1, int pageSize = 10);
 
@@ -22,12 +20,12 @@ namespace Blog.Service.Posts
 
         Task CreateAsync(PostInputViewModel input, string userId);
 
-        Task UpdateAsync(string id, PostInputViewModel input, ClaimsPrincipal user);
+        Task UpdateAsync(string id, PostInputViewModel input);
 
-        Task RecycleAsync(string id, ClaimsPrincipal user);
+        Task RecycleAsync(string id);
 
-        Task RestoreAsync(string id, ClaimsPrincipal user);
+        Task RestoreAsync(string id);
 
-        Task DeleteAsync(string id, ClaimsPrincipal user);
+        Task DeleteAsync(string id);
     }
 }

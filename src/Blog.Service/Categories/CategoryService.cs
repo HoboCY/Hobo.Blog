@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Blog.Data;
-using Blog.Data.Entities;
 using Blog.Data.Repositories;
 using Blog.Exceptions;
 using Blog.Shared;
 using Blog.ViewModels.Categories;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 
 namespace Blog.Service.Categories
 {
@@ -24,7 +20,8 @@ namespace Blog.Service.Categories
 
         public async Task<CategoryViewModel> GetCategoryAsync(int id)
         {
-            return await _repository.FindAsync<CategoryViewModel>(SqlConstants.GetCategoryById, id);
+            var category = await _repository.FindAsync<CategoryViewModel, int>(SqlConstants.GetCategoryById, id);
+            return category ?? throw new BlogException(StatusCodes.Status404NotFound, "没有找到分类");
         }
 
         public async Task<IReadOnlyList<CategoryViewModel>> GetCategoriesAsync()
@@ -39,11 +36,15 @@ namespace Blog.Service.Categories
 
         public async Task UpdateAsync(int id, string categoryName)
         {
+            var category = await _repository.FindAsync<CategoryViewModel, int>(SqlConstants.GetCategoryById, id);
+            if (category == null) throw new BlogException(StatusCodes.Status404NotFound, "没有找到分类");
             await _repository.UpdateAsync(SqlConstants.UpdateCategory, new { id, categoryName });
         }
 
         public async Task DeleteAsync(int id)
         {
+            var category = await _repository.FindAsync<CategoryViewModel, int>(SqlConstants.GetCategoryById, id);
+            if (category == null) return;
             await _repository.DeleteAsync(SqlConstants.DeleteCategory, new { id });
         }
     }

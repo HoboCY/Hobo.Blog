@@ -6,10 +6,12 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Blog.Permissions;
 using Blog.Service.Users;
 using Blog.ViewModels.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -41,6 +43,13 @@ namespace Blog.MVC.Controllers
                 new Claim(ClaimTypes.Email,user.Email)
             };
 
+            var roles = await _userService.GetRolesAsync(user.Id);
+
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtOptions:Key"]));
             var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -60,6 +69,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpGet]
+        [Authorize(BlogPermissions.Users.Get)]
         public async Task<IActionResult> GetAsync(int pageIndex = 1, int pageSize = 10)
         {
             var userId = UserId();
@@ -67,6 +77,7 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [Authorize(BlogPermissions.Users.Confirm)]
         public async Task<IActionResult> ConfirmAsync(Guid id, bool confirmed)
         {
             await _userService.ConfirmAsync(id.ToString(), confirmed);

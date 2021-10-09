@@ -5,10 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Blog.Data.Entities;
 using Blog.Data.Repositories;
+using Blog.Exceptions;
 using Blog.Extensions;
 using Blog.Shared;
 using Blog.ViewModels;
 using Blog.ViewModels.Users;
+using Microsoft.AspNetCore.Http;
 
 namespace Blog.Service.Users
 {
@@ -24,9 +26,11 @@ namespace Blog.Service.Users
         public async Task<LoginResultViewModel> LoginAsync(string email, string password)
         {
             var user = await _repository.GetAsync<LoginResultViewModel>(SqlConstants.Login, new { email });
-            if (!user.EmailConfirmed) throw new Exception();
+            if (user == null) throw new BlogException(StatusCodes.Status404NotFound, "没有找到该用户");
 
-            if (user.Password != password.ToMd5()) throw new Exception();
+            if (!user.EmailConfirmed) throw new BlogException(StatusCodes.Status400BadRequest, "用户邮箱未验证");
+
+            if (user.Password != password.ToMd5()) throw new BlogException(StatusCodes.Status400BadRequest, "用户密码错误");
             return user;
         }
 
@@ -52,7 +56,24 @@ namespace Blog.Service.Users
 
         public async Task ConfirmAsync(string id, bool confirmed)
         {
+            var user = await _repository.FindAsync<UserListItemViewModel, string>(SqlConstants.GetUser, id);
+            if (user == null) throw new BlogException(StatusCodes.Status404NotFound, "没有找到账号");
             await _repository.UpdateAsync(SqlConstants.ConfirmUser, new { id, confirmed });
+        }
+
+        public async Task<List<string>> GetRolesAsync(string id)
+        {
+            var roleIds = (await _repository.GetListAsync<UserRole>(SqlConstants.GetRoleIds, new { id })).Select(u => u.RoleId).ToList();
+            var roles = await _repository.GetListAsync<Role>(SqlConstants.GetRoleNames, new { RoleIds = roleIds.ToArray() });
+            return roles.Select(r => r.RoleName).ToList();
+        }
+
+        public async Task<bool> CheckAsync(string permissionName, List<string> roles)
+        {
+            var roleIds = (await _repository.GetListAsync<Role>(SqlConstants.GetRoleIdsByNames, new { Roles = roles.ToArray() })).Select(r => r.Id).ToList();
+            var isGranted = await _repository.AnyAsync(SqlConstants.CheckRolePermission,
+                new { RoleIds = roleIds.ToArray(), Permission = permissionName });
+            return isGranted;
         }
     }
 }

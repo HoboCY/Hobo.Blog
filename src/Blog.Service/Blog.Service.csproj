@@ -1,20 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MailKit" Version="2.15.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="5.0.10" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="MailKit" Version="2.15.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Blog.Data\Blog.Data.csproj" />
-    <ProjectReference Include="..\Blog.Exceptions\Blog.Exceptions.csproj" />
-    <ProjectReference Include="..\Blog.Extensions\Blog.Extensions.csproj" />
-    <ProjectReference Include="..\Blog.ViewModels\Blog.ViewModels.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Blog.Data\Blog.Data.csproj" />
+		<ProjectReference Include="..\Blog.Exceptions\Blog.Exceptions.csproj" />
+		<ProjectReference Include="..\Blog.Extensions\Blog.Extensions.csproj" />
+		<ProjectReference Include="..\Blog.ViewModels\Blog.ViewModels.csproj" />
+	</ItemGroup>
 
 </Project>

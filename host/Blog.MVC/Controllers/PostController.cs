@@ -53,8 +53,6 @@ namespace Blog.MVC.Controllers
         public async Task<IActionResult> Preview(string postId)
         {
             var post = await _postService.GetPreviewAsync(postId);
-            if (post == null) return NotFound("无法加载文章");
-
             return View(post);
         }
     }

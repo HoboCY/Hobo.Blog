@@ -64,6 +64,8 @@
         public const string Login =
             @"SELECT BIN_TO_UUID(id) AS Id,email AS Email,email_confirmed AS EmailConfirmed,password AS Password FROM `app_user` WHERE email = @Email";
 
+        public const string GetUser = "SELECT BIN_TO_UUID(id) AS Id,username AS Username,email AS Email,email_confirmed AS EmailConfirmed,creation_time AS CreationTime,last_modify_time AS LastModifyTime FROM `app_user` WHERE id != UUID_TO_BIN(@UserId)";
+
         public const string GetUsersPage = "SELECT BIN_TO_UUID(id) AS Id,username AS Username,email AS Email,email_confirmed AS EmailConfirmed,creation_time AS CreationTime,last_modify_time AS LastModifyTime FROM `app_user` WHERE id != UUID_TO_BIN(@UserId) ORDER BY creation_time DESC LIMIT @skipCount,@pageSize";
 
         public const string GetUsersTotalCount =
