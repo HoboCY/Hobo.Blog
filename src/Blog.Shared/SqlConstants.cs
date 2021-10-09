@@ -79,5 +79,14 @@
         public const string CheckRolePermission = @"SELECT 1 FROM role_permission p LEFT JOIN role r ON p.role_id = r.id WHERE r.role_name IN @Roles AND permission_name = @PermissionName LIMIT 1";
 
         #endregion
+
+        #region Role
+
+        public const string AddRole = @"INSERT INTO role (role_name) VALUES (@Role)";
+
+        public const string AddRolePermissions = @"INSERT INSERT INTO role_permission (role_id,permissions) VALUES (@RoleId,@Permissions)";
+
+        #endregion
+
     }
 }

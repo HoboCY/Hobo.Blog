@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Blog.Data.Entities;
 using Blog.Data.Repositories;
 using Blog.Shared;
+using Blog.ViewModels.Roles;
 
 namespace Blog.Service.Roles
 {
@@ -22,6 +23,21 @@ namespace Blog.Service.Roles
         {
             return (await _repository.GetListAsync<Role>(SqlConstants.GetUserRoles, new { userId }))
                 .Select(r => r.RoleName).ToList();
+        }
+
+        public Task<List<Role>> GetRolesAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task CreateRoleAsync(string role)
+        {
+            await _repository.InsertAsync(SqlConstants.AddRole, new { role });
+        }
+
+        public async Task GrantRolePermissionsAsync(int roleId, List<string> permissions)
+        {
+            await _repository.InsertAsync(SqlConstants.AddRolePermissions, new { roleId, permissions });
         }
     }
 }
