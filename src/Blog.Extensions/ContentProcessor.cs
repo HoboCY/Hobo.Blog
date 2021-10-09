@@ -122,12 +122,12 @@ namespace Blog.Extensions
 
         public static bool IsLetter(this char c)
         {
-            return 'A' <= c && c <= 'Z' || 'a' <= c && c <= 'z';
+            return c is >= 'A' and <= 'Z' or >= 'a' and <= 'z';
         }
 
         public static bool IsSpace(this char c)
         {
-            return c == '\r' || c == '\n' || c == '\t' || c == '\f' || c == ' ';
+            return c is '\r' or '\n' or '\t' or '\f' or ' ';
         }
 
         public static string MarkdownToContent(this string markdown, MarkdownConvertType type, bool disableHtml = true)
