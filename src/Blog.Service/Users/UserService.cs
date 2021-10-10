@@ -63,7 +63,7 @@ namespace Blog.Service.Users
 
         public async Task<bool> CheckAsync(string permissionName, List<string> roles)
         {
-            var isGranted = await _repository.AnyAsync(SqlConstants.CheckRolePermission,
+            var isGranted = await _repository.AnyAsync(SqlConstants.CheckRolePermissions,
                 new
                 {
                     permissionName,

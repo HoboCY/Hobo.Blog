@@ -76,15 +76,22 @@
 
         public const string GetUserRoles = @"SELECT r.role_name AS RoleName FROM user_role ur LEFT JOIN role r ON r.id = ur.role_id WHERE ur.user_id = UUID_TO_BIN(@UserId)";
 
-        public const string CheckRolePermission = @"SELECT 1 FROM role_permission p LEFT JOIN role r ON p.role_id = r.id WHERE r.role_name IN @Roles AND permission_name = @PermissionName LIMIT 1";
+        public const string CheckRolePermissions = @"SELECT 1 FROM role_permission p LEFT JOIN role r ON p.role_id = r.id WHERE r.role_name IN @Roles AND JSON_CONTAINS(permissions,'@Permission') LIMIT 1";
 
         #endregion
 
         #region Role
 
-        public const string AddRole = @"INSERT INTO role (role_name) VALUES (@Role)";
+        public const string CreateRole = @"INSERT INTO role (role_name) VALUES (@Role)";
 
-        public const string AddRolePermissions = @"INSERT INSERT INTO role_permission (role_id,permissions) VALUES (@RoleId,@Permissions)";
+        public const string DeleteRole = @"DELETE FROM role WHERE id = @RoleId";
+
+        public const string CheckRolePermissionExist = @"SELECT 1 FROM role_permissions WHERE role_id = @RoleId LIMIT 1";
+
+        public const string CreateRolePermissions = @"INSERT INTO role_permission (role_id,permissions) VALUES (@RoleId,@Permissions)";
+
+        public const string UpdateRolePermissions =
+            @"UPDATE role_permission SET permissions = '@Permissions' WHERE role_id = @RoleId";
 
         #endregion
 

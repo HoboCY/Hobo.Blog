@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Blog.Permissions;
 using Blog.Service.Roles;
 using Blog.ViewModels.Roles;
 using Microsoft.AspNetCore.Authorization;
@@ -18,19 +19,28 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpGet]
-        [Authorize()]
+        [Authorize(BlogPermissions.Roles.Get)]
         public async Task<IActionResult> GetAsync()
         {
            return Ok(await _roleService.GetRolesAsync());
         }
 
         [HttpPost]
-        public async Task CreateAsync(string role)
+        [Authorize(BlogPermissions.Roles.Create)]
+        public async Task CreateAsync(CreateRoleInputViewModel input)
         {
-            await _roleService.CreateRoleAsync(role);
+            await _roleService.CreateRoleAsync(input.Role);
         }
 
-        [HttpPost("{roleId:int}")]
+        [HttpDelete("{roleId:int}")]
+        [Authorize(BlogPermissions.Roles.Delete)]
+        public async Task DeleteAsync(int roleId)
+        {
+            await _roleService.DeleteRoleAsync(roleId);
+        }
+
+        [HttpPost("{roleId:int}/Permissions")]
+        [Authorize(BlogPermissions.Roles.GrantPermissions)]
         public async Task GrantPermissionsAsync(int roleId,CreateRolePermissionsInputViewModel input)
         {
             await _roleService.GrantRolePermissionsAsync(roleId, input.Permissions);

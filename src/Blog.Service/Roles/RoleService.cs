@@ -32,12 +32,25 @@ namespace Blog.Service.Roles
 
         public async Task CreateRoleAsync(string role)
         {
-            await _repository.InsertAsync(SqlConstants.AddRole, new { role });
+            await _repository.InsertAsync(SqlConstants.CreateRole, new { role });
+        }
+
+        public async Task DeleteRoleAsync(int roleId)
+        {
+            await _repository.DeleteAsync(SqlConstants.CreateRole, new { roleId });
         }
 
         public async Task GrantRolePermissionsAsync(int roleId, List<string> permissions)
         {
-            await _repository.InsertAsync(SqlConstants.AddRolePermissions, new { roleId, permissions });
+            var parameter = new { roleId, permissions };
+            var existed = await _repository.AnyAsync(SqlConstants.CheckRolePermissionExist, new { roleId });
+
+            if (!existed)
+            {
+                await _repository.InsertAsync(SqlConstants.CreateRolePermissions, parameter);
+                return;
+            }
+            await _repository.UpdateAsync(SqlConstants.UpdateRolePermissions, parameter);
         }
     }
 }

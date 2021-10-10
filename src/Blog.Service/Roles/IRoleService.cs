@@ -12,6 +12,8 @@ namespace Blog.Service.Roles
 
         Task CreateRoleAsync(string role);
 
+        Task DeleteRoleAsync(int roleId);
+
         Task GrantRolePermissionsAsync(int roleId, List<string> permissions);
     }
 }

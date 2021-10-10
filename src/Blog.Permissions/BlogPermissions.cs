@@ -8,6 +8,8 @@
 
         private const string User = "Blog.Users";
 
+        private const string Role = "Blog.Roles";
+
         public static class Posts
         {
             public const string Get = Post + ".Get";
@@ -39,6 +41,17 @@
             public const string Get = User + ".Get";
 
             public const string Confirm = User + ".Confirm";
+        }
+
+        public static class Roles
+        {
+            public const string Get = Role + ".Get";
+
+            public const string Create = Role + ".Create";
+
+            public const string Delete = Role + ".Delete";
+
+            public const string GrantPermissions = Role + ".Permissions.Grant";
         }
     }
 }
