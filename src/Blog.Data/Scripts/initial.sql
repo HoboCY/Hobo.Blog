@@ -55,12 +55,9 @@ FOREIGN KEY(role_id) REFERENCES role(id) ON DELETE CASCADE ON UPDATE CASCADE
 CREATE TABLE role_permission(
 id BIGINT NOT NULL AUTO_INCREMENT,
 role_id INT(4) NOT NULL,
-permission_name VARCHAR(100) NOT NULL,
+permissions VARCHAR(100) NOT NULL,
 creation_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP(),
 PRIMARY KEY(id),
 CONSTRAINT fk_role_permission_id
 FOREIGN KEY(role_id) REFERENCES role(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
-
-ALTER TABLE role_permission
-ADD INDEX idx_role_permission_permissions ((cast((permissions->"$") as unsigned array)));
