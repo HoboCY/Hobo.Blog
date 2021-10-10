@@ -9,6 +9,7 @@ namespace Blog.MVC.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class RolesController : BlogController
     {
         private readonly IRoleService _roleService;
