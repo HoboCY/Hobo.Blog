@@ -88,12 +88,12 @@
 
         public const string DeleteRole = @"DELETE FROM role WHERE id = @RoleId";
 
-        public const string CheckRolePermissionExist = @"SELECT 1 FROM role_permissions WHERE role_id = @RoleId LIMIT 1";
+        public const string CheckRolePermissionExist = @"SELECT 1 FROM role_permission WHERE role_id = @RoleId LIMIT 1";
 
         public const string CreateRolePermissions = @"INSERT INTO role_permission (role_id,permissions) VALUES (@RoleId,@Permissions)";
 
         public const string UpdateRolePermissions =
-            @"UPDATE role_permission SET permissions = '@Permissions' WHERE role_id = @RoleId";
+            @"UPDATE role_permission SET permissions = @Permissions WHERE role_id = @RoleId";
 
         public const string GetRolePermissions = @"SELECT Permissions.Permission FROM role_permission p JOIN JSON_TABLE(p.permissions,'$[*]' COLUMNS (Permission TEXT PATH '$')) AS Permissions WHERE p.role_id = @RoleId";
         #endregion
