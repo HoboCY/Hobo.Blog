@@ -47,6 +47,10 @@
         {
             public const string Get = Role + ".Get";
 
+            public const string GetAllPermissions = Role + ".GetAllPermissions";
+
+            public const string GetRolePermissions = Role + ".GetRolePermissions";
+
             public const string Create = Role + ".Create";
 
             public const string Delete = Role + ".Delete";
