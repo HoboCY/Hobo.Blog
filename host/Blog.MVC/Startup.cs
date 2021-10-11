@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Tencent.COS.SDK;
 using Blog.Data.Repositories;
 using Blog.Data.TypeHandlers;
@@ -55,7 +54,7 @@ namespace Blog.MVC
             services.AddAuthorization(options =>
             {
                 var permissions = BlogPermissionsExtensions.GetPermissions();
-                permissions.ForEach(p => options.AddPolicy(p, policy => policy.AddRequirements(new OperationAuthorizationRequirement())));
+                permissions.ForEach(p => options.AddPolicy(p, policy => policy.AddRequirements(new OperationAuthorizationRequirement { Name = p })));
             });
 
             services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
@@ -98,21 +97,14 @@ namespace Blog.MVC
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler(async context => await MiddlewareExtensions.HandleExceptionAsync(context));
-                app.UseHsts();
-            }
+            app.UseExceptionHandler(async context => await MiddlewareExtensions.HandleExceptionAsync(context));
+
+            app.UseHsts();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
-
             app.UseCors("default");
             app.UseAuthentication();
             app.UseAuthorization();
