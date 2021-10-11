@@ -59,8 +59,13 @@ namespace Blog.Data.Repositories
         public async Task<IEnumerable<TEntity>> GetListAsync<TEntity>(string sql, object parameter = null) where TEntity : class, new()
         {
             await using var conn = new MySqlConnection(_connectionString);
-            var entities = await conn.QueryAsync<TEntity>(sql, parameter);
-            return entities;
+            return await conn.QueryAsync<TEntity>(sql, parameter);
+        }
+
+        public async Task<IEnumerable<string>> GetListAsync(string sql, object parameter = null)
+        {
+            await using var conn = new MySqlConnection(_connectionString);
+            return await conn.QueryAsync<string>(sql, parameter);
         }
 
         public async Task InsertAsync(string sql, object parameter = null)

@@ -52,19 +52,10 @@ namespace Blog.MVC
                     };
                 });
 
-            //services.Configure<WebEncoderOptions>(options =>
-            //                                      {
-            //                                          options.TextEncoderSettings =
-            //                                              new TextEncoderSettings(UnicodeRanges.All);
-            //                                      });
-
             services.AddAuthorization(options =>
             {
-                options.AddPolicy(BlogPermissions.Posts.Create, policy => policy.AddRequirements(new OperationAuthorizationRequirement { Name = BlogPermissions.Posts.Create }));
-                options.AddPolicy(BlogPermissions.Posts.Update, policy => policy.AddRequirements(new OperationAuthorizationRequirement { Name = BlogPermissions.Posts.Update }));
-                options.AddPolicy(BlogPermissions.Posts.Delete, policy => policy.AddRequirements(new OperationAuthorizationRequirement { Name = BlogPermissions.Posts.Delete }));
-                options.AddPolicy(BlogPermissions.Posts.Recycle, policy => policy.AddRequirements(new OperationAuthorizationRequirement { Name = BlogPermissions.Posts.Recycle }));
-                options.AddPolicy(BlogPermissions.Posts.Restore, policy => policy.AddRequirements(new OperationAuthorizationRequirement { Name = BlogPermissions.Posts.Restore }));
+                var permissions = BlogPermissionsExtensions.GetPermissions();
+                permissions.ForEach(p => options.AddPolicy(p, policy => policy.AddRequirements(new OperationAuthorizationRequirement())));
             });
 
             services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();

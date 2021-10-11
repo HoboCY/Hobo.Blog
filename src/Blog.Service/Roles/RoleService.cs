@@ -25,9 +25,9 @@ namespace Blog.Service.Roles
                 .Select(r => r.RoleName).ToList();
         }
 
-        public Task<List<Role>> GetRolesAsync()
+        public async Task<List<Role>> GetRolesAsync()
         {
-            throw new NotImplementedException();
+            return (await _repository.GetListAsync<Role>(SqlConstants.GetRoles, null)).ToList();
         }
 
         public async Task CreateRoleAsync(string role)
@@ -38,6 +38,11 @@ namespace Blog.Service.Roles
         public async Task DeleteRoleAsync(int roleId)
         {
             await _repository.DeleteAsync(SqlConstants.CreateRole, new { roleId });
+        }
+
+        public async Task<List<string>> GetRolePermissionsAsync(int roleId)
+        {
+           return (await _repository.GetListAsync(SqlConstants.GetRolePermissions, new { roleId })).ToList();
         }
 
         public async Task GrantRolePermissionsAsync(int roleId, List<string> permissions)

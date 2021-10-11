@@ -23,7 +23,7 @@ namespace Blog.MVC.Controllers
         [Authorize(BlogPermissions.Roles.Get)]
         public async Task<IActionResult> GetAsync()
         {
-           return Ok(await _roleService.GetRolesAsync());
+            return Ok(await _roleService.GetRolesAsync());
         }
 
         [HttpPost]
@@ -40,9 +40,23 @@ namespace Blog.MVC.Controllers
             await _roleService.DeleteRoleAsync(roleId);
         }
 
+        [HttpGet("Permissions")]
+        [Authorize(BlogPermissions.Roles.GetAllPermissions)]
+        public IActionResult GetPermissions()
+        {
+            return Ok(BlogPermissionsExtensions.GetPermissions());
+        }
+
+        [HttpGet("{roleId:int}/Permissions")]
+        [Authorize(BlogPermissions.Roles.GetRolePermissions)]
+        public async Task<IActionResult> GetRolePermissionsAsync(int roleId)
+        {
+            return Ok(await _roleService.GetRolePermissionsAsync(roleId));
+        }
+
         [HttpPost("{roleId:int}/Permissions")]
         [Authorize(BlogPermissions.Roles.GrantPermissions)]
-        public async Task GrantPermissionsAsync(int roleId,CreateRolePermissionsInputViewModel input)
+        public async Task GrantPermissionsAsync(int roleId, CreateRolePermissionsInputViewModel input)
         {
             await _roleService.GrantRolePermissionsAsync(roleId, input.Permissions);
         }

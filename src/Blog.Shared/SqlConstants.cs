@@ -82,6 +82,8 @@
 
         #region Role
 
+        public const string GetRoles = @"SELECT id AS Id,role_name AS RoleName FROM role";
+        
         public const string CreateRole = @"INSERT INTO role (role_name) VALUES (@Role)";
 
         public const string DeleteRole = @"DELETE FROM role WHERE id = @RoleId";
@@ -93,6 +95,7 @@
         public const string UpdateRolePermissions =
             @"UPDATE role_permission SET permissions = '@Permissions' WHERE role_id = @RoleId";
 
+        public const string GetRolePermissions = @"SELECT Permissions.Permission FROM role_permission p JOIN JSON_TABLE(p.permissions,'$[*]' COLUMNS (Permission TEXT PATH '$')) AS Permissions WHERE p.role_id = @RoleId";
         #endregion
 
     }
