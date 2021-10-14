@@ -103,5 +103,19 @@
 
         #endregion
 
+        #region Menu
+
+        public const string GetAllMenus =
+            @"SELECT id AS Id,parent_id AS ParentId,url AS Url,level AS Level,text AS Text FROM menu";
+
+        public const string CreateMenu =
+            @"INSERT INTO menu (parent_id,url,text,level) VALUES (@ParentId,@Url,@Text,@Level)";
+
+        public const string GetLastId = @"SELECT LAST_INSERT_ID()";
+
+        public const string GetMenu = @"SELECT id AS Id,parent_id AS ParentId,url AS Url,level AS Level,text AS Text FROM menu WHERE id = @Id";
+
+        #endregion
+
     }
 }

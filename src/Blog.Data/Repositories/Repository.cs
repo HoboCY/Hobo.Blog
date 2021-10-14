@@ -75,6 +75,26 @@ namespace Blog.Data.Repositories
             if (result <= 0) throw new BlogException(500, BlogConstants.CreationError);
         }
 
+        public async Task<int> InsertReturnIdAsync(string sql, object parameter = null)
+        {
+            await using var conn = new MySqlConnection(_connectionString);
+            await conn.OpenAsync();
+            var transaction = await conn.BeginTransactionAsync();
+            try
+            {
+                var result = await transaction.ExecuteAsync(sql, parameter);
+                if (result <= 0) throw new BlogException(500, BlogConstants.CreationError);
+                var id = await transaction.ExecuteScalarAsync<int>(SqlConstants.GetLastId);
+                await transaction.CommitAsync();
+                return id;
+            }
+            catch (Exception e)
+            {
+                await transaction.RollbackAsync();
+                throw new BlogException(500, "操作执行失败", e);
+            }
+        }
+
         public async Task InsertManyAsync(string sql, object parameters = null)
         {
             await using var conn = new MySqlConnection(_connectionString);

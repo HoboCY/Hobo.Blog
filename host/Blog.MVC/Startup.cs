@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Blog.Permissions.AuthorizationHandlers;
+using Blog.Service.Menus;
 using Blog.Service.Roles;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 
@@ -73,6 +74,7 @@ namespace Blog.MVC
             services.AddTransient<IRoleService, RoleService>();
             services.AddTransient<ICategoryService, CategoryService>();
             services.AddTransient<IPostService, PostService>();
+            services.AddTransient<IMenuService, MenuService>();
             services.AddTransient<IEmailService, EmailService>();
 
             services.AddCors(opt =>

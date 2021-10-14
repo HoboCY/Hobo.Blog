@@ -21,6 +21,8 @@ namespace Blog.Data.Repositories
 
         Task<IEnumerable<string>> GetListAsync(string sql, object parameter = null);
 
+        Task<int> InsertReturnIdAsync(string sql, object parameter = null);
+
         Task InsertAsync(string sql, object parameter = null);
 
         Task InsertManyAsync(string sql, object parameters = null);
