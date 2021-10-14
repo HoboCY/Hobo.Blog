@@ -47,7 +47,7 @@ namespace Blog.MVC.Controllers
                 new Claim(ClaimTypes.Email,user.Email)
             };
 
-            var roles = await _roleService.GetRolesAsync(user.Id);
+            var roles = (await _roleService.GetRolesAsync(user.Id)).Select(r => r.RoleName).ToList();
 
             foreach (var role in roles)
             {
@@ -74,12 +74,27 @@ namespace Blog.MVC.Controllers
             return Ok(await _userService.GetUsersAsync(userId, pageIndex, pageSize));
         }
 
-        [HttpPut("{id:guid}")]
+        [HttpPut("{userId:guid}")]
         [Authorize(BlogPermissions.Users.Confirm)]
-        public async Task<IActionResult> ConfirmAsync(Guid id, bool confirmed)
+        public async Task<IActionResult> ConfirmAsync(Guid userId, bool confirmed)
         {
-            await _userService.ConfirmAsync(id.ToString(), confirmed);
+            await _userService.ConfirmAsync(userId.ToString(), confirmed);
             return Ok();
+        }
+
+        [HttpGet("{userId:guid}/Roles")]
+        [Authorize(BlogPermissions.Users.GetRoles)]
+        public async Task<IActionResult> GetUserRolesAsync(Guid userId)
+        {
+            var roles = await _roleService.GetRolesAsync(userId.ToString());
+            return Ok(roles.Select(r=>r.Id).ToList());
+        }
+
+        [HttpPost("{userId:guid}/Roles")]
+        [Authorize(BlogPermissions.Users.SetRoles)]
+        public async Task SetUserRolesAsync(Guid userId, SetUserRolesInputViewModel input)
+        {
+            await _roleService.SetUserRolesAsync(userId.ToString(), input.RoleIds);
         }
     }
 }

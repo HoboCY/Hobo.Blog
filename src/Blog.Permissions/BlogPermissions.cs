@@ -40,6 +40,10 @@
         {
             public const string Get = User + ".Get";
 
+            public const string GetRoles = User + ".GetRoles";
+
+            public const string SetRoles = User + ".SetRoles";
+
             public const string Confirm = User + ".Confirm";
         }
 
@@ -53,7 +57,7 @@
 
             public const string Create = Role + ".Create";
 
-            public const string Delete = Role + ".Delete";
+            public const string Update = Role + ".Update";
 
             public const string GrantPermissions = Role + ".Permissions.Grant";
         }

@@ -19,10 +19,9 @@ namespace Blog.Service.Roles
             _repository = repository;
         }
 
-        public async Task<List<string>> GetRolesAsync<TKey>(TKey userId)
+        public async Task<List<Role>> GetRolesAsync<TKey>(TKey userId)
         {
-            return (await _repository.GetListAsync<Role>(SqlConstants.GetUserRoles, new { userId }))
-                .Select(r => r.RoleName).ToList();
+            return (await _repository.GetListAsync<Role>(SqlConstants.GetUserRoles, new { userId })).ToList();
         }
 
         public async Task<List<Role>> GetRolesAsync()
@@ -35,14 +34,14 @@ namespace Blog.Service.Roles
             await _repository.InsertAsync(SqlConstants.CreateRole, new { role });
         }
 
-        public async Task DeleteRoleAsync(int roleId)
+        public async Task UpdateRoleAsync(int roleId, string role)
         {
-            await _repository.DeleteAsync(SqlConstants.CreateRole, new { roleId });
+            await _repository.UpdateAsync(SqlConstants.UpdateRole, new { roleId, role });
         }
 
         public async Task<List<string>> GetRolePermissionsAsync(int roleId)
         {
-           return (await _repository.GetListAsync(SqlConstants.GetRolePermissions, new { roleId })).ToList();
+            return (await _repository.GetListAsync(SqlConstants.GetRolePermissions, new { roleId })).ToList();
         }
 
         public async Task GrantRolePermissionsAsync(int roleId, List<string> permissions)
@@ -56,6 +55,14 @@ namespace Blog.Service.Roles
                 return;
             }
             await _repository.UpdateAsync(SqlConstants.UpdateRolePermissions, parameter);
+        }
+
+        public async Task SetUserRolesAsync(string userId, List<int> roleIds)
+        {
+            var parameters = new Dictionary<string, object> { { SqlConstants.DeleteUserRoles, new { userId } } };
+            roleIds.ForEach(roleId => parameters.Add(SqlConstants.SetUserRoles, new { userId, roleId }));
+
+            await _repository.ExecuteAsync(parameters);
         }
     }
 }

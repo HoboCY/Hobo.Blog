@@ -54,11 +54,11 @@ namespace Blog.Service.Users
             };
         }
 
-        public async Task ConfirmAsync(string id, bool confirmed)
+        public async Task ConfirmAsync(string userId, bool confirmed)
         {
-            var user = await _repository.FindAsync<UserListItemViewModel, string>(SqlConstants.GetUser, id);
+            var user = await _repository.FindAsync<UserListItemViewModel, string>(SqlConstants.GetUser, userId);
             if (user == null) throw new BlogException(StatusCodes.Status404NotFound, "没有找到账号");
-            await _repository.UpdateAsync(SqlConstants.ConfirmUser, new { id, confirmed });
+            await _repository.UpdateAsync(SqlConstants.ConfirmUser, new { userId, confirmed });
         }
 
         public async Task<bool> CheckAsync(string permissionName, List<string> roles)

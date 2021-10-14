@@ -64,7 +64,7 @@
         public const string Login =
             @"SELECT BIN_TO_UUID(id) AS Id,email AS Email,email_confirmed AS EmailConfirmed,password AS Password FROM `app_user` WHERE email = @Email";
 
-        public const string GetUser = "SELECT BIN_TO_UUID(id) AS Id,username AS Username,email AS Email,email_confirmed AS EmailConfirmed,creation_time AS CreationTime,last_modify_time AS LastModifyTime FROM `app_user` WHERE id != UUID_TO_BIN(@UserId)";
+        public const string GetUser = "SELECT BIN_TO_UUID(id) AS Id,username AS Username,email AS Email,email_confirmed AS EmailConfirmed,creation_time AS CreationTime,last_modify_time AS LastModifyTime FROM `app_user` WHERE id = UUID_TO_BIN(@Id)";
 
         public const string GetUsersPage = "SELECT BIN_TO_UUID(id) AS Id,username AS Username,email AS Email,email_confirmed AS EmailConfirmed,creation_time AS CreationTime,last_modify_time AS LastModifyTime FROM `app_user` WHERE id != UUID_TO_BIN(@UserId) ORDER BY creation_time DESC LIMIT @skipCount,@pageSize";
 
@@ -72,9 +72,9 @@
             @"SELECT COUNT(id) FROM `app_user` WHERE id != UUID_TO_BIN(@UserId)";
 
         public const string ConfirmUser =
-            @"UPDATE `app_user` SET email_confirmed = @Confirmed WHERE id = UUID_TO_BIN(@Id)";
+            @"UPDATE `app_user` SET email_confirmed = @Confirmed WHERE id = UUID_TO_BIN(@UserId)";
 
-        public const string GetUserRoles = @"SELECT r.role_name AS RoleName FROM user_role ur LEFT JOIN role r ON r.id = ur.role_id WHERE ur.user_id = UUID_TO_BIN(@UserId)";
+        public const string GetUserRoles = @"SELECT r.id AS Id,r.role_name AS RoleName FROM user_role ur LEFT JOIN role r ON r.id = ur.role_id WHERE ur.user_id = UUID_TO_BIN(@UserId)";
 
         public const string CheckRolePermissions = @"SELECT 1 FROM role_permission p LEFT JOIN role r ON p.role_id = r.id WHERE r.role_name IN @Roles AND JSON_CONTAINS(permissions,'""{0}""') LIMIT 1";
 
@@ -82,11 +82,11 @@
 
         #region Role
 
-        public const string GetRoles = @"SELECT id AS Id,role_name AS RoleName FROM role";
+        public const string GetRoles = @"SELECT id AS Id,role_name AS RoleName,creation_time AS CreationTime FROM role";
 
         public const string CreateRole = @"INSERT INTO role (role_name) VALUES (@Role)";
 
-        public const string DeleteRole = @"DELETE FROM role WHERE id = @RoleId";
+        public const string UpdateRole = @"UPDATE role SET role_name = @Role WHERE id = @RoleId";
 
         public const string CheckRolePermissionExist = @"SELECT 1 FROM role_permission WHERE role_id = @RoleId LIMIT 1";
 
@@ -96,6 +96,11 @@
             @"UPDATE role_permission SET permissions = @Permissions WHERE role_id = @RoleId";
 
         public const string GetRolePermissions = @"SELECT Permissions.Permission FROM role_permission p JOIN JSON_TABLE(p.permissions,'$[*]' COLUMNS (Permission TEXT PATH '$')) AS Permissions WHERE p.role_id = @RoleId";
+
+        public const string DeleteUserRoles = @"DELETE FROM user_role WHERE user_id = UUID_TO_BIN(@UserId)";
+
+        public const string SetUserRoles = @"INSERT INTO user_role (user_id,role_id) VALUES (UUID_TO_BIN(@UserId),@RoleId)";
+
         #endregion
 
     }

@@ -28,16 +28,16 @@ namespace Blog.MVC.Controllers
 
         [HttpPost]
         [Authorize(BlogPermissions.Roles.Create)]
-        public async Task CreateAsync(CreateRoleInputViewModel input)
+        public async Task CreateAsync(EditRoleInputViewModel input)
         {
             await _roleService.CreateRoleAsync(input.Role);
         }
 
-        [HttpDelete("{roleId:int}")]
-        [Authorize(BlogPermissions.Roles.Delete)]
-        public async Task DeleteAsync(int roleId)
+        [HttpPut("{roleId:int}")]
+        [Authorize(BlogPermissions.Roles.Update)]
+        public async Task UpdateAsync(int roleId,EditRoleInputViewModel input)
         {
-            await _roleService.DeleteRoleAsync(roleId);
+            await _roleService.UpdateRoleAsync(roleId, input.Role);
         }
 
         [HttpGet("Permissions")]
