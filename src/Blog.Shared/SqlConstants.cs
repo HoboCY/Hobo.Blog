@@ -102,7 +102,7 @@
         public const string SetUserRoles = @"INSERT INTO user_role (user_id,role_id) VALUES (UUID_TO_BIN(@UserId),@RoleId)";
 
         public const string GetRoleMenus =
-            @"SELECT m.id AS Id,m.parent_id AS ParentId,m.url AS Url,m.level AS Level,m.text AS Text FROM role_menu ru LEFT JOIN menu m ON ru.menu_id = m.id WHERE ru.role_id = @RoleId";
+            @"SELECT m.id AS Id,m.parent_id AS ParentId,m.url AS Url,m.level AS Level,m.text AS Text FROM role_menu ru LEFT JOIN menu m ON ru.menu_id = m.id WHERE ru.role_id IN @RoleIds";
 
         public const string DeleteRoleMenus = @"DELETE FROM role_menu WHERE role_id = @RoleId";
 

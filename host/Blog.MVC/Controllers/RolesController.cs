@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Blog.Permissions;
 using Blog.Service.Menus;
 using Blog.Service.Roles;
@@ -70,7 +71,7 @@ namespace Blog.MVC.Controllers
         [Authorize(BlogPermissions.Roles.GetRoleMenus)]
         public async Task<IActionResult> GetRoleMenusAsync(int roleId)
         {
-            return Ok(await _menuService.GetRoleMenusAsync(roleId));
+            return Ok(await _menuService.GetRoleMenusAsync(new List<int> { roleId }));
         }
 
 

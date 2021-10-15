@@ -26,16 +26,19 @@ namespace Blog.MVC.Controllers
     {
         private readonly IUserService _userService;
         private readonly IRoleService _roleService;
+        private readonly IMenuService _menuService;
         private readonly IConfiguration _configuration;
 
         public UsersController(
             IUserService userService,
             IConfiguration configuration,
-            IRoleService roleService)
+            IRoleService roleService,
+            IMenuService menuService)
         {
             _userService = userService;
             _configuration = configuration;
             _roleService = roleService;
+            _menuService = menuService;
         }
 
         [HttpPost("login")]
@@ -88,7 +91,7 @@ namespace Blog.MVC.Controllers
         public async Task<IActionResult> GetUserRolesAsync(Guid userId)
         {
             var roles = await _roleService.GetRolesAsync(userId.ToString());
-            return Ok(roles.Select(r=>r.Id).ToList());
+            return Ok(roles.Select(r => r.Id).ToList());
         }
 
         [HttpPost("{userId:guid}/Roles")]
@@ -96,6 +99,16 @@ namespace Blog.MVC.Controllers
         public async Task SetUserRolesAsync(Guid userId, SetUserRolesInputViewModel input)
         {
             await _roleService.SetUserRolesAsync(userId.ToString(), input.RoleIds);
+        }
+
+        [HttpGet("menus")]
+        public async Task<IActionResult> GetUserMenusAsync()
+        {
+            var userId = UserId();
+            var roles = await _roleService.GetRolesAsync(userId);
+            var roleIds = roles.Select(r => r.Id).ToList();
+            var menus = await _menuService.GetRoleMenusAsync(roleIds);
+            return Ok(_menuService.GetChildrenMenus(menus));
         }
     }
 }

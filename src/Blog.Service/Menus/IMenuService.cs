@@ -15,8 +15,10 @@ namespace Blog.Service.Menus
 
         Task UpdateMenuAsync(int menuId, UpdateMenuInputViewModel input);
 
-        Task<List<MenuViewModel>> GetRoleMenusAsync(int roleId);
+        Task<List<MenuViewModel>> GetRoleMenusAsync(List<int> roleIds);
 
         Task SetRoleMenusAsync(int roleId, List<int> menuIds);
+
+        List<MenuViewModel> GetChildrenMenus(List<MenuViewModel> source, int? parentId = null);
     }
 }
