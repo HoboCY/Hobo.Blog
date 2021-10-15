@@ -57,11 +57,15 @@
 
             public const string GetRolePermissions = Role + ".GetRolePermissions";
 
+            public const string GetRoleMenus = User + ".GetRoleMenus";
+
             public const string Create = Role + ".Create";
 
             public const string Update = Role + ".Update";
 
             public const string GrantPermissions = Role + ".Permissions.Grant";
+
+            public const string SetRoleMenus = Role + ".SetRoleMenus";
         }
 
         public static class Menus

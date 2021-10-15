@@ -44,6 +44,28 @@ namespace Blog.Service.Menus
             await _repository.UpdateAsync(SqlConstants.UpdateMenu, new { menuId, input.Text, input.Url });
         }
 
+        public async Task<List<MenuViewModel>> GetRoleMenusAsync(int roleId)
+        {
+            return (await _repository.GetListAsync<MenuViewModel>(SqlConstants.GetRoleMenus, new { roleId })).ToList();
+        }
+
+        public async Task SetRoleMenusAsync(int roleId, List<int> menuIds)
+        {
+            var parameter = menuIds.Select(id => new
+            {
+                roleId,
+                MenuId = id
+            }).ToList();
+
+            var commands = new Dictionary<string, object>
+            {
+                {SqlConstants.DeleteRoleMenus, new {roleId}},
+                {SqlConstants.CreateRoleMenus,parameter}
+            };
+
+            await _repository.ExecuteAsync(commands);
+        }
+
         private List<MenuViewModel> GetChildrenMenus(List<MenuViewModel> source, int? parentId = null)
         {
             var menus = source.Where(s => s.ParentId == parentId).ToList();

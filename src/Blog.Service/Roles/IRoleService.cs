@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Blog.Data.Entities;
+using Blog.ViewModels.Menus;
 
 namespace Blog.Service.Roles
 {

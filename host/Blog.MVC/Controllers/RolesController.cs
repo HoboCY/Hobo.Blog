@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Blog.Permissions;
+using Blog.Service.Menus;
 using Blog.Service.Roles;
 using Blog.ViewModels.Roles;
 using Microsoft.AspNetCore.Authorization;
@@ -13,10 +14,14 @@ namespace Blog.MVC.Controllers
     public class RolesController : BlogController
     {
         private readonly IRoleService _roleService;
+        private readonly IMenuService _menuService;
 
-        public RolesController(IRoleService roleService)
+        public RolesController(
+            IRoleService roleService,
+            IMenuService menuService)
         {
             _roleService = roleService;
+            _menuService = menuService;
         }
 
         [HttpGet]
@@ -35,7 +40,7 @@ namespace Blog.MVC.Controllers
 
         [HttpPut("{roleId:int}")]
         [Authorize(BlogPermissions.Roles.Update)]
-        public async Task UpdateAsync(int roleId,EditRoleInputViewModel input)
+        public async Task UpdateAsync(int roleId, EditRoleInputViewModel input)
         {
             await _roleService.UpdateRoleAsync(roleId, input.Role);
         }
@@ -59,6 +64,21 @@ namespace Blog.MVC.Controllers
         public async Task GrantPermissionsAsync(int roleId, CreateRolePermissionsInputViewModel input)
         {
             await _roleService.GrantRolePermissionsAsync(roleId, input.Permissions);
+        }
+
+        [HttpGet("{roleId:int}/Menus")]
+        [Authorize(BlogPermissions.Roles.GetRoleMenus)]
+        public async Task<IActionResult> GetRoleMenusAsync(int roleId)
+        {
+            return Ok(await _menuService.GetRoleMenusAsync(roleId));
+        }
+
+
+        [HttpPost("{roleId:int}/Menus")]
+        [Authorize(BlogPermissions.Roles.SetRoleMenus)]
+        public async Task SetRoleMenusAsync(int roleId, CreateRoleMenusInputViewModel input)
+        {
+            await _menuService.SetRoleMenusAsync(roleId, input.MenuIds);
         }
     }
 }
