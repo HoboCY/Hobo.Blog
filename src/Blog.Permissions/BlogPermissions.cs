@@ -10,6 +10,8 @@
 
         private const string Role = "Blog.Roles";
 
+        private const string Menu = "Blog.Menus";
+
         public static class Posts
         {
             public const string Get = Post + ".Get";
@@ -60,6 +62,17 @@
             public const string Update = Role + ".Update";
 
             public const string GrantPermissions = Role + ".Permissions.Grant";
+        }
+
+        public static class Menus
+        {
+            public const string Get = Menu + ".Get";
+
+            public const string Create = Menu + ".Create";
+
+            public const string Delete = Menu + ".Delete";
+
+            public const string Update = Menu + ".Update";
         }
     }
 }

@@ -104,6 +104,7 @@ namespace Blog.Data.Repositories
             {
                 var result = await transaction.ExecuteAsync(sql, parameters);
                 if (result <= 0) throw new BlogException(500, BlogConstants.CreationError);
+                await transaction.CommitAsync();
             }
             catch (Exception e)
             {
@@ -128,6 +129,7 @@ namespace Blog.Data.Repositories
             {
                 var result = await transaction.ExecuteAsync(sql, parameters);
                 if (result <= 0) throw new BlogException(500, BlogConstants.UpdateError);
+                await transaction.CommitAsync();
             }
             catch (Exception e)
             {
@@ -152,6 +154,7 @@ namespace Blog.Data.Repositories
             {
                 var result = await transaction.ExecuteAsync(sql, parameters);
                 if (result <= 0) throw new BlogException(500, BlogConstants.DeletionError);
+                await transaction.CommitAsync();
             }
             catch (Exception e)
             {

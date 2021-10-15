@@ -29,6 +29,21 @@ namespace Blog.Service.Menus
             return await _repository.FindAsync<MenuViewModel, int>(SqlConstants.GetMenu, id);
         }
 
+        public async Task DeleteMenuAsync(int menuId)
+        {
+            var commands = new Dictionary<string, object>
+            {
+                { SqlConstants.DeleteMenu, new {menuId} },
+                { SqlConstants.DeleteChildrenMenus,new {ParentId = menuId} }
+            };
+            await _repository.ExecuteAsync(commands);
+        }
+
+        public async Task UpdateMenuAsync(int menuId, UpdateMenuInputViewModel input)
+        {
+            await _repository.UpdateAsync(SqlConstants.UpdateMenu, new { menuId, input.Text, input.Url });
+        }
+
         private List<MenuViewModel> GetChildrenMenus(List<MenuViewModel> source, int? parentId = null)
         {
             var menus = source.Where(s => s.ParentId == parentId).ToList();

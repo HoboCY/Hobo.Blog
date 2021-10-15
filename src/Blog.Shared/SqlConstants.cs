@@ -115,6 +115,12 @@
 
         public const string GetMenu = @"SELECT id AS Id,parent_id AS ParentId,url AS Url,level AS Level,text AS Text FROM menu WHERE id = @Id";
 
+        public const string DeleteMenu = @"DELETE FROM menu WHERE id = @MenuId";
+
+        public const string DeleteChildrenMenus = @"DELETE FROM menu WHERE parent_id = @ParentId";
+
+        public const string UpdateMenu = @"UPDATE menu SET text = @Text,url = @Url WHERE id = @MenuId";
+
         #endregion
 
     }

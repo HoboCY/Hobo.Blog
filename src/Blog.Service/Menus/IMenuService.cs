@@ -9,5 +9,9 @@ namespace Blog.Service.Menus
         Task<List<MenuViewModel>> GetMenusAsync();
 
         Task<MenuViewModel> CreateMenuAsync(CreateMenuInputViewModel input);
+
+        Task DeleteMenuAsync(int menuId);
+
+        Task UpdateMenuAsync(int menuId, UpdateMenuInputViewModel input);
     }
 }
