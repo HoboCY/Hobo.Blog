@@ -102,7 +102,7 @@
         public const string SetUserRoles = @"INSERT INTO user_role (user_id,role_id) VALUES (UUID_TO_BIN(@UserId),@RoleId)";
 
         public const string GetRoleMenus =
-            @"SELECT m.id AS Id,m.parent_id AS ParentId,m.url AS Url,m.level AS Level,m.text AS Text FROM role_menu ru LEFT JOIN menu m ON ru.menu_id = m.id WHERE ru.role_id IN @RoleIds";
+            @"SELECT m.id AS Id,m.parent_id AS ParentId,m.name AS Name,m.url AS Url,m.level AS Level,m.text AS Text FROM role_menu ru LEFT JOIN menu m ON ru.menu_id = m.id WHERE ru.role_id IN @RoleIds";
 
         public const string DeleteRoleMenus = @"DELETE FROM role_menu WHERE role_id = @RoleId";
 
@@ -112,14 +112,14 @@
         #region Menu
 
         public const string GetAllMenus =
-            @"SELECT id AS Id,parent_id AS ParentId,url AS Url,level AS Level,text AS Text FROM menu";
+            @"SELECT id AS Id,parent_id AS ParentId,name AS Name,url AS Url,level AS Level,text AS Text FROM menu";
 
         public const string CreateMenu =
             @"INSERT INTO menu (parent_id,url,text,level) VALUES (@ParentId,@Url,@Text,@Level)";
 
         public const string GetLastId = @"SELECT LAST_INSERT_ID()";
 
-        public const string GetMenu = @"SELECT id AS Id,parent_id AS ParentId,url AS Url,level AS Level,text AS Text FROM menu WHERE id = @Id";
+        public const string GetMenu = @"SELECT id AS Id,parent_id AS ParentId,name AS Name,url AS Url,level AS Level,text AS Text FROM menu WHERE id = @Id";
 
         public const string DeleteMenu = @"DELETE FROM menu WHERE id = @MenuId";
 

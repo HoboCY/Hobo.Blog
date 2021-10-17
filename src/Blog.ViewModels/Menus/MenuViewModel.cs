@@ -8,6 +8,8 @@ namespace Blog.ViewModels.Menus
 
         public int? ParentId { get; set; }
 
+        public string Name { get; set; }
+
         public string Url { get; set; }
 
         public int Level { get; set; }
