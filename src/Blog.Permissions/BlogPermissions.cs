@@ -40,7 +40,9 @@
 
         public static class Users
         {
-            public const string Get = User + ".Get";
+            public const string GetProfile = User + ".GetProfile";
+
+            public const string GetList = User + ".GetList";
 
             public const string GetRoles = User + ".GetRoles";
 

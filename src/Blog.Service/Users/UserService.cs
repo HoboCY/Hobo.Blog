@@ -34,6 +34,11 @@ namespace Blog.Service.Users
             return user;
         }
 
+        public async Task<UserListItemViewModel> GetProfileAsync(string userId)
+        {
+            return await _repository.FindAsync<UserListItemViewModel, string>(SqlConstants.GetUser, userId);
+        }
+
         public async Task<PagedResultDto<UserListItemViewModel>> GetUsersAsync(string userId, int pageIndex = 1, int pageSize = 10)
         {
             var users = await _repository.GetListAsync<UserListItemViewModel>(SqlConstants.GetUsersPage, new

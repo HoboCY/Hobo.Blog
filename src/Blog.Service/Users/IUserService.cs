@@ -12,6 +12,8 @@ namespace Blog.Service.Users
     {
         Task<LoginResultViewModel> LoginAsync(string email, string password);
 
+        Task<UserListItemViewModel> GetProfileAsync(string userId);
+
         Task<PagedResultDto<UserListItemViewModel>> GetUsersAsync(string userId, int pageIndex = 1, int pageSize = 10);
 
         Task ConfirmAsync(string userId, bool confirmed);

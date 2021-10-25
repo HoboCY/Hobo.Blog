@@ -70,8 +70,16 @@ namespace Blog.MVC.Controllers
             return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
 
+        [HttpGet("Profile")]
+        [Authorize(BlogPermissions.Users.GetProfile)]
+        public async Task<IActionResult> GetProfileAsync()
+        {
+            var userId = UserId();
+            return Ok(await _userService.GetProfileAsync(userId));
+        }
+
         [HttpGet]
-        [Authorize(BlogPermissions.Users.Get)]
+        [Authorize(BlogPermissions.Users.GetList)]
         public async Task<IActionResult> GetAsync(int pageIndex = 1, int pageSize = 10)
         {
             var userId = UserId();
