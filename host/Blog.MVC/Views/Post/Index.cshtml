@@ -14,7 +14,7 @@
 @if (Model.Any())
 {
     <partial name="_PostList" />
-    @Html.PagedListPager(Model, page => $"?page={page}", new PagedListRenderOptions
+    @Html.PagedListPager(Model, page => $"?categoryId={ViewBag.CategoryId}&page={page}", new PagedListRenderOptions
     {
         LiElementClasses = new[] { "page-item" },
         PageClasses = new[] { "page-link" },

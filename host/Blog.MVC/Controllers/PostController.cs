@@ -42,6 +42,7 @@ namespace Blog.MVC.Controllers
             {
                 var category = await _categoryService.GetCategoryAsync(categoryId.Value);
                 ViewBag.CategoryName = category.CategoryName;
+                ViewBag.CategoryId = category.Id;
             }
 
             var pagedPosts = new StaticPagedList<PostListItemViewModel>(posts, page, pageSize, count);
