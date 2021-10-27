@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +26,9 @@ using Blog.Permissions.AuthorizationHandlers;
 using Blog.Service.Menus;
 using Blog.Service.Roles;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.WebEncoders;
 
 namespace Blog.MVC
 {
@@ -93,7 +99,16 @@ namespace Blog.MVC
             services.AddControllersWithViews(options =>
             {
                 options.SuppressAsyncSuffixInActionNames = false;
-            }).AddRazorRuntimeCompilation();
+            })
+                .ConfigureApiBehaviorOptions(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var error = context.ModelState.BuildErrors();
+                    return new BadRequestObjectResult(error);
+                };
+            })
+                .AddRazorRuntimeCompilation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
