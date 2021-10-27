@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Blog.ViewModels.Roles
 {
    public class CreateRolePermissionsInputViewModel
     {
+        [MinLength(1, ErrorMessage = "请至少选择一个权限")]
         public List<string> Permissions { get; set; }
     }
 }

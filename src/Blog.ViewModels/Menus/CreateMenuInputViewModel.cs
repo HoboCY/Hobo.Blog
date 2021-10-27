@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Blog.ViewModels.Menus
 {
@@ -10,10 +6,13 @@ namespace Blog.ViewModels.Menus
     {
         public int? ParentId { get; set; }
 
+        [Required(ErrorMessage = "请输入Url")]
         public string Url { get; set; }
 
+        [Required(ErrorMessage = "请输入内容")]
         public string Text { get; set; }
 
+        [Required(ErrorMessage = "请输入等级")]
         public int Level{ get; set; }
     }
 }
