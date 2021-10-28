@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Tencent.COS.SDK
 {
@@ -26,14 +27,14 @@ namespace Tencent.COS.SDK
             _logger = logger;
 
             //初始化 CosXmlConfig
-            string region = _cosSettings.Region; //设置一个默认的存储桶地域
-            CosXmlConfig config = new CosXmlConfig.Builder()
+            var region = _cosSettings.Region; //设置一个默认的存储桶地域
+            var config = new CosXmlConfig.Builder()
               .IsHttps(true)  //设置默认 HTTPS 请求
               .SetRegion(region)  //设置一个默认的存储桶地域
               .SetDebugLog(true)  //显示日志
               .Build();  //创建 CosXmlConfig 对象
 
-            long durationSecond = 600;  //每次请求签名有效时长，单位为秒
+            const long durationSecond = 600; //每次请求签名有效时长，单位为秒
             QCloudCredentialProvider cosCredentialProvider = new DefaultQCloudCredentialProvider(
               _cosSettings.SecretId, _cosSettings.SecretKey, durationSecond);
 
@@ -45,24 +46,25 @@ namespace Tencent.COS.SDK
             // 上传对象
             try
             {
-                string bucket = $"{_cosSettings.BucketName}-{_cosSettings.AppId}"; //存储桶，格式：BucketName-APPID
-                string cosPath = fileName; // 对象键
-                PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, cosPath, data);
+                var bucket = $"{_cosSettings.BucketName}-{_cosSettings.AppId}"; //存储桶，格式：BucketName-APPID
+                var cosPath = fileName; // 对象键
+                var putObjectRequest = new PutObjectRequest(bucket, cosPath, data);
 
                 _cosXml.PutObject(putObjectRequest);
+
                 return $"https://{bucket}.cos.{_cosSettings.Region}.myqcloud.com/{cosPath}";
             }
             catch (CosClientException clientEx)
             {
                 //请求失败
                 _logger.LogError("CosClientException: " + clientEx);
-                return "";
+                throw;
             }
             catch (CosServerException serverEx)
             {
                 //请求失败
                 _logger.LogError("CosServerException: " + serverEx.GetInfo());
-                return "";
+                throw;
             }
         }
 

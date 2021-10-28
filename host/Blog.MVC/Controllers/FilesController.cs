@@ -9,21 +9,22 @@ using Tencent.COS.SDK;
 
 namespace Blog.MVC.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     [Authorize]
-    public class FileController : Controller
+    public class FilesController : BlogController
     {
         private readonly ICosService _cosService;
-        private readonly ILogger<FileController> _logger;
+        private readonly ILogger<FilesController> _logger;
 
-        public FileController(ICosService cosService, ILogger<FileController> logger)
+        public FilesController(ICosService cosService, ILogger<FilesController> logger)
         {
             _cosService = cosService;
             _logger = logger;
         }
 
         [HttpPost]
-        [IgnoreAntiforgeryToken]
-        public async Task<IActionResult> Upload()
+        public async Task<IActionResult> UploadAsync()
         {
             var files = Request.Form.Files;
             var result = new ImageUploadResult();
@@ -33,7 +34,8 @@ namespace Blog.MVC.Controllers
                 try
                 {
                     await file.CopyToAsync(memoryStream);
-                    var url = _cosService.Upload(memoryStream.ToArray(), $"{User.Identity.Name}/{Guid.NewGuid()}{Path.GetExtension(file.FileName)}");
+                    var fileName = $"{UserId()}/{Guid.NewGuid():N}{Path.GetExtension(file.FileName)}";
+                    var url = _cosService.Upload(memoryStream.ToArray(), fileName);
                     result.Data.Add(url);
                 }
                 catch (Exception ex)
