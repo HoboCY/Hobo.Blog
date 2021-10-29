@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Blog.MVC.ViewModels;
+using Blog.ViewModels.Files;
 using Tencent.COS.SDK;
 
 namespace Blog.MVC.Controllers
@@ -34,13 +34,18 @@ namespace Blog.MVC.Controllers
                 try
                 {
                     await file.CopyToAsync(memoryStream);
-                    var fileName = $"{UserId()}/{Guid.NewGuid():N}{Path.GetExtension(file.FileName)}";
+                    var guid = Guid.NewGuid().ToString("N");
+                    var fileName = $"{UserId()}/{guid}{Path.GetExtension(file.FileName)}";
                     var url = _cosService.Upload(memoryStream.ToArray(), fileName);
-                    result.Data.Add(url);
+                    result.Images.Add(new ImageItem
+                    {
+                        Name = guid,
+                        Url = url
+                    });
+                    result.IsSuccess = true;
                 }
                 catch (Exception ex)
                 {
-                    result.Errno = 1;
                     _logger.LogError(ex.Message);
                 }
             }
