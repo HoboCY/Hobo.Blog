@@ -2,16 +2,17 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Blog.ViewModels.Files;
+using Microsoft.AspNetCore.Http;
 using Tencent.COS.SDK;
 
 namespace Blog.MVC.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class FilesController : BlogController
     {
         private readonly ICosService _cosService;
@@ -24,32 +25,22 @@ namespace Blog.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadAsync()
+        public async Task<IActionResult> UploadAsync(IFormFile file)
         {
-            var files = Request.Form.Files;
-            var result = new ImageUploadResult();
-            foreach (var file in files)
+            await using var memoryStream = new MemoryStream();
+            var url = string.Empty;
+            try
             {
-                await using var memoryStream = new MemoryStream();
-                try
-                {
-                    await file.CopyToAsync(memoryStream);
-                    var guid = Guid.NewGuid().ToString("N");
-                    var fileName = $"{UserId()}/{guid}{Path.GetExtension(file.FileName)}";
-                    var url = _cosService.Upload(memoryStream.ToArray(), fileName);
-                    result.Images.Add(new ImageItem
-                    {
-                        Name = guid,
-                        Url = url
-                    });
-                    result.IsSuccess = true;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex.Message);
-                }
+                await file.CopyToAsync(memoryStream);
+                var guid = Guid.NewGuid().ToString("N");
+                var fileName = $"{UserId()}/{guid}{Path.GetExtension(file.FileName)}";
+                url = _cosService.Upload(memoryStream.ToArray(), fileName);
             }
-            return Ok(result);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+            return Ok(new { location = url });
         }
     }
 }
