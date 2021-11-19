@@ -13,6 +13,7 @@ namespace Blog.MVC.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class FilesController : BlogController
     {
         private readonly ICosService _cosService;
@@ -40,7 +41,8 @@ namespace Blog.MVC.Controllers
             {
                 _logger.LogError(ex.Message);
             }
-            return Ok(new { location = url });
+
+            return Ok(new {location = url});
         }
     }
 }
