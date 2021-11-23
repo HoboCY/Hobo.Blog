@@ -61,7 +61,7 @@ namespace Blog.MVC
             services.AddAuthorization(options =>
             {
                 var permissions = BlogPermissionsExtensions.GetPermissions();
-                permissions.ForEach(p => options.AddPolicy(p, policy => policy.AddRequirements(new OperationAuthorizationRequirement { Name = p })));
+                permissions.ForEach(p => options.AddPolicy(p, policy => policy.AddRequirements(new OperationAuthorizationRequirement {Name = p})));
             });
 
             services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
@@ -96,18 +96,15 @@ namespace Blog.MVC
 
             services.AddCos();
 
-            services.AddControllersWithViews(options =>
-            {
-                options.SuppressAsyncSuffixInActionNames = false;
-            })
+            services.AddControllersWithViews(options => { options.SuppressAsyncSuffixInActionNames = false; })
                 .ConfigureApiBehaviorOptions(options =>
-            {
-                options.InvalidModelStateResponseFactory = context =>
                 {
-                    var error = context.ModelState.BuildErrors();
-                    return new BadRequestObjectResult(error);
-                };
-            })
+                    options.InvalidModelStateResponseFactory = context =>
+                    {
+                        var error = context.ModelState.BuildErrors();
+                        return new BadRequestObjectResult(error);
+                    };
+                })
                 .AddRazorRuntimeCompilation();
         }
 
@@ -116,9 +113,6 @@ namespace Blog.MVC
         {
             app.UseExceptionHandler(async context => await MiddlewareExtensions.HandleExceptionAsync(context));
 
-            app.UseHsts();
-
-            app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
