@@ -15,5 +15,10 @@ namespace Blog.Shared
         public const string UpdateError = "修改失败";
 
         public const string DeletionError = "删除失败";
+
+        public static class FeatureManagement
+        {
+            public const string Initialize = "Initialize";
+        }
     }
 }

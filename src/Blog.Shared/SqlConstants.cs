@@ -78,6 +78,7 @@
 
         public const string CheckRolePermissions = @"SELECT 1 FROM role_permission p LEFT JOIN role r ON p.role_id = r.id WHERE r.role_name IN @Roles AND JSON_CONTAINS(permissions,'""{0}""') LIMIT 1";
 
+        public const string RegisterUser = "INSERT INTO app_user (id,username,email,password) VALUES (UUID_TO_BIN(@Id),@Username,@Email,@Password)";
         #endregion
 
         #region Role
@@ -129,5 +130,11 @@
 
         #endregion
 
+        public static class Initialize
+        {
+            public const string InitRole = "INSERT INTO role (role_name) VALUES ('Administrator')";
+
+            public const string InitPermission = "";
+        }
     }
 }
