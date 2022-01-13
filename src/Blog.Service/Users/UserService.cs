@@ -76,5 +76,22 @@ namespace Blog.Service.Users
                 });
             return isGranted;
         }
+
+        public async Task<string> RegisterAsync(string email, string password)
+        {
+            var user = await _repository.GetAsync<LoginResultViewModel>(SqlConstants.Login, new { email });
+            if (user != null) throw new BlogException(StatusCodes.Status409Conflict, "该邮箱已被注册");
+
+            var id = await _repository.GenerateIdAsync();
+            await _repository.InsertAsync(SqlConstants.RegisterUser, new
+            {
+                Id = id,
+                Username = email,
+                Email = email,
+                Password = password.ToMd5()
+            });
+
+            return id;
+        }
     }
 }
