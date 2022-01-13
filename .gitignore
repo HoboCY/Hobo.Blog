@@ -351,3 +351,4 @@ MigrationBackup/
 
 # Configuration File
 appsettings.Development.json
+/.idea/.idea.Hobo.Blog/.idea
