@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +30,7 @@ using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.WebEncoders;
+using Microsoft.FeatureManagement;
 
 namespace Blog.MVC
 {
@@ -44,6 +46,8 @@ namespace Blog.MVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddFeatureManagement(Configuration.GetSection("FeatureManagementSettings"));
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
@@ -95,6 +99,8 @@ namespace Blog.MVC
             });
 
             services.AddCos();
+
+            services.AddAgileConfig();
 
             services.AddControllersWithViews(options => { options.SuppressAsyncSuffixInActionNames = false; })
                 .ConfigureApiBehaviorOptions(options =>
