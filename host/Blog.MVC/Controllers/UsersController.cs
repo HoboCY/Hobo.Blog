@@ -70,6 +70,13 @@ namespace Blog.MVC.Controllers
             return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
 
+        [HttpPost("Register")]
+        public async Task<IActionResult> RegisterAsync(LoginViewModel input)
+        {
+            await _userService.RegisterAsync(input.Email, input.Password);
+            return Ok();
+        }
+
         [HttpGet("Profile")]
         [Authorize(BlogPermissions.Users.GetProfile)]
         public async Task<IActionResult> GetProfileAsync()

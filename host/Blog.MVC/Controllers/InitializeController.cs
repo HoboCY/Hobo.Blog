@@ -40,6 +40,8 @@ namespace Blog.MVC.Controllers
 
             var userId = await _userService.RegisterAsync(_configuration["InitializeSettings:AdministratorEmail"], _configuration["InitializeSettings:DefaultPassword"]);
 
+            await _userService.ConfirmAsync(userId, true);
+
             await _roleService.SetUserRolesAsync(userId, new List<int> { administrator.Id });
 
             var permissions = BlogPermissionsExtensions.GetPermissions();
