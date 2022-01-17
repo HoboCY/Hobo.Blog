@@ -1,0 +1,45 @@
+version: '3'
+services:
+  blog-svc:
+    image: registry.cn-shanghai.aliyuncs.com/hobocy/blog:v1
+    container_name: blog
+    ports:
+      - "8000:80"
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - /home/blog/appsettings.json:/app/appsettings.json
+
+  nginx-svc:
+    image: registry.cn-shanghai.aliyuncs.com/hobocy/blog_admin:v1
+    container_name: blog_admin
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - /home/blog/data/cert:/etc/nginx/cert
+      - /home/blog/data/nginx/conf/conf.d:/etc/nginx/conf.d
+      - /home/blog/data/nginx/logs:/var/log/nginx
+    depends_on:
+      - blog-svc
+    
+  agile_config_admin:
+    image: "kklldog/agile_config"
+    container_name: agile_config_admin
+    ports:
+      - "15000:5000"
+    volumes:
+      - /etc/localtime:/etc/localtime
+    environment:
+      - TZ=Asia/Shanghai
+      - adminConsole=true
+      - nodes=agile_config_admin:5000
+      - db:provider=mysql
+      - db:conn=server=172.17.0.12;port=3306;database=agile_config;User Id=root;password=Hobo9927...
+    depends_on:
+      - blog-svc
+      - nginx-svc
